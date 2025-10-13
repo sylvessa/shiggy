@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "types.h"
 
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
@@ -12,5 +13,5 @@ void kmain()
 	for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
 		vga[i] = blank;
 
-	while (1) {}
+	while (true) {}
 }
