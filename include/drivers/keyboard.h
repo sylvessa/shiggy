@@ -6,6 +6,7 @@
 #define SC_MAX 114
 #define LSHIFT 0x2A
 #define RSHIFT 0x36
+#define CAPSLOCK 0x3A
 
 void init_keyboard();
 void sconf(char *buffer);

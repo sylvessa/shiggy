@@ -14,6 +14,17 @@ int32 memcmp(const byte *ptr1, const byte *ptr2, nat32 size) {
         ++ptr1;
         ++ptr2;
     }
-    
+
     return 0;
+}
+
+void *memmove(byte *dest, const byte *src, nat32 n) {
+	if (dest < src) {
+		for (nat32 i = 0; i < n; i++)
+			dest[i] = src[i];
+	} else if (dest > src) {
+		for (nat32 i = n; i > 0; i--)
+			dest[i-1] = src[i-1];
+	}
+	return dest;
 }

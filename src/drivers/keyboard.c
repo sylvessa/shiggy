@@ -5,6 +5,7 @@ static char input_buffer[256];
 static nat32 input_size = 0;
 static bool ready = false;
 static bool shift_pressed = false;
+static bool caps_lock_on = false;
 
 const char sc_ascii[] = {'?', '?', '1', '2', '3', '4', '5', '6',
 	'7', '8', '9', '0', '-', '=', '?', '?', 'q', 'w', 'e', 'r', 't', 'y',
@@ -40,6 +41,11 @@ void keyboard_callback() {
 		return;
 	}
 
+    if (code == CAPSLOCK && !released) {
+		caps_lock_on = !caps_lock_on;
+		return;
+	}
+
 	if (released) return;
 
 	switch (code) {
@@ -55,7 +61,7 @@ void keyboard_callback() {
 			ready = true;
 			break;
 		default: {
-			char letter = shift_pressed ? sc_ascii_shift[code] : sc_ascii[code];
+			char letter = (shift_pressed || caps_lock_on) ? sc_ascii_shift[code] : sc_ascii[code];
 			if (letter != '?' && input_size < (sizeof(input_buffer) - 1)) {
 				input_buffer[input_size++] = letter;
 				char str[2] = {letter, '\0'};

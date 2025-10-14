@@ -2,6 +2,7 @@
 #include "drivers/screen.h"
 #include "drivers/keyboard.h"
 #include "cpu/timer.h"
+#include "tools/command.h"
 #include "cpu/acpi.h"
 
 void kmain() {
@@ -24,11 +25,20 @@ void kmain() {
 		print("\\2OS >\\f ");
 		sconf(input);
 
-		if (strcmp(input, "help") == 0) {
-			print("made by Me\n\n");
-		} else {
+		bool handled = false;
+
+		for (int i = 0; commands[i].name != NULL; i++) {
+			strlower(input);
+			if (strcmp(input, (char*)commands[i].name) == 0) {
+				commands[i].func(NULL);
+				handled = true;
+				break;
+			}
+		}
+
+		if (!handled) {
 			print(input);
-			print("\n");
+			print(" is not a valid command.\n");
 		}
 	}
 }

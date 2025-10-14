@@ -19,4 +19,5 @@ void screen_set_cursor(uint8_t x, uint8_t y);
 void print(char *string);
 void set_cursor_offset(int offset);
 int get_cursor_offset();
+void print_char(char character, int col, int row, char attribute_byte);
 
