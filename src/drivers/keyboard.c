@@ -41,10 +41,10 @@ void keyboard_callback() {
 		return;
 	}
 
-    if (code == CAPSLOCK && !released) {
-		caps_lock_on = !caps_lock_on;
-		return;
-	}
+    // if (code == CAPSLOCK && !released) {
+	// 	caps_lock_on = !caps_lock_on;
+	// 	return;
+	// }
 
 	if (released) return;
 
