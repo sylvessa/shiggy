@@ -1,7 +1,7 @@
 ; boot sector 16 bit -> 32 bit protected mode
 [ORG 0x7C00]
 
-KERNEL_OFFSET equ 0x1000 ; kernel address
+KERNEL_OFFSET equ 0x1000 ; kernel address might change lowkey
 
 [BITS 16]
 boot: 
@@ -29,6 +29,3 @@ MSG_LOAD_KERNEL: db "loading kernelinto memory", 10, 0
 
 times 510-($-$$) db 0
 dw 0xAA55
-
-
-
