@@ -26,7 +26,7 @@ void kmain() {
 	print("type seoemthing keyboard inited :3\n\n");
 
 	while (true) {
-		print("os @ ");
+		print("\\2OS >\\f ");
 		sconf(input);
 	}
 }

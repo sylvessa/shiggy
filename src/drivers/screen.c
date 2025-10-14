@@ -80,6 +80,34 @@ void print_char(char character, int col, int row, char attribute_byte) {
 }
 
 void print(char *string) {
-    for (; *string; string++)
-        print_char(*string, -1, -1, 0);
+	char color = WHITE_ON_BLACK;
+	for (; *string; string++) {
+        
+		if (*string == '\\') {
+			string++;
+			switch (*string) {
+				case '0': color = 0x00; break; // black
+				case '1': color = 0x01; break; // blue
+				case '2': color = 0x02; break; // green
+				case '3': color = 0x03; break; // cyan
+				case '4': color = 0x04; break; // red
+				case '5': color = 0x05; break; // magenta
+				case '6': color = 0x06; break; // brown
+				case '7': color = 0x07; break; // light gray
+				case '8': color = 0x08; break; // dark gray
+				case '9': color = 0x09; break; // light blue
+				case 'a': color = 0x0a; break; // light green
+				case 'b': color = 0x0b; break; // light cyan
+				case 'c': color = 0x0c; break; // light red
+				case 'd': color = 0x0d; break; // light magenta
+				case 'e': color = 0x0e; break; // yellow
+				case 'f': color = 0x0f; break; // white
+				default: color = WHITE_ON_BLACK; break;
+			}
+
+			continue;
+		}
+
+		print_char(*string, -1, -1, color);
+	}
 }
