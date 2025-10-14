@@ -10,5 +10,6 @@ nat32 strlen(char *s);
 int32 strcmp(char *s1, char *s2);
 void strcpy(char *src, char *des);
 void str_reverse(char *s);
+void strlower(char *s);
 
 #endif
