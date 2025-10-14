@@ -1,5 +1,5 @@
 #include "globals.h"
-#include "tools/command.h"
+#include "apps/base.h"
 
 void cmd_clear(const char* args) {
 	screen_clear();

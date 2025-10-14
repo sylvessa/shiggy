@@ -2,7 +2,7 @@
 #include "drivers/screen.h"
 #include "drivers/keyboard.h"
 #include "cpu/timer.h"
-#include "tools/command.h"
+#include "apps/base.h"
 #include "cpu/acpi.h"
 
 void kmain() {

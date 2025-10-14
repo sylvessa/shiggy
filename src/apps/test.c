@@ -1,5 +1,5 @@
 #include "globals.h"
-#include "tools/command.h"
+#include "apps/base.h"
 
 void cmd_test(const char* args) {
 	print("test\n");
