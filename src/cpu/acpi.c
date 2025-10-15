@@ -26,25 +26,13 @@ STATUS acpi_init(void) {
     struct acpi_dsdt *dsdt;
     byte *S5_address;
 
-    if ((rsdp = search_RSDP_from_BIOS_memory()) == NULL)
-    {
-        return ENODEV;
-    }
+    if ((rsdp = search_RSDP_from_BIOS_memory()) == NULL) return ENODEV;
 
-    if ((rsdt = fetch_and_validate_RSDT_from_RSDP(rsdp)) == NULL)
-    {
-        return ENODEV;
-    }
+    if ((rsdt = fetch_and_validate_RSDT_from_RSDP(rsdp)) == NULL)return ENODEV;
 
-    if ((fadt = search_FADT_from_RSDT(rsdt)) == NULL)
-    {
-        return ENODEV;
-    }
+    if ((fadt = search_FADT_from_RSDT(rsdt)) == NULL) return ENODEV;
 
-    if ((dsdt = fetch_and_validate_DSDT_from_FADT(fadt)) == NULL)
-    {
-        return ENODEV;
-    }
+    if ((dsdt = fetch_and_validate_DSDT_from_FADT(fadt)) == NULL) return ENODEV;
 
     if ((S5_address = search_S5_from_DSDT(dsdt)) == NULL) return ENODEV;
 

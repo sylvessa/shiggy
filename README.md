@@ -6,7 +6,7 @@ to build just type `make` and then do `make run` to run on qemu
 
 do `make iso` to turn into iso which will appear until `build/iso/`
 
-**anything before this commit was screwed up, this project actually started 10/13/2025**
+**anything before 10/15/2025 was screwed up, this project actually started 10/13/2025**
 
 ## requiremnents
 

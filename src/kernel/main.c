@@ -9,7 +9,6 @@ void kmain() {
     char input[255];
 
 	screen_clear();
-	//print("IAMONETWOTHREEFOURFIVESIXSEVENEIGHTNINETENELEVENTWELVETHIRTEENFOURTEENFIFTEENSIX\n");
 	print_centered("funny os", 0x5);
 	isr_install();
 	init_timer(50);
