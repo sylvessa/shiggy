@@ -80,34 +80,88 @@ void print_char(char character, int col, int row, char attribute_byte) {
 }
 
 void print(char *string) {
-	char color = WHITE_ON_BLACK;
+	uint8_t fg = 0x0f; // white
+	uint8_t bg = 0x00; // black
+	uint8_t color = (bg << 4) | fg;
+
 	for (; *string; string++) {
-        
 		if (*string == '\\') {
 			string++;
-			switch (*string) {
-				case '0': color = 0x00; break; // black
-				case '1': color = 0x01; break; // blue
-				case '2': color = 0x02; break; // green
-				case '3': color = 0x03; break; // cyan
-				case '4': color = 0x04; break; // red
-				case '5': color = 0x05; break; // magenta
-				case '6': color = 0x06; break; // brown
-				case '7': color = 0x07; break; // light gray
-				case '8': color = 0x08; break; // dark gray
-				case '9': color = 0x09; break; // light blue
-				case 'a': color = 0x0a; break; // light green
-				case 'b': color = 0x0b; break; // light cyan
-				case 'c': color = 0x0c; break; // light red
-				case 'd': color = 0x0d; break; // light magenta
-				case 'e': color = 0x0e; break; // yellow
-				case 'f': color = 0x0f; break; // white
-				default: color = WHITE_ON_BLACK; break;
+			if (*string == 'x') { // reset
+				fg = 0x0f;
+				bg = 0x00;
+				color = (bg << 4) | fg;
+				continue;
 			}
 
+			// parse foreground
+			switch (*string) {
+				case '0': fg = 0x0; break; // black
+				case '1': fg = 0x1; break; // blue
+				case '2': fg = 0x2; break; // green
+				case '3': fg = 0x3; break; // cyan
+				case '4': fg = 0x4; break; // red
+				case '5': fg = 0x5; break; // magenta
+				case '6': fg = 0x6; break; // brown
+				case '7': fg = 0x7; break; // light gray
+				case '8': fg = 0x8; break; // dark gray
+				case '9': fg = 0x9; break; // light blue
+				case 'a': fg = 0xa; break; // light green
+				case 'b': fg = 0xb; break; // light cyan
+				case 'c': fg = 0xc; break; // light red
+				case 'd': fg = 0xd; break; // light magenta
+				case 'e': fg = 0xe; break; // yellow
+				case 'f': fg = 0xf; break; // white
+				default: fg = 0x0f; break;
+			}
+
+			// optional background
+			string++;
+			if (*string) {
+				switch (*string) {
+					case '0': bg = 0x0; break; // black
+					case '1': bg = 0x1; break; // blue
+					case '2': bg = 0x2; break; // green
+					case '3': bg = 0x3; break; // cyan
+					case '4': bg = 0x4; break; // red
+					case '5': bg = 0x5; break; // magenta
+					case '6': bg = 0x6; break; // brown
+					case '7': bg = 0x7; break; // light gray
+                    case 'x': bg = 0x0; break;
+					default: bg = 0x0; break; // default black
+				}
+			} else {
+				string--; // no bg provided, step back
+			}
+
+			color = (bg << 4) | fg;
 			continue;
 		}
 
 		print_char(*string, -1, -1, color);
 	}
+}
+
+void print_centered(char *string, uint8_t bg) {
+	int len = 0;
+	for (char *s = string; *s; s++) len++;
+
+	int start_col = (MAX_COLS - len) / 2;
+	if (start_col < 0) start_col = 0;
+
+	int row = get_cursor_offset() / (2 * MAX_COLS);
+
+	if (bg != 0xFF) {
+		for (int col = 0; col < MAX_COLS; col++) {
+			uint8_t color = (bg << 4) | 0x0f;
+			print_char(' ', col, row, color);
+		}
+	}
+
+	for (int i = 0; string[i]; i++) {
+		uint8_t color = (bg << 4) | 0x0f;
+		print_char(string[i], start_col + i, row, color);
+	}
+
+	set_cursor_offset(GET_SCREEN_OFFSET(0, row + 1));
 }
