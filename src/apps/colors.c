@@ -11,3 +11,12 @@ void cmd_colors(const char* args) {
     } 
     print("\n");
 }
+
+static struct command_reg colors_command = {
+	.name = "colors",
+	.description = "Shows 16 colors.",
+	.hidden = false,
+	.func = cmd_colors
+};
+
+__attribute__((used, section(".cmds"))) static struct command_reg* colors_ptr = &colors_command;

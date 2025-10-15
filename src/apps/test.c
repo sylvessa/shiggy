@@ -9,7 +9,7 @@ static void cmd_test(const char* args) {
 
 static struct command_reg test_command = {
 	.name = "test",
-	.description = "Runs test prints",
+	.description = "tests whatever",
 	.hidden = false,
 	.func = cmd_test
 };
