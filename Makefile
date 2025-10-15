@@ -53,7 +53,7 @@ $(BOOT_BIN): $(BOOT_SECTOR) | $(BUILD_DIR)
 	$(ASM) $< -f bin -I $(SRC_DIR)/boot/ -o $@
 
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
-	$(LD) -m elf_i386 -o $@ -Ttext 0x1000 --entry kmain $^
+	$(LD) -m elf_i386 -T linker.ld -o $@ $^
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $< $@

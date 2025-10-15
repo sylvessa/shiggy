@@ -9,7 +9,7 @@ void kmain() {
     char input[255];
 
 	screen_clear();
-	print_centered("funny os", 0x5);
+	print_centered("=== funny os - type help to get list of commands ===", 0x5);
 	isr_install();
 	init_timer(50);
 	
@@ -17,6 +17,8 @@ void kmain() {
 
 	if (acpi_init() != SUCCESS)
         print("Failed to initialized ACPI\n");
+	
+	register_all_commands_from_section();
 
 	while (true) {
 		print("\\2xOS >\\x ");
