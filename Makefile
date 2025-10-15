@@ -24,6 +24,7 @@ BOOT_BIN=$(BUILD_DIR)/boot_sect.bin
 KERNEL_ELF=$(BUILD_DIR)/kernel.elf
 KERNEL_BIN=$(BUILD_DIR)/kernel.bin
 OS_IMG=$(BUILD_DIR)/os.img
+MKISOFS=mkisofs
 
 all: $(OS_IMG)
 
@@ -31,11 +32,7 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 check_globals:
-	@missing=$(shell grep -L '#include "globals.h"' $(SRC_DIR)/**/*.c 2>/dev/null); \
-	if [ "$$missing" ]; then \
-		echo "HEY these files don't include globals.h:" $$missing; \
-		exit 1; \
-	fi
+	
 
 $(KERNEL_MAIN_OBJ): $(KERNEL_MAIN) | $(BUILD_DIR) check_globals
 	mkdir -p $(dir $@)
@@ -53,7 +50,7 @@ $(BOOT_BIN): $(BOOT_SECTOR) | $(BUILD_DIR)
 	$(ASM) $< -f bin -I $(SRC_DIR)/boot/ -o $@
 
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
-	$(LD) -m elf_i386 -o $@ -Ttext 0x1000 --entry kmain $^
+	$(LD) -m elf_i386 -o $@ -Ttext 0x7E00 --entry kmain $^
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $< $@
@@ -61,6 +58,7 @@ $(KERNEL_BIN): $(KERNEL_ELF)
 $(OS_IMG): $(BOOT_BIN) $(KERNEL_BIN)
 	cat $^ > $@
 	rm -f $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS)
+
 
 run: $(OS_IMG)
 	qemu-system-i386 -fda $(OS_IMG)

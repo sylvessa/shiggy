@@ -3,10 +3,9 @@
 
 #include <stdint.h>
 #include "types.h"
-#include "lib/pio.h"
-#include "cpu/isr.h"
-#include "lib/string.h"
-#include "lib/memory.h"
-#include "drivers/screen.h"
+
+#define VESA_ADDRESS 0xFD000000
+#define WIDTH 1024
+#define HEIGHT 768
 
 #endif

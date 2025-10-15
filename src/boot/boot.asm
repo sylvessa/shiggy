@@ -1,33 +1,58 @@
-; boot sector 16 bit -> 32 bit protected mode
+[BITS    16]
 [ORG 0x7C00]
 
-KERNEL_OFFSET equ 0x1000 ; kernel address might change lowkey
+%define KERNEL 0x7E00
 
-[BITS 16]
-boot: 
-    mov [BOOT_DRIVE], dl
-    mov bx, MSG_REAL_MODE
-    call print
+main:
+    cli
+    cld
 
-load_kernel:
-    mov bx, MSG_LOAD_KERNEL
-    call print
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
 
-    mov dh, 40
-    mov dl, [BOOT_DRIVE]
-    mov bx, KERNEL_OFFSET
-    call disk_load
-    call goto_pm
+    mov sp, 0x7C00
+    mov ss, ax
 
-%include "print.asm"
-%include "disk_load.asm"
+    sti
+
+    mov ax, 0x4F02 
+    mov bx, 0x117 | 0x4000
+    int 0x10
+
+    call read_sectors
+    call setup_gdt
+
+    jmp CODESEG:pmode
+
+read_sectors:
+    mov  cx, 10
+
+.loop:
+    push cx
+    mov ah, 0x42
+    mov si, DAP
+    int 0x13
+    add dword [DAP + 8], 127
+    add word  [DAP + 6], 0xFE0
+
+    pop cx
+
+    loop .loop
+    ret
+
+align 4
+
+DAP:
+    db 0x10
+    db 0x00
+    dw 0x7F
+    dw 0x0000
+    dw KERNEL >> 4
+    dq 1
+
+%include "gdt.asm"
 %include "protected_mode.asm"
 
-BOOT_DRIVE db 0
-MSG_REAL_MODE: db "booting from 16 bit real mode", 10, 0
-MSG_LOAD_KERNEL: db "loading kernelinto memory", 10, 0
-
-times 510-($-$$) db 0
+times 510 - ($ - $$) db 0x00
 dw 0xAA55
-
-
