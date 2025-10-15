@@ -25,9 +25,6 @@ KERNEL_ELF=$(BUILD_DIR)/kernel.elf
 KERNEL_BIN=$(BUILD_DIR)/kernel.bin
 OS_IMG=$(BUILD_DIR)/os.img
 
-ISO_DIR=$(BUILD_DIR)/iso
-ISO_IMG=$(BUILD_DIR)/os.iso
-
 all: $(OS_IMG)
 
 $(BUILD_DIR):
@@ -70,8 +67,3 @@ run: $(OS_IMG)
 
 clean:
 	rm -rf $(BUILD_DIR)
-
-iso: $(OS_IMG)
-	mkdir -p $(ISO_DIR)
-	cp $(OS_IMG) $(ISO_DIR)/os.img
-	genisoimage -quiet -b os.img -no-emul-boot -boot-load-size 4 -o $(ISO_IMG) $(ISO_DIR)
