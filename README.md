@@ -16,9 +16,13 @@ do `make iso` to turn into iso which will appear until `build/iso/`
 - `objcopy` (from binutils)
 - `qemu-system-i386` (for testing)
 
-ifu dont have ts u can just run the thing below
+if u dont have ts u can just run the thing below
 
 ```bash
 sudo apt update
 sudo apt install build-essential nasm qemu-system
 ```
+
+Why not i386-elf-gcc etc? Because I dont want to make people have to build a toolset just for this project.
+
+I have a lot of plans for this project.

@@ -31,9 +31,6 @@ void isr_install() {
 	__asm__ __volatile__("sti");
 }
 
-
-
-
 static char *exception_messages[] = {
         "Division By Zero",
         "Debug",

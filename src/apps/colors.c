@@ -2,6 +2,7 @@
 #include "apps/base.h"
 
 void cmd_colors(const char* args) {
+    (void)args;
 	print("\n"); 
     for (char color = 0; color <= 0x0f; color++) { 
         for (int i = 0; i < 16; i++) 
@@ -14,7 +15,7 @@ void cmd_colors(const char* args) {
 
 static struct command_reg colors_command = {
 	.name = "colors",
-	.description = "Shows 16 colors.",
+	.description = "shows 16 colors",
 	.hidden = false,
 	.func = cmd_colors
 };

@@ -15,7 +15,7 @@ void register_command(const char* name, const char* description, bool hidden, co
 }
 
 void list_commands() {
-	print("\nAvailable commands:\n");
+	print("\ncommands:\n");
 	for (int i = 0; i < command_count; i++) {
 		if (!commands[i].hidden) {
 			print((char*)commands[i].name);
