@@ -16,8 +16,7 @@ main:
 
     sti
 
-    mov ax, 0x4F02 
-    mov bx, 0x117 | 0x4000
+    mov ax, 0x0013
     int 0x10
 
     call read_sectors

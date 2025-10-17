@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include "types.h"
 
-#define VESA_ADDRESS 0xFD000000
-#define WIDTH 1024
-#define HEIGHT 768
+#define VGA_ADDRESS 0xFD000000
+#define WIDTH 320
+#define HEIGHT 200
+#define BLOCK 4
 
 #endif
