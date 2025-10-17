@@ -1,28 +1,41 @@
-# os
+# shiggy
 
-some dumb os i make for fun
+an experimental OS I made for fun.
 
-to build just type `make` and then do `make run` to run on qemu
+shiggy is written in C with a bit of x86 assembly. theres no file system yet, this is just the kernel and bootloader all handcrafted.
 
-do `make iso` to turn into iso which will appear until `build/iso/`
+you can build and run it with:
 
-**anything before 10/15/2025 was screwed up, this project actually started 10/13/2025**
+```bash
+make
+make run
+```
 
-## requiremnents
+this should also run and build just fine on WSL2.
 
-- `gcc` (32-bit support)
+## features
+
+- entirely custom kernel and bootloader
+- written in C with some x86 assembly
+- includes a built-in command system
+
+## requirements
+
+- `gcc` (with 32-bit support)
 - `nasm`
 - `ld` (GNU linker)
 - `objcopy` (from binutils)
 - `qemu-system-i386` (for testing)
 
-if u dont have ts u can just run the thing below
+if you dont have them installed:
 
 ```bash
 sudo apt update
 sudo apt install build-essential nasm qemu-system
 ```
 
-Why not i386-elf-gcc etc? Because I dont want to make people have to build a toolset just for this project.
+## info
 
-I have a lot of plans for this project.
+the OS is very barebones, but includes a set of commands you can explore. its designed to experiment with kernel level programming and just to practice my programming skills, so everything from bootloader to kernel functions is made from scratch.
+
+<img src="https://raw.githubusercontent.com/sylvessa/sylvessa/refs/heads/main/caption.gif" width="250" height="250">

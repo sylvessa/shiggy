@@ -4,7 +4,7 @@
 void cmd_clear(const char* args) {
 	(void)args;
 	screen_clear();
-	print_centered("=== funny os - type help to get list of commands ===", 0x5);
+	print_centered("=== shiggy - type help to get list of commands ===", 0x5);
 }
 
 static struct command_reg clear_command = {
