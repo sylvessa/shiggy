@@ -1,15 +1,17 @@
 #include "globals.h"
 #include "apps/base.h"
+#include "lib/string.h"
 
 command_t commands[MAX_COMMANDS];
 int command_count = 0;
 
-void register_command(const char* name, const char* description, bool hidden, command_func_t func) {
+void register_command(const char* name, const char* description, bool hidden, command_func_t func, arg_type_t arg_type) {
 	if (command_count < MAX_COMMANDS) {
 		commands[command_count].name = name;
 		commands[command_count].description = description;
 		commands[command_count].hidden = hidden;
 		commands[command_count].func = func;
+		commands[command_count].args = arg_type;
 		command_count++;
 	}
 }
@@ -31,8 +33,7 @@ void register_all_commands_from_section() {
 	struct command_reg** end = (struct command_reg**) &__stop_cmds;
 
 	while (ptr < end) {
-		register_command((*ptr)->name, (*ptr)->description, (*ptr)->hidden, (*ptr)->func);
+		register_command((*ptr)->name, (*ptr)->description, (*ptr)->hidden, (*ptr)->func, (*ptr)->args);
 		ptr++;
 	}
 }
-

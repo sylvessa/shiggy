@@ -76,7 +76,7 @@ void strcpy(char *des, const char *src) {
         des++;
         src++;
     }
-    
+
     *des = '\0';
 }
 
@@ -92,4 +92,12 @@ void strncpy(char *des, const char *src, nat32 n) {
     for (i = 0; i < n - 1 && src[i] != '\0'; i++)
         des[i] = src[i];
     des[i] = '\0';
+}
+
+int32 strncmp(const char *s1, const char *s2, nat32 n) {
+    for (nat32 i = 0; i < n; i++) {
+        if (s1[i] != s2[i] || s1[i] == '\0' || s2[i] == '\0')
+            return (unsigned char)s1[i] - (unsigned char)s2[i];
+    }
+    return 0;
 }

@@ -3,6 +3,11 @@
 
 #include "types.h"
 
+typedef struct block {
+	word size;
+	struct block *next;
+} block_t;
+
 void memcpy(byte *source, byte *dest, nat32 n);
 int32 memcmp(const byte *ptr1, const byte *ptr2, nat32 size);
 void *memmove(byte *dest, const byte *src, nat32 n);

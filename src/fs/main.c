@@ -34,7 +34,6 @@ int file_make(char* name) {
     findex[findex_end] = fp;
     findex_end += 1;
 
-    printf("made file %s\n", name);
     return OK;
 }
 

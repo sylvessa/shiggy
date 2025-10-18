@@ -1,13 +1,13 @@
 #include "globals.h"
 #include "apps/base.h"
 
-void cmd_ls(const char* args) {
-    (void)args;
+void cmd_ls(const char** args, int argc) {
     for (int i = 0; i < file_count(); ++i) {
         char* name = file_get_name(i);
         if (name != NULL)
-            printf("%s\n", name);
+            printf("%s ", name);
     }
+    print("\n");
 }
 
 

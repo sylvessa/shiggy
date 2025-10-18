@@ -1,8 +1,7 @@
 #include "globals.h"
 #include "apps/base.h"
 
-void cmd_colors(const char* args) {
-    (void)args;
+void cmd_colors(const char** args, int argc) {
 	print("\n"); 
     for (char color = 0; color <= 0x0f; color++) { 
         for (int i = 0; i < 16; i++) 

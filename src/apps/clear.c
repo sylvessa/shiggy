@@ -1,8 +1,7 @@
 #include "globals.h"
 #include "apps/base.h"
 
-void cmd_clear(const char* args) {
-	(void)args;
+void cmd_clear(const char** args, int argc) {
 	screen_clear();
 	print_centered("=== shiggy - type help to get list of commands ===", 0x5);
 }

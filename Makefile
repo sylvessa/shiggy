@@ -7,7 +7,7 @@ SRC_DIR=src
 BUILD_DIR=build
 INC_DIR=include
 
-C_FLAGS=-fno-pic -fno-pie -fno-exceptions -ffreestanding -m32 -Wall -Wextra -I $(INC_DIR) -std=c17 -pedantic-errors -g
+C_FLAGS=-fno-pic -fno-pie -fno-exceptions -ffreestanding -m32 -Wall -Wextra -Wno-unused-parameter -I $(INC_DIR) -std=c17 -pedantic-errors -g
 NASM_FLAGS=-f elf -I $(INC_DIR)
 
 KERNEL_MAIN=$(SRC_DIR)/kernel/main.c

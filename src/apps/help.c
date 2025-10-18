@@ -1,8 +1,7 @@
 #include "globals.h"
 #include "apps/base.h"
 
-static void cmd_help(const char* args) {
-	(void)args;
+static void cmd_help(const char** args, int argc) {
 	print("this is an experimental os written by \\5xsylvessa\\x\n\n");
 	print("written in C and a bit of x86 assembly\n");
 	print("theres no file system or anything (yet), this is entirely just kernel.\n\n");
