@@ -70,13 +70,13 @@ int32 strcmp(char *s1, char *s2) {
     return s1[i] - s2[i];
 }
 
-void strcpy(char *src, char *des) {
+void strcpy(char *des, const char *src) {
     while (*src != '\0') {
         *des = *src;
         des++;
         src++;
     }
-
+    
     *des = '\0';
 }
 
@@ -85,4 +85,11 @@ void strlower(char *s) {
 		if (s[i] >= 'A' && s[i] <= 'Z')
 			s[i] += 32;
 	}
+}
+
+void strncpy(char *des, const char *src, nat32 n) {
+    nat32 i;
+    for (i = 0; i < n - 1 && src[i] != '\0'; i++)
+        des[i] = src[i];
+    des[i] = '\0';
 }

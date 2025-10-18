@@ -21,3 +21,4 @@ void set_cursor_offset(int offset);
 int get_cursor_offset();
 void print_char(char character, int col, int row, char attribute_byte);
 void print_centered(char *string, uint8_t bg);
+void printf(const char *fmt, ...);

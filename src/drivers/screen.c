@@ -17,8 +17,7 @@ void set_cursor_offset(int offset) {
     out_byte(REG_SCREEN_DATA, (byte)(offset & 0xff));
 }
 
-int handle_scrolling(int cursor_offset)
-{
+int handle_scrolling(int cursor_offset) {
     if (cursor_offset < MAX_ROWS * MAX_COLS * 2) return cursor_offset;
 
     for (nat32 i = 1; i < MAX_ROWS; i++)
@@ -164,4 +163,77 @@ void print_centered(char *string, uint8_t bg) {
 	}
 
 	set_cursor_offset(GET_SCREEN_OFFSET(0, row + 1));
+}
+
+
+void printf(const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	char buf[32];
+	for (; *fmt; fmt++) {
+		if (*fmt != '%') {
+			char s[2] = {*fmt, 0};
+			print(s);
+			continue;
+		}
+		fmt++;
+		switch (*fmt) {
+			case 's': {
+				char *str = va_arg(args, char*);
+				print(str);
+				break;
+			}
+			case 'd': {
+				int num = va_arg(args, int);
+				char *p = buf + sizeof(buf) - 1;
+				*p = 0;
+				int neg = num < 0;
+				if (neg) num = -num;
+				do {
+					*--p = '0' + (num % 10);
+					num /= 10;
+				} while (num);
+				if (neg) *--p = '-';
+				print(p);
+				break;
+			}
+			case 'x': {
+				unsigned int num = va_arg(args, unsigned int);
+				char *p = buf + sizeof(buf) - 1;
+				*p = 0;
+				do {
+					int digit = num & 0xf;
+					*--p = digit < 10 ? '0' + digit : 'a' + digit - 10;
+					num >>= 4;
+				} while (num);
+				print(p);
+				break;
+			}
+			case 'p': {
+				void *ptr = va_arg(args, void*);
+				unsigned long num = (unsigned long)ptr;
+				char *p = buf + sizeof(buf) - 1;
+				*p = 0;
+				do {
+					int digit = num & 0xf;
+					*--p = digit < 10 ? '0' + digit : 'a' + digit - 10;
+					num >>= 4;
+				} while (num);
+				print("0x");
+				print(p);
+				break;
+			}
+			case 'c': {
+				char c = (char)va_arg(args, int);
+				char s[2] = {c, 0};
+				print(s);
+				break;
+			}
+			case '%': {
+				print("%");
+				break;
+			}
+		}
+	}
+	va_end(args);
 }

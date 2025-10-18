@@ -78,7 +78,7 @@ void init_keyboard() {
 
 void sconf(char *buffer) {
 	while (!ready);
-	strcpy(input_buffer, buffer);
+	strcpy(buffer, input_buffer);
 	input_size = 0;
 	ready = false;
 }

@@ -1,0 +1,10 @@
+#ifndef PROPS_H
+#define PROPS_H
+
+#define FS_SECTOR_SIZE 512
+#define FS_MAX_FILE_COUNT 1000
+#define FS_FILE_NAME_BUFFER 512
+#define FS_FILE_TAGS_BUFFER 512
+#define FS_FILE_NAME_VALID_CHARS "qwertyuiiopasdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM"
+
+#endif

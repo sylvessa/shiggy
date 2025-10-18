@@ -2,9 +2,12 @@
 #include "apps/base.h"
 
 static void cmd_test(const char* args) {
+    (void)args;
 	// print("Normal text \\4FRed on white\\x back to white on black\n");
 	// print("\\2 Fuck\n");
 	// print("\\e1Yellow on blue\n");
+	int *phys_addr = (int *)malloc(50);
+	printf("%p\n", phys_addr);
 }
 
 static struct command_reg test_command = {

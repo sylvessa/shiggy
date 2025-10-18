@@ -14,6 +14,7 @@ void kmain() {
 	init_timer(50);
 	
     init_keyboard();
+	fs_init();
 
 	if (acpi_init() != SUCCESS)
         print("Failed to initialized ACPI\n");

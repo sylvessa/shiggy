@@ -25,45 +25,62 @@ KERNEL_ELF=$(BUILD_DIR)/kernel.elf
 KERNEL_BIN=$(BUILD_DIR)/kernel.bin
 OS_IMG=$(BUILD_DIR)/os.img
 
+# colors
+GREEN=\033[0;32m
+BLUE=\033[0;34m
+CYAN=\033[0;36m
+YELLOW=\033[1;33m
+RESET=\033[0m
+
 all: $(OS_IMG)
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)
 
 check_globals:
 	@missing=$(shell grep -L '#include "globals.h"' $(SRC_DIR)/**/*.c 2>/dev/null); \
 	if [ "$$missing" ]; then \
-		echo "HEY these files don't include globals.h:" $$missing; \
+		echo "$(YELLOW)HEY these files don't include globals.h:$(RESET) $$missing"; \
 		exit 1; \
 	fi
 
 $(KERNEL_MAIN_OBJ): $(KERNEL_MAIN) | $(BUILD_DIR) check_globals
-	mkdir -p $(dir $@)
-	$(CC) $(C_FLAGS) -c $< -o $@
+	@mkdir -p $(dir $@)
+	@echo "$(GREEN)[CC]$(RESET) $<"
+	@$(CC) $(C_FLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR) check_globals
-	mkdir -p $(dir $@)
-	$(CC) $(C_FLAGS) -c $< -o $@
+	@mkdir -p $(dir $@)
+	@echo "$(GREEN)[CC]$(RESET) $<"
+	@$(CC) $(C_FLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)
-	mkdir -p $(dir $@)
-	$(ASM) $(NASM_FLAGS) -f elf $< -o $@
+	@mkdir -p $(dir $@)
+	@echo "$(CYAN)[ASM]$(RESET) $<"
+	@$(ASM) $(NASM_FLAGS) -f elf $< -o $@
 
 $(BOOT_BIN): $(BOOT_SECTOR) | $(BUILD_DIR)
-	$(ASM) $< -f bin -I $(SRC_DIR)/boot/ -o $@
+	@echo "$(CYAN)[BOOT]$(RESET) $<"
+	@$(ASM) $< -f bin -I $(SRC_DIR)/boot/ -o $@
 
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
-	$(LD) -m elf_i386 -T linker.ld -o $@ $^
+	@echo "$(BLUE)[LD]$(RESET) linking $@"
+	@$(LD) -m elf_i386 -T linker.ld -o $@ $^
 
 $(KERNEL_BIN): $(KERNEL_ELF)
-	$(OBJCOPY) -O binary $< $@
+	@echo "$(BLUE)[OBJCOPY]$(RESET) $<"
+	@$(OBJCOPY) -O binary $< $@
 
 $(OS_IMG): $(BOOT_BIN) $(KERNEL_BIN)
-	cat $^ > $@
-	rm -f $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS)
+	@echo "$(YELLOW)[CAT]$(RESET) building disk image"
+	@cat $^ > $@
+	@rm -f $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS)
+	@echo "$(GREEN)[OK]$(RESET) built $(OS_IMG)"
 
 run: $(OS_IMG)
-	qemu-system-i386 -fda $(OS_IMG)
+	@echo "$(CYAN)[QEMU]$(RESET) running..."
+	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"
+	@rm -rf $(BUILD_DIR)

@@ -23,4 +23,7 @@ typedef int STATUS;
 #define ENODEV 19  /* No such device */
 #define EACCERT 20 /* Assertion failure */
 
+#define WORD_SIZE sizeof(word)
+#define WORD_MASK (WORD_SIZE - 1)
+
 #endif

@@ -28,3 +28,24 @@ void *memmove(byte *dest, const byte *src, nat32 n) {
 	}
 	return dest;
 }
+
+void *malloc(nat32 nBytes)
+{
+    static word free_mem_addr = 0x10000;
+    void *const ret = (void *)free_mem_addr;
+    free_mem_addr += nBytes;
+    if (free_mem_addr & WORD_MASK)
+    {
+        free_mem_addr &= ~WORD_MASK;
+        free_mem_addr += WORD_SIZE;
+    }
+    return ret;
+}
+
+void *calloc(nat32 n, nat32 size) {
+    void *ptr = malloc(n * size);
+    byte *b = (byte *)ptr;
+    for (nat32 i = 0; i < n * size; i++) b[i] = 0;
+    return ptr;
+}
+
