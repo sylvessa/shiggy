@@ -5,6 +5,7 @@
 #include "apps/base.h"
 #include "cpu/acpi.h"
 #include "lib/string.h"
+#include "drivers/ata.h"
 
 void kmain() {
 	char input[255];
@@ -13,6 +14,7 @@ void kmain() {
 	print_centered("=== shiggy - type help to get list of commands ===", 0x5);
 	isr_install();
 	init_timer(50);
+	init_ata();
 	init_keyboard();
 	fs_init();
 

@@ -24,6 +24,7 @@ BOOT_BIN=$(BUILD_DIR)/boot_sect.bin
 KERNEL_ELF=$(BUILD_DIR)/kernel.elf
 KERNEL_BIN=$(BUILD_DIR)/kernel.bin
 OS_IMG=$(BUILD_DIR)/os.img
+HDD_IMG=$(BUILD_DIR)/hdd.img
 
 # colors
 GREEN=\033[0;32m
@@ -77,9 +78,18 @@ $(OS_IMG): $(BOOT_BIN) $(KERNEL_BIN)
 	@rm -f $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS)
 	@echo "$(GREEN)[OK]$(RESET) built $(OS_IMG)"
 
+$(HDD_IMG):
+	@echo "$(YELLOW)[HDD]$(RESET) creating blank IDE hard drive image"
+	@dd if=/dev/zero of=$(HDD_IMG) bs=1M count=64 status=none
+	@echo "$(GREEN)[OK]$(RESET) created $(HDD_IMG)"
+
 run: $(OS_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running..."
 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy
+
+run-hdd: $(OS_IMG) $(HDD_IMG)
+	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
+	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a
 
 clean:
 	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"
