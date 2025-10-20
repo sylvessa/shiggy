@@ -21,6 +21,7 @@ static void cmd_test(const char** args, int argc) {
 
 	// int *phys_addr = (int*)malloc(n);
 	// printf("allocated %d bytes at address %p\n", n, phys_addr);
+	
 	ata_identify();
 	int formatted = fat32_is_formatted();
 	printf("formatted: %s\n", formatted ? "yes" : "no");
