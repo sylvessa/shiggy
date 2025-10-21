@@ -1,8 +1,6 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include <stdbool.h>
-
 typedef enum {
 	ARG_NONE,
 	ARG_STRING,

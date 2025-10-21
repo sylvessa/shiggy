@@ -15,10 +15,10 @@
 #define GET_OFFSET_COL(OFFSET) ((OFFSET - (GET_OFFSET_ROW(OFFSET) * 2 * MAX_COLS)) / 2)
 
 void screen_clear();
-void screen_set_cursor(uint8_t x, uint8_t y);
+void screen_set_cursor(nat8 x, nat8 y);
 void print(char *string);
 void set_cursor_offset(int offset);
 int get_cursor_offset();
 void print_char(char character, int col, int row, char attribute_byte);
-void print_centered(char *string, uint8_t bg);
+void print_centered(char *string, nat8 bg);
 void printf(const char *fmt, ...);

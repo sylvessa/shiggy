@@ -33,17 +33,17 @@ int handle_scrolling(int cursor_offset) {
     return cursor_offset;
 }
 
-void screen_set_cursor(uint8_t x, uint8_t y) {
-	uint16_t pos = y * MAX_COLS + x;
+void screen_set_cursor(nat8 x, nat8 y) {
+	nat16 pos = y * MAX_COLS + x;
 	out_byte(REG_SCREEN_CTRL, 0x0F);
-	out_byte(REG_SCREEN_DATA, (uint8_t)(pos & 0xFF));
+	out_byte(REG_SCREEN_DATA, (nat8)(pos & 0xFF));
 	out_byte(REG_SCREEN_CTRL, 0x0E);
-	out_byte(REG_SCREEN_DATA, (uint8_t)((pos >> 8) & 0xFF));
+	out_byte(REG_SCREEN_DATA, (nat8)((pos >> 8) & 0xFF));
 }
 
 void screen_clear() {
-    uint16_t *vga = (uint16_t*)VIDEO_ADDRESS;
-	uint16_t blank = 0x0F20;
+    nat16 *vga = (nat16*)VIDEO_ADDRESS;
+	nat16 blank = 0x0F20;
 
 	for (int i = 0; i < MAX_COLS * MAX_ROWS; i++)
 		vga[i] = blank;
@@ -78,9 +78,9 @@ void print_char(char character, int col, int row, char attribute_byte) {
 }
 
 void print(char *string) {
-	uint8_t fg = 0x0f; // white
-	uint8_t bg = 0x00; // black
-	uint8_t color = (bg << 4) | fg;
+	nat8 fg = 0x0f; // white
+	nat8 bg = 0x00; // black
+	nat8 color = (bg << 4) | fg;
 
 	for (; *string; string++) {
 		if (*string == '\\') {
@@ -140,7 +140,7 @@ void print(char *string) {
 	}
 }
 
-void print_centered(char *string, uint8_t bg) {
+void print_centered(char *string, nat8 bg) {
 	int len = 0;
 	for (char *s = string; *s; s++) len++;
 
@@ -151,13 +151,13 @@ void print_centered(char *string, uint8_t bg) {
 
 	if (bg != 0xFF) {
 		for (int col = 0; col < MAX_COLS; col++) {
-			uint8_t color = (bg << 4) | 0x0f;
+			nat8 color = (bg << 4) | 0x0f;
 			print_char(' ', col, row, color);
 		}
 	}
 
 	for (int i = 0; string[i]; i++) {
-		uint8_t color = (bg << 4) | 0x0f;
+		nat8 color = (bg << 4) | 0x0f;
 		print_char(string[i], start_col + i, row, color);
 	}
 
