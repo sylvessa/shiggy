@@ -13,5 +13,6 @@ void str_reverse(char *s);
 void strlower(char *s);
 void strncpy(char *des, const char *src, nat32 n);
 int32 strncmp(const char *s1, const char *s2, nat32 n);
+void snprintf(char *buf, nat32 size, const char *fmt, ...);
 
 #endif

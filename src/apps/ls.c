@@ -3,32 +3,18 @@
 #include "fs/fat32.h"
 
 void cmd_ls(const char** args, int argc) {
-    nat32 file_count = fat32_file_count();
-    printf("[ls] file count: %d\n", file_count);
+	nat32 file_count = fat32_file_count();
+	if (!file_count) {
+		printf("no files found\n");
+		return;
+	}
 
-    for (int i = 0; i < file_count; i++) {
-        printf("[ls] fetching name for index %d\n", i);
-        const char* name = fat32_file_get_name(i);
-        if (!name) {
-            printf("[ls] got NULL name for index %d, skipping\n", i);
-            continue;
-        }
-
-        nat32 size = fat32_file_size(name);
-        printf("[ls] name: %s, size: %d bytes\n", name, size);
-
-        // extra: dump first few bytes of file content to verify FAT
-        char buffer[32];
-        if (fat32_read_file(name, buffer, sizeof(buffer))) {
-            printf("[ls] first bytes: ");
-            for (int b = 0; b < 8 && b < size; b++) printf("%x ", (unsigned char)buffer[b]);
-            printf("\n");
-        } else {
-            printf("[ls] failed to read file %s\n", name);
-        }
-    }
-
-    printf("[ls] done listing files\n");
+	for (int i = 0; i < file_count; i++) {
+		const char* name = fat32_file_get_name(i);
+		if (!name) continue;
+		nat32 size = fat32_file_size(name);
+		printf("%s    %d bytes\n", name, size);
+	}
 }
 
 static struct command_reg ls_command = {

@@ -1,17 +1,22 @@
 #include "globals.h"
 #include "apps/base.h"
-#include "lib/string.h"
-#include "drivers/ata.h"
+#include "fs/fat32.h"
 
-static void cmd_mk(const char** args, int argc) {
-	//fat32_file_make("TEST.TXT");
-	//fat32_file_write_str("TEST.TXT", "sFuck");
-	print("mdae file\n");
+void cmd_mk(const char** args, int argc) {
+	if (argc < 1) {
+		print("usage: mk <filename>\n");
+		return;
+	}
+
+	char* filename = (char*)args[0];
+	char content[128];
+	snprintf(content, sizeof(content), "this is da content for %s", filename);
+	fat32_create_file(filename, content);
 }
 
 static struct command_reg mk_command = {
 	.name = "mk",
-	.description = "test command to make a file",
+	.description = "makes a file",
 	.hidden = false,
 	.func = cmd_mk,
 };

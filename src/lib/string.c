@@ -2,26 +2,23 @@
 #include "lib/string.h"
 
 void dec2str(int32 n, char *des) {
-    int len;
-
-    if (n > 0) {
-        n = -n;
-        len = 0;
-    } else {
-        len = 1;
-        des[0] = '-';
-    } do {
-        des[len] = -(n % 10) + '0';
-        n /= 10;
-        len += 1;
-    } while (n < 0);
-
-    des[len] = '\0';
-
-    if (des[0] == '-')
-        str_reverse(des + 1);
-    else
-        str_reverse(des);
+	int len;
+	if (n < 0) {
+		des[0] = '-';
+		n = -n;
+		len = 1;
+	} else {
+		len = 0;
+	}
+	do {
+		des[len++] = (char)('0' + (n % 10));
+		n /= 10;
+	} while (n != 0);
+	des[len] = '\0';
+	if (des[0] == '-')
+		str_reverse(des + 1);
+	else
+		str_reverse(des);
 }
 
 const char n_to_ascii[] = "0123456789abcdef";
@@ -97,4 +94,43 @@ int32 strncmp(const char *s1, const char *s2, nat32 n) {
             return (unsigned char)s1[i] - (unsigned char)s2[i];
     }
     return 0;
+}
+
+void snprintf(char *buf, nat32 size, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	if (size == 0) {
+		va_end(args);
+		return;
+	}
+	nat32 i = 0;
+	for (nat32 j = 0; fmt[j] != '\0' && i < size - 1; j++) {
+		if (fmt[j] == '%' && fmt[j + 1] != '\0') {
+			j++;
+			if (fmt[j] == 's') {
+				const char *s = va_arg(args, const char*);
+				while (*s && i < size - 1) buf[i++] = *s++;
+			} else if (fmt[j] == 'd') {
+				char tmp[20];
+				int v = va_arg(args, int);
+				dec2str(v, tmp);
+				for (nat32 k = 0; tmp[k] && i < size - 1; k++) buf[i++] = tmp[k];
+			} else if (fmt[j] == 'x') {
+				char tmp[20];
+				unsigned int v = va_arg(args, unsigned int);
+				hex2str((nat32)v, tmp);
+				for (nat32 k = 0; tmp[k] && i < size - 1; k++) buf[i++] = tmp[k];
+			} else if (fmt[j] == 'c') {
+				int c = va_arg(args, int);
+				if (i < size - 1) buf[i++] = (char)c;
+			} else {
+				if (i < size - 1) buf[i++] = '%';
+				if (i < size - 1) buf[i++] = fmt[j];
+			}
+		} else {
+			buf[i++] = fmt[j];
+		}
+	}
+	buf[i] = '\0';
+	va_end(args);
 }

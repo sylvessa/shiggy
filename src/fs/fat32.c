@@ -6,7 +6,7 @@
 #define FIRST_FILE_CLUSTER 3
 #define MAX_ROOT_ENTRIES 16
 
-nat8 fat32_log = 1;
+nat8 fat32_log = 0;
 
 static nat32 fat_start_lba;
 static nat32 cluster2_lba;
@@ -100,7 +100,6 @@ static void format_fs() {
     buffer[510] = 'S';
     buffer[511] = 'H';
     write_sector_lba(0, buffer);
-    if (fat32_log) print("[fat32] FS signature written\n");
 
     fat_start_lba = 1;
     sectors_per_fat = 1;
@@ -121,7 +120,6 @@ static void format_fs() {
 }
 
 void fat32_fs_init() {
-    if (fat32_log) print("[fat32] checking format...\n");
     fat_start_lba = 1;
     sectors_per_fat = 1;
     cluster2_lba = FIRST_FILE_CLUSTER; 
@@ -130,8 +128,7 @@ void fat32_fs_init() {
     if (!is_formatted()) {
         if (fat32_log) print("[fat32] not formatted, formatting...\n");
         format_fs();
-        if (fat32_log) print("[fat32] creating test file...\n");
-        fat32_create_file("TEST.TXT", "yesss");
+        fat32_create_file("test.txt", "yesss");
         if (fat32_log) print("[fat32] test file created\n");
     } else {
         if (fat32_log) print("[fat32] formatted, loading root dir...\n");
@@ -139,13 +136,6 @@ void fat32_fs_init() {
     }
 
     if (fat32_log) printf("[fat32] files found after init: %d\n", fat32_file_count());
-
-    char buffer[SECTOR_SIZE]; 
-    if (fat32_read_file("TEST.TXT", buffer, sizeof(buffer))) { 
-        if (fat32_log) printf("[fat32] TEST.TXT contents: %s\n", buffer); 
-    } else { 
-        if (fat32_log) print("[fat32] TEST.TXT not found\n"); 
-    }
 }
 
 nat8 fat32_create_file(const char *name, const char *content) {
