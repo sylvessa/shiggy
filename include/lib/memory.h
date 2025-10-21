@@ -11,6 +11,7 @@ typedef struct block {
 void *memcpy(void *dest, const void *source, nat32 no_bytes);
 void *memmove(void *dest, const void *src, nat32 n);
 int32 memcmp(const void *ptr1, const void *ptr2, nat32 size);
+void *memset(void *ptr, int value, nat32 n);
 
 void *malloc(nat32 nBytes);
 void free(void *ptr);

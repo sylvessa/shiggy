@@ -21,7 +21,7 @@ void cmd_ls(const char** args, int argc) {
         char buffer[32];
         if (fat32_read_file(name, buffer, sizeof(buffer))) {
             printf("[ls] first bytes: ");
-            for (int b = 0; b < 8 && b < size; b++) printf("%02X ", (unsigned char)buffer[b]);
+            for (int b = 0; b < 8 && b < size; b++) printf("%x ", (unsigned char)buffer[b]);
             printf("\n");
         } else {
             printf("[ls] failed to read file %s\n", name);

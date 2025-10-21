@@ -1,26 +1,37 @@
 #include "globals.h"
 #include "apps/base.h"
+#include "fs/fat32.h"
 
 void cmd_cat(const char** args, int argc) {
-    if (argc < 1) {
+	if (argc < 1) {
 		print("usage: cat <filename>\n");
 		return;
 	}
 
-    // char* filename = (char*)args[0];
+	char* filename = (char*)args[0];
 
-    // char* content = (char*) malloc(file_size(filename));
-    // int response = file_read(filename, content);
-    // if (response == FILE_NOT_FOUND)
-    //     print("File not found\n");
-    // else {
-    //     print(content);
-    //     print("\n");
-    // }
-    
-    // free(content);
+	nat32 sz = fat32_file_size(filename);
+	if (sz == 0) {
+		print("File not found\n");
+		return;
+	}
+
+	char* content = (char*)malloc(sz + 1);
+	if (!content) {
+		print("Memory allocation failed\n");
+		return;
+	}
+
+	if (!fat32_read_file(filename, content, sz + 1)) {
+		print("Failed to read file\n");
+		free(content);
+		return;
+	}
+
+	print(content);
+	print("\n");
+	free(content);
 }
-
 
 static struct command_reg cat_command = {
 	.name = "cat",

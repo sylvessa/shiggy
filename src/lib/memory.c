@@ -22,6 +22,13 @@ void *memmove(void *dest, const void *src, nat32 n) {
 	return dest;
 }
 
+void *memset(void *ptr, int value, nat32 n) {
+	byte *b = (byte*)ptr;
+	for (nat32 i = 0; i < n; i++) b[i] = (byte)value;
+	return ptr;
+}
+
+
 int32 memcmp(const void *ptr1, const void *ptr2, nat32 size) {
 	const byte *p1 = (const byte*)ptr1;
 	const byte *p2 = (const byte*)ptr2;
