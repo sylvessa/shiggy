@@ -1,12 +1,9 @@
 #include "globals.h"
-#include "drivers/screen.h"
 #include "drivers/keyboard.h"
 #include "cpu/timer.h"
 #include "apps/base.h"
 #include "cpu/acpi.h"
-#include "lib/string.h"
-#include "drivers/ata.h"
-#include "fs/fat32.h"
+
 void kmain() {
 	char input[255];
 

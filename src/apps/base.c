@@ -1,6 +1,5 @@
 #include "globals.h"
 #include "apps/base.h"
-#include "lib/string.h"
 
 command_t commands[MAX_COMMANDS];
 int command_count = 0;

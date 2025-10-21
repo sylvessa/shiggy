@@ -1,7 +1,5 @@
 #include "globals.h"
 #include "apps/base.h"
-#include "lib/string.h"
-#include "drivers/ata.h"
 
 static void cmd_diskinfo(const char** args, int argc) {
 	if (ata_identify()) {

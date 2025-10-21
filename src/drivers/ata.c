@@ -1,7 +1,4 @@
 #include "globals.h"
-#include "cpu/isr.h"
-#include "drivers/screen.h"
-#include "drivers/ata.h"
 
 #define ATA_PRIMARY_IO 0x1F0
 #define ATA_PRIMARY_CTRL 0x3F6

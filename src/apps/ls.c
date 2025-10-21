@@ -1,6 +1,5 @@
 #include "globals.h"
 #include "apps/base.h"
-#include "fs/fat32.h"
 
 void cmd_ls(const char** args, int argc) {
 	nat32 file_count = fat32_file_count();

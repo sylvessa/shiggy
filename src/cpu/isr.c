@@ -1,6 +1,5 @@
 #include "globals.h"
 #include "cpu/idt.h"
-#include "drivers/screen.h"
 
 isr_handler_t interrupt_handlers[256];
 

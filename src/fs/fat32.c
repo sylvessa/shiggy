@@ -1,6 +1,4 @@
 #include "globals.h"
-#include "fs/fat32.h"
-#include "drivers/ata.h"
 
 #define ROOT_DIR_LBA 2
 #define FIRST_FILE_CLUSTER 3
@@ -59,7 +57,6 @@ static void write_root_dir() {
     }
 
     write_sector_lba(ROOT_DIR_LBA, buffer);
-    if (fat32_log) printf("[fat32] root dir written to LBA %d\n", ROOT_DIR_LBA);
 }
 
 static void load_root_dir() {
@@ -83,8 +80,6 @@ static void load_root_dir() {
         if (root_dir[i].first_cluster_low >= next_free_cluster)
             next_free_cluster = root_dir[i].first_cluster_low + 1;
     }
-
-    if (fat32_log) printf("[fat32] loaded root dir, next free cluster: %d\n", next_free_cluster);
 }
 
 static nat8 is_formatted() {
@@ -116,7 +111,6 @@ static void format_fs() {
     write_root_dir();
 
     next_free_cluster = FIRST_FILE_CLUSTER;
-    if (fat32_log) printf("[fat32] FS formatted, root dir at LBA %d, first data cluster %d\n", ROOT_DIR_LBA, FIRST_FILE_CLUSTER);
 }
 
 void fat32_fs_init() {
@@ -129,13 +123,9 @@ void fat32_fs_init() {
         if (fat32_log) print("[fat32] not formatted, formatting...\n");
         format_fs();
         fat32_create_file("test.txt", "yesss");
-        if (fat32_log) print("[fat32] test file created\n");
     } else {
-        if (fat32_log) print("[fat32] formatted, loading root dir...\n");
         load_root_dir();
     }
-
-    if (fat32_log) printf("[fat32] files found after init: %d\n", fat32_file_count());
 }
 
 nat8 fat32_create_file(const char *name, const char *content) {

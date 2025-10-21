@@ -1,5 +1,4 @@
 #include "globals.h"
-#include "drivers/screen.h"
 
 int get_cursor_offset() {
     out_byte(REG_SCREEN_CTRL, 14);

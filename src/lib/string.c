@@ -1,5 +1,4 @@
 #include "globals.h"
-#include "lib/string.h"
 
 void dec2str(int32 n, char *des) {
 	int len;

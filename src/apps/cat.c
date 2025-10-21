@@ -1,6 +1,5 @@
 #include "globals.h"
 #include "apps/base.h"
-#include "fs/fat32.h"
 
 void cmd_cat(const char** args, int argc) {
 	if (argc < 1) {
