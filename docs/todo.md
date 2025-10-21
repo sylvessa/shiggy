@@ -63,7 +63,6 @@
 - [ ] window manager / gui
 - [ ] mouse input integration
 - [ ] basic widgets: buttons, text fields, menus
-- [ ] vesa graphics mode support
 
 ## user / security
 
@@ -78,4 +77,3 @@
 - [ ] scripting / automation support
 - [ ] internal compiler / interpreter for c / scripts
 - [ ] persistent configuration / settings
-- [ ] compile c code from inside the os
