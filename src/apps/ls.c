@@ -9,7 +9,7 @@ void cmd_ls(const char** args, int argc) {
 		return;
 	}
 
-	for (int i = 0; i < file_count; i++) {
+	for (nat32 i = 0; i < file_count; i++) {
 		const char* name = fat32_file_get_name(i);
 		if (!name) continue;
 		nat32 size = fat32_file_size(name);

@@ -12,6 +12,8 @@ void cmd_mk(const char** args, int argc) {
 	char content[128];
 	snprintf(content, sizeof(content), "this is da content for %s", filename);
 	fat32_create_file(filename, content);
+	printf("created file %s\n", filename);
+	free(content);
 }
 
 static struct command_reg mk_command = {

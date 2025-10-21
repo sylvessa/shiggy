@@ -2,7 +2,7 @@
 #include "lib/memory.h"
 
 static block_t *free_list = 0;
-static word free_mem_addr = 0x1000000;
+static word free_mem_addr = 0x50000;
 
 void *memcpy(void *dest, const void *source, nat32 no_bytes) {
 	byte *d = (byte*)dest;
