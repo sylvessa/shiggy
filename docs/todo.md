@@ -19,11 +19,11 @@
 
 - [x] fat32 initialization
 - [x] root directory / cluster management (semi-complete)
-- [ ] file read / write
-- [ ] file creation / deletion (`mk`, `rm`)
-- [ ] directory traversal (`ls`, `cd`)
-- [ ] long filename support
-- [ ] file persistence (write changes to disk)
+- [x] file read / write
+- [x] file creation
+- [ ] file deletion (`rm`)
+- [ ] directories
+- [x] file persistence (write changes to disk)
 - [ ] ext2 implementation
 
 ## shell
