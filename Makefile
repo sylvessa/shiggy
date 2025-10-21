@@ -83,11 +83,11 @@ $(HDD_IMG):
 	@dd if=/dev/zero of=$(HDD_IMG) bs=1M count=64 status=none
 	@echo "$(GREEN)[OK]$(RESET) created $(HDD_IMG)"
 
-run: $(OS_IMG)
-	@echo "$(CYAN)[QEMU]$(RESET) running..."
-	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy
+# run: $(OS_IMG)
+# 	@echo "$(CYAN)[QEMU]$(RESET) running..."
+# 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy
 
-run-hdd: $(OS_IMG) $(HDD_IMG)
+run: $(OS_IMG) $(HDD_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a
 

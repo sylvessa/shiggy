@@ -20,18 +20,22 @@ void init_ata() {
 	register_interrupt_handler(IRQ_BASE + 14, ata_irq_handler);
 }
 
-void ata_print_size(nat16 *buffer) {
-	nat32 sectors = ((nat32)buffer[61] << 16) | buffer[60];
-	nat32 mb = sectors / 2048; // 512 * 2048 = 1 MB
-	printf("drive size: %d MB\n", mb);
-}
-
 static nat16 ata_read_data16() {
 	nat16 data = in_b16(ATA_PRIMARY_IO);
 	return data;
 }
 
-void ata_identify() {
+nat32 ata_get_drive_size() {
+	nat16 buffer[256];
+	for (int i = 0; i < 256; i++)
+		buffer[i] = ata_read_data16();
+
+	nat32 sectors = ((nat32)buffer[61] << 16) | buffer[60]; // total sectors
+	return sectors;
+}
+
+
+int ata_identify() {
 	out_byte(ATA_PRIMARY_CTRL, 0x0); // enable interrupts
 	out_byte(ATA_PRIMARY_IO + 6, 0xA0); // select master drive
 	out_byte(ATA_PRIMARY_IO + 2, 0x0); // sector count
@@ -42,8 +46,8 @@ void ata_identify() {
 
 	nat8 status = in_byte(ATA_PRIMARY_IO + 7);
 	if (status == 0) {
-		print("no drive present on primary master\n");
-		return;
+		//print("no drive present on primary master\n");
+		return 0;
 	}
 
 	while ((status & 0x80) != 0) // wait for BSY clear
@@ -52,8 +56,8 @@ void ata_identify() {
 	nat8 cl = in_byte(ATA_PRIMARY_IO + 4);
 	nat8 ch = in_byte(ATA_PRIMARY_IO + 5);
 	if (cl != 0 || ch != 0) {
-		print("not an ata device\n");
-		return;
+		//print("not an ata device\n");
+		return 0;
 	}
 
 	while (1) {
@@ -61,10 +65,6 @@ void ata_identify() {
 		if (status & 0x08) break; // DRQ set
 	}
 
-	nat16 buffer[256];
-	for (int i = 0; i < 256; i++)
-		buffer[i] = ata_read_data16();
-
-	print("IDE drive detected\n");
-	ata_print_size(buffer);
+	//print("IDE drive detected\n");
+	return 1;
 }

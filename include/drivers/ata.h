@@ -1,6 +1,7 @@
 #ifndef ATA_H
 #define ATA_H
 
-void ata_identify();
+int ata_identify();
 void init_ata();
+nat32 ata_get_drive_size();
 #endif

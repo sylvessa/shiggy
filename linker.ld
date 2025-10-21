@@ -6,11 +6,13 @@ SECTIONS
 	.rodata : { *(.rodata) }
 	.data : { *(.data) }
 
-	.cmds : ALIGN(4) {
-		__start_cmds = .;
-		*(.cmds)
-		__stop_cmds = .;
-	}
+	.cmds : ALIGN(4)
+    {
+        __start_cmds = .;
+        *(.cmds)
+        /* reserve extra space in case more commands are added later */
+        __stop_cmds = .;
+    }
 
 	.bss : { *(.bss COMMON) }
 }

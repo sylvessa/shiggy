@@ -9,6 +9,6 @@
 #include "lib/string.h"
 #include "lib/memory.h"
 #include "drivers/screen.h"
-#include "fs/main.h"
+#include "fs/fat32.h"
 
 #endif

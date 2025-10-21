@@ -4,10 +4,11 @@
 static block_t *free_list = 0;
 static word free_mem_addr = 0x10000;
 
-void memcpy(byte *source, byte *dest, nat32 no_bytes) {
+void memcpy(byte *dest, const byte *source, nat32 no_bytes) {
 	for (nat32 i = 0; i < no_bytes; i++)
-		*(dest + i) = *(source + i);
+		dest[i] = source[i];
 }
+
 
 int32 memcmp(const byte *ptr1, const byte *ptr2, nat32 size) {
 	while (size-- > 0) {

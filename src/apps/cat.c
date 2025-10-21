@@ -7,18 +7,18 @@ void cmd_cat(const char** args, int argc) {
 		return;
 	}
 
-    char* filename = (char*)args[0];
+    // char* filename = (char*)args[0];
 
-    char* content = (char*) malloc(file_size(filename));
-    int response = file_read(filename, content);
-    if (response == FILE_NOT_FOUND)
-        print("File not found\n");
-    else {
-        print(content);
-        print("\n");
-    }
+    // char* content = (char*) malloc(file_size(filename));
+    // int response = file_read(filename, content);
+    // if (response == FILE_NOT_FOUND)
+    //     print("File not found\n");
+    // else {
+    //     print(content);
+    //     print("\n");
+    // }
     
-    free(content);
+    // free(content);
 }
 
 

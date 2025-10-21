@@ -1,9 +1,10 @@
 #include "globals.h"
 #include "apps/base.h"
-#include "fs/fat32.h"
+
 
 void cmd_format(const char** args, int argc) {
 	fat32_format();
+	print("drive formatted\n");
 }
 
 static struct command_reg format_command = {

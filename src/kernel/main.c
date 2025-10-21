@@ -6,6 +6,7 @@
 #include "cpu/acpi.h"
 #include "lib/string.h"
 #include "drivers/ata.h"
+#include "fs/fat32_file.h"
 
 void kmain() {
 	char input[255];
@@ -16,13 +17,21 @@ void kmain() {
 	init_timer(50);
 	init_ata();
 	init_keyboard();
-	fs_init();
+	//fs_init();
+	
+	if (!ata_identify()) {
+		print("No HDD Found. Connect an IDE HDD and restart.");
+		while (true) {}
+	}
+	
+	fat32_fs_init();
 
 	if (acpi_init() != SUCCESS)
 		print("Failed to initialized ACPI\n");
 
 	register_all_commands_from_section();
 
+	
 	while (true) {
 		print("\\2xOS >\\x ");
 		sconf(input);

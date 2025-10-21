@@ -1,13 +1,13 @@
 #include "globals.h"
 #include "apps/base.h"
+#include "fs/fat32_file.h"
 
 void cmd_ls(const char** args, int argc) {
-    for (int i = 0; i < file_count(); ++i) {
-        char* name = file_get_name(i);
-        if (name != NULL)
-            printf("%s ", name);
+    for (int i = 0; i < fat32_file_count(); i++) {
+        const char* name = fat32_file_get_name(i);
+        nat32 size = fat32_file_size(name);
+        printf("%s    %d bytes\n", name, size);
     }
-    print("\n");
 }
 
 

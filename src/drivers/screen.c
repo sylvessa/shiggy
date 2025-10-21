@@ -21,8 +21,7 @@ int handle_scrolling(int cursor_offset) {
     if (cursor_offset < MAX_ROWS * MAX_COLS * 2) return cursor_offset;
 
     for (nat32 i = 1; i < MAX_ROWS; i++)
-        memcpy((byte *)(VIDEO_ADDRESS + GET_SCREEN_OFFSET(0, i)),
-                    (byte *)(VIDEO_ADDRESS + GET_SCREEN_OFFSET(0, i - 1)),
+        memcpy((byte *)(VIDEO_ADDRESS + GET_SCREEN_OFFSET(0, i - 1)), (byte *)(VIDEO_ADDRESS + GET_SCREEN_OFFSET(0, i)),
                     MAX_COLS * 2);
 
     byte *last_line = (byte *)(VIDEO_ADDRESS + GET_SCREEN_OFFSET(0, MAX_ROWS - 1));
