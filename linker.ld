@@ -3,24 +3,39 @@ SECTIONS
 {
 	. = 0x1000;
 
-	.text : { *(.text) }
+	.text : {
+        *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+        *(.text.exit .text.exit.*)
+        *(.text.startup .text.startup.*)
+        *(.text.hot .text.hot.*)
+        *(.text .stub .text.* .gnu.linkonce.t.*)
+    }
+    PROVIDE(etext = .);
 
-	.rodata : { *(.rodata) }
+    .cmds : ALIGN(4) {
+        __start_cmds = .;
+        *(.cmds)
+        __stop_cmds = .;
+    }
+    
+    .rodata : {
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
+        *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+        *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+    }
 
-	.data : {
-		*(.data)
-		. += 0x4000;  /* reserve extra 16KB for global variables */
-	}
+    . = ALIGN(4096);
+    PROVIDE(start_data = .);
+    .data : {
+        *(.data .data.* .gnu.linkonce.d.*)
+        SORT(CONSTRUCTORS)
+    }
+    PROVIDE(edata = .);
 
-	.cmds : ALIGN(4) {
-		__start_cmds = .;
-		*(.cmds)
-		. += 0x1000;  /* reserve extra 4KB for commands */
-		__stop_cmds = .;
-	}
+    .bss : {
+        *(.bss .bss.* .gnu.linkonce.b.*)
+    }
+    PROVIDE(end = .);
 
-	.bss : { 
-		*(.bss COMMON)
-		. += 0x8000;  /* reserve extra 32KB for uninitialized globals */
-	}
+    /DISCARD/ : { *(.eh_frame .note.GNU-stack) }
 }
