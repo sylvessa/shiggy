@@ -91,6 +91,10 @@ run: $(OS_IMG) $(HDD_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a
 
+run-nb:
+	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
+	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a
+
 clean:
 	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"
 	@rm -rf $(BUILD_DIR)

@@ -3,7 +3,7 @@
 
 
 void cmd_format(const char** args, int argc) {
-	fat32_format();
+	//fat32_format();
 	print("drive formatted\n");
 }
 

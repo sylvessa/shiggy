@@ -3,8 +3,6 @@
 #include "lib/string.h"
 #include "drivers/ata.h"
 
-#include "fs/fat32_file.h"
-
 static void cmd_test(const char** args, int argc) {
 	if (argc < 1) {
 		print("usage: test <num_bytes>\n");

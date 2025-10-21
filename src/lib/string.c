@@ -50,13 +50,10 @@ void str_reverse(char *s) {
     }
 }
 
-nat32 strlen(char *s) {
-    nat32 i = 0;
-
-    while (s[i] != '\0')
-        ++i;
-
-    return i;
+nat32 strlen(const char *s) {
+	nat32 i = 0;
+	while (s[i] != '\0') ++i;
+	return i;
 }
 
 int32 strcmp(char *s1, char *s2) {

@@ -6,8 +6,7 @@
 #include "cpu/acpi.h"
 #include "lib/string.h"
 #include "drivers/ata.h"
-#include "fs/fat32_file.h"
-
+#include "fs/fat32.h"
 void kmain() {
 	char input[255];
 
@@ -17,12 +16,7 @@ void kmain() {
 	init_timer(50);
 	init_ata();
 	init_keyboard();
-	//fs_init();
 	
-	if (!ata_identify()) {
-		print("No HDD Found. Connect an IDE HDD and restart.");
-		while (true) {}
-	}
 	
 	fat32_fs_init();
 

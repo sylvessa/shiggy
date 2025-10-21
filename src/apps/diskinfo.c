@@ -3,15 +3,13 @@
 #include "lib/string.h"
 #include "drivers/ata.h"
 
-#include "fs/fat32_file.h"
-
 static void cmd_diskinfo(const char** args, int argc) {
 	if (ata_identify()) {
 		print("Found IDE Drive\n");
-		//printf("%d MB\n", ata_get_drive_size() / 2048);
+		printf("%d MB\n", ata_get_drive_size() / 2048);
 
-		int formatted = fat32_is_formatted();
-		printf("formatted: %s\n", formatted ? "yes" : "no");
+		//int formatted = fat32_is_formatted();
+		//printf("formatted: %s\n", formatted ? "yes" : "no");
 	} else {
 		print("no hdd\n");
 	}

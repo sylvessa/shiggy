@@ -8,12 +8,13 @@ typedef struct block {
 	struct block *next;
 } block_t;
 
-void memcpy(byte *dest, const byte *source, nat32 no_bytes);
-int32 memcmp(const byte *ptr1, const byte *ptr2, nat32 size);
-void *memmove(byte *dest, const byte *src, nat32 n);
+void *memcpy(void *dest, const void *source, nat32 no_bytes);
+void *memmove(void *dest, const void *src, nat32 n);
+int32 memcmp(const void *ptr1, const void *ptr2, nat32 size);
+
 void *malloc(nat32 nBytes);
-void *calloc(nat32 n, nat32 size);
 void free(void *ptr);
+void *calloc(nat32 n, nat32 size);
 
 #define low_16(address) (nat16)((address)&0xFFFF)
 #define high_16(address) (nat16)(((address) >> 16) & 0xFFFF)
