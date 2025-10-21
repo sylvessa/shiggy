@@ -25,4 +25,4 @@ init_pm:
     mov esp, ebp
 
     ;; goto kernel!!!
-    call KERNEL_OFFSET
+    call KERNEL_PHYS

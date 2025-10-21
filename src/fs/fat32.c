@@ -6,7 +6,7 @@
 #define FIRST_FILE_CLUSTER 3
 #define MAX_ROOT_ENTRIES 16
 
-nat8 fat32_log = 0;
+nat8 fat32_log = 1;
 
 static nat32 fat_start_lba;
 static nat32 cluster2_lba;

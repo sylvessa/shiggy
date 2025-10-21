@@ -1,19 +1,21 @@
 disk_load:
     push dx
-    mov ah, 0x02 ; bios readsector
-    mov al, dh
-    mov ch, 0x00
-    mov dh, 0x00
-    mov cl, 0x02
+    push ax
+    push cx
 
-    ;; Hey bios go read fatty
+    mov ah, 0x02 ; BIOS read sector
+    mov al, dh ; number of sectors
+    mov ch, 0x00 ; cylinder
+    mov dh, 0x00 ; head
+    mov cl, 0x02 ; starting sector
+
     int 0x13
 
     jc disk_error
 
+    pop cx
+    pop ax
     pop dx
-    cmp dh, al
-    jne disk_error
     ret
 
 disk_error:

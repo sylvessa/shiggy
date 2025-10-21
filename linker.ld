@@ -1,7 +1,7 @@
 ENTRY(kmain)
 SECTIONS
 {
-	. = 0x1000;
+	. = 0x20000;
 
 	.text : {
 		*(.text.unlikely .text.*_unlikely .text.unlikely.*)
