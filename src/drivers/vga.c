@@ -311,3 +311,76 @@ void printf(const char *fmt, ...) {
 
 	va_end(args);
 }
+
+void printf_at(int col, int row, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	char buf[32];
+
+	int orig_col = col;
+
+	for (; *fmt; fmt++) {
+		if (*fmt != '%') {
+			vga_draw_char(col * WFONT, row * HFONT, *fmt, 0x0F, 0x00);
+			col++;
+			continue;
+		}
+
+		fmt++;
+		switch (*fmt) {
+			case 's': {
+				char *str = va_arg(args, char*);
+				for(int i=0; str[i]; i++) {
+					vga_draw_char(col * WFONT, row * HFONT, str[i], 0x0F, 0x00);
+					col++;
+				}
+				break;
+			}
+			case 'd': {
+				int num = va_arg(args, int);
+				char *p = buf + sizeof(buf) - 1;
+				*p = 0;
+				int neg = num < 0;
+				if (neg) num = -num;
+				do {
+					*--p = '0' + (num % 10);
+					num /= 10;
+				} while (num);
+				if (neg) *--p = '-';
+				for(char *c=p; *c; c++) {
+					vga_draw_char(col * WFONT, row * HFONT, *c, 0x0F, 0x00);
+					col++;
+				}
+				break;
+			}
+			case 'x': {
+				unsigned int num = va_arg(args, unsigned int);
+				char *p = buf + sizeof(buf) - 1;
+				*p = 0;
+				do {
+					int digit = num & 0xF;
+					*--p = digit < 10 ? '0' + digit : 'a' + digit - 10;
+					num >>= 4;
+				} while (num);
+				for(char *c=p; *c; c++) {
+					vga_draw_char(col * WFONT, row * HFONT, *c, 0x0F, 0x00);
+					col++;
+				}
+				break;
+			}
+			case 'c': {
+				char c = (char)va_arg(args, int);
+				vga_draw_char(col * WFONT, row * HFONT, c, 0x0F, 0x00);
+				col++;
+				break;
+			}
+			case '%': {
+				vga_draw_char(col * WFONT, row * HFONT, '%', 0x0F, 0x00);
+				col++;
+				break;
+			}
+		}
+	}
+
+	va_end(args);
+}

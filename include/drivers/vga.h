@@ -19,5 +19,6 @@ void printf(const char *fmt, ...);
 void screen_clear();
 void print_char(char c, nat8 fg, nat8 bg);
 void set_map_mask(nat8 mask);
+void printf_at(int col, int row, const char *fmt, ...);
 
 #endif

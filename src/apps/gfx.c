@@ -33,7 +33,7 @@ void timer_callback() {
 	if (!inited) return;
 
 	draw_triangle(0x0);
-	rotate_triangle(0.3f);
+	rotate_triangle(0.1f);
 	draw_triangle(0xF);
 }
 
@@ -47,7 +47,7 @@ void cmd_gfx(const char** args, int argc) {
 	triangle[1] = (point){200, 200};
 	triangle[2] = (point){300, 100};
 
-	center = (point){150, 150};
+	center = (point){120, 300};
 
 	draw_triangle(0x0F);
 

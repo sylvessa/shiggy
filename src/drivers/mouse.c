@@ -14,6 +14,8 @@ byte mouse_packet[4];
 static int prev_mouse_x = -1;
 static int prev_mouse_y = -1;
 
+static bool left_pressed = false;
+
 void draw_mouse_block(int x, int y, nat8 color) {
 	for(int px = 0; px < 4; px++) {
 		for(int py = 0; py < 4; py++) {
@@ -37,25 +39,28 @@ void erase_mouse_block(int x, int y) {
 }
 
 void mouse_callback() {
+	if (!gui_mode) return;
 	mouse_data = in_byte(0x60);
 
 	if(mouse_cycle == 0 && !(mouse_data & 0x08))
 		return;
 
 	mouse_packet[mouse_cycle++] = mouse_data;
-	if (mouse_cycle == 3 && gui_mode) {
+
+	if(mouse_cycle == 3) {
 		mouse_cycle = 0;
 
+		// movement
 		int8 dx = (int8)mouse_packet[1];
 		int8 dy = (int8)mouse_packet[2];
 
 		mouse_x += dx;
 		mouse_y -= dy;
 
-		if (mouse_x < 0) mouse_x = 0;
-		if (mouse_y < 0) mouse_y = 0;
-		if (mouse_x >= VGA_WIDTH) mouse_x = VGA_WIDTH - 1;
-		if (mouse_y >= VGA_HEIGHT) mouse_y = VGA_HEIGHT - 1;
+		if(mouse_x < 0) mouse_x = 0;
+		if(mouse_y < 0) mouse_y = 0;
+		if(mouse_x >= VGA_WIDTH) mouse_x = VGA_WIDTH - 1;
+		if(mouse_y >= VGA_HEIGHT) mouse_y = VGA_HEIGHT - 1;
 
 		if(prev_mouse_x >= 0 && prev_mouse_y >= 0)
 			erase_mouse_block(prev_mouse_x, prev_mouse_y);
@@ -64,8 +69,17 @@ void mouse_callback() {
 
 		prev_mouse_x = mouse_x;
 		prev_mouse_y = mouse_y;
+
+		left_pressed = (mouse_packet[0] & 0x1);
+		printf_at(0, 0, "              "); // clear
+		printf_at(0, 1, "              "); // clear
+		printf_at(0, 0, "Mouse X %d", mouse_x);
+		printf_at(0, 1, "Mouse Y %d", mouse_y);
+		
 	}
 }
+
+bool is_left_pressed() { return left_pressed; }
 
 void init_mouse() {
 	out_byte(0x64, 0xA7);

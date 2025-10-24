@@ -64,7 +64,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)
 	@$(ASM) $(NASM_FLAGS) -f elf $< -o $@
 
 $(BOOT_BIN): $(BOOT_SECTOR) $(KERNEL_BIN) | $(BUILD_DIR)
-	@SECTORS=$$(stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz}'); \
+	@SECTORS=$$(stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz+1}'); \
 	echo "$(CYAN)[BOOT]$(RESET) $< Setting sectors to $$SECTORS"; \
 	$(ASM) $< -DNUM_KERNEL_SECTORS=$$SECTORS -f bin -I $(SRC_DIR)/boot/ -o $@
 
