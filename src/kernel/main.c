@@ -6,6 +6,8 @@
 #include "drivers/vga.h"
 #include "drivers/mouse.h"
 
+bool gui_mode = false;
+
 void kmain() {
 	char* input = malloc(255);
 
@@ -27,20 +29,17 @@ void kmain() {
 	register_all_commands();
 
 	while (true) {
-		print("\\2xOS >\\x ");
+		if (!gui_mode) print("\\2xOS >\\x ");
 		sconf(input);
 
 		bool handled = false;
 
 		for (int i = 0; commands[i].name != NULL; i++) {
 			strlower(input);
-
-			int cmd_len = strlen((char*)commands[i].name);
-
-			if (strncmp(input, (char*)commands[i].name, cmd_len) == 0) {
+			int cmd_len = strlen(commands[i].name);
+			if (strncmp(input, commands[i].name, cmd_len) == 0 && (input[cmd_len] == '\0' || input[cmd_len] == ' ')) {
 				char *args_start = input + cmd_len;
-				while (*args_start == ' ')
-					args_start++;
+				while (*args_start == ' ') args_start++;
 
 				const char* argv[8];
 				int argc = 0;
@@ -49,7 +48,6 @@ void kmain() {
 					char* token = args_start;
 					while (*token && argc < 8) {
 						argv[argc++] = token;
-
 						while (*token && *token != ' ') token++;
 						if (*token) {
 							*token = '\0';

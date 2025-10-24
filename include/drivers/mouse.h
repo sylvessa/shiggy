@@ -4,5 +4,7 @@
 #include "types.h"
 
 void init_mouse();
+extern int mouse_x;
+extern int mouse_y;
 
 #endif

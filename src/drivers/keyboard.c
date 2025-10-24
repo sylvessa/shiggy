@@ -33,6 +33,7 @@ void keyboard_callback() {
 	}
 
 	if (released) return;
+	if (gui_mode) return;
 
 	switch (code) {
 		case BACKSPACE:

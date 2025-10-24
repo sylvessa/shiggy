@@ -28,7 +28,9 @@ KERNEL_BIN=$(BUILD_DIR)/kernel.bin
 OS_IMG=$(BUILD_DIR)/os.img
 HDD_IMG=$(BUILD_DIR)/hdd.img
 
-# colors
+SECTOR_SIZE=512
+KERNEL_SECTORS=$(shell if [ -f $(KERNEL_BIN) ]; then stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz}'; else echo 42; fi)
+
 GREEN=\033[0;32m
 BLUE=\033[0;34m
 CYAN=\033[0;36m
@@ -63,13 +65,12 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)
 	@$(ASM) $(NASM_FLAGS) -f elf $< -o $@
 
 $(BOOT_BIN): $(BOOT_SECTOR) | $(BUILD_DIR)
-	@echo "$(CYAN)[BOOT]$(RESET) $<"
-	@$(ASM) $< -f bin -I $(SRC_DIR)/boot/ -o $@
+	@echo "$(CYAN)[BOOT]$(RESET) $< Setting sectors to $(KERNEL_SECTORS)"
+	@$(ASM) $< -DNUM_KERNEL_SECTORS=$(KERNEL_SECTORS) -f bin -I $(SRC_DIR)/boot/ -o $@
 
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
 	@echo "$(BLUE)[LD]$(RESET) linking $@"
 	@$(LD) -m elf_i386 -T linker.ld -o $@ $^ -Map $(BUILD_DIR)/kernel.map
-
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	@echo "$(BLUE)[OBJCOPY]$(RESET) $<"
@@ -85,10 +86,6 @@ $(HDD_IMG):
 	@echo "$(YELLOW)[HDD]$(RESET) creating blank IDE hard drive image"
 	@dd if=/dev/zero of=$(HDD_IMG) bs=1M count=64 status=none
 	@echo "$(GREEN)[OK]$(RESET) created $(HDD_IMG)"
-
-# run: $(OS_IMG)
-# 	@echo "$(CYAN)[QEMU]$(RESET) running..."
-# 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy
 
 run: $(OS_IMG) $(HDD_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."

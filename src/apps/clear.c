@@ -9,7 +9,7 @@ void cmd_clear(const char** args, int argc) {
 void register_clear_cmd(void) {
     register_command(
 		"clear", // name
-		"shows 16 clear", // desc
+		"clears the terminal", // desc
 		0, // hidden
 		cmd_clear, // func
 		0 // args

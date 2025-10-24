@@ -15,6 +15,7 @@ extern void register_diskinfo_cmd(void);
 extern void register_clear_cmd(void);
 extern void register_cat_cmd(void);
 extern void register_time_cmd(void);
+extern void register_gui_cmd(void);
 
 
 void register_command(const char* name, const char* description, int hidden, command_func_t func, int args) {
@@ -39,4 +40,5 @@ void register_all_commands(void) {
 	register_clear_cmd();
 	register_cat_cmd();
 	register_time_cmd();
+	register_gui_cmd();
 }

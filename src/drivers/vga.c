@@ -156,6 +156,7 @@ void print(const char *string) {
 static void toggle_cursor() {
 	cursor_tick++;
 	if(cursor_tick % 20 != 0) return;
+	if (gui_mode) return;
 	cursor_blink ^= 1;
     
 	int px = cursor_x * WFONT;

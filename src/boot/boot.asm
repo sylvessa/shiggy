@@ -17,7 +17,7 @@ load_kernel:
     mov	ax, 0x0012
 	int 0x10
 
-    mov dh, 40
+    mov dh, NUM_KERNEL_SECTORS ; this is overwritten by the makefile
     mov dl, [BOOT_DRIVE]
 
     mov ax, KERNEL_SEG

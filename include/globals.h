@@ -15,5 +15,6 @@
 extern char kernel_start_addr;
 extern char kernel_end_addr;
 extern void *__free_memory_start;
+extern bool gui_mode;
 
 #endif

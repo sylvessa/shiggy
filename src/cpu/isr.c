@@ -65,13 +65,7 @@ static char *exception_messages[] = {
         "Reserved"};
 
 void isr_handler(registers_t r) {
-    print("received interrupt: ");
-    char* s = malloc(3);
-    dec2str(r.int_no, s);
-    print(s);
-    print("\n");
-    print(exception_messages[r.int_no]);
-    print("\n");
+    printf("received interrupt: %d\n%s\n", r.int_no, exception_messages[r.int_no]);
 }
 
 void register_interrupt_handler(nat8 n, isr_handler_t handler) {
