@@ -25,7 +25,7 @@
 - [ ] directories
 - [x] file persistence (write changes to disk)
 - [ ] ext2 implementation
-- [ ] port commands over to filesystem instead of all being in memory
+- [x] port commands over to filesystem instead of all being in memory
 
 ## shell
 
@@ -45,10 +45,10 @@
 ## memory / cpu
 
 - [x] basic memory layout known
-- [ ] heap / dynamic memory allocation
+- [x] basic heap allocator (malloc/free)
 - [ ] paging / virtual memory
 - [ ] task scheduling / multitasking (basic threads or processes)
-- [ ] interrupts / isr management
+- [x] interrupts / isr management
 - [x] timer / pit
 - [ ] cpu features (apic, multi-core support)
 
