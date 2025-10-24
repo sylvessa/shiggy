@@ -10,8 +10,8 @@ void cmd_mk(const char** args, int argc) {
 	char* filename = (char*)args[0];
 	char content[128];
 	snprintf(content, sizeof(content), "this is da content for %s", filename);
-	fat32_create_file(filename, content);
-	//printf("created file %s\n", filename);
+	fat32_create_file(current_dir_cluster, filename, content);
+	printf("created file %s\n", filename);
 	free(content);
 }
 

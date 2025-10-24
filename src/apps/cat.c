@@ -9,7 +9,7 @@ void cmd_cat(const char** args, int argc) {
 
 	char* filename = (char*)args[0];
 
-	nat32 sz = fat32_file_size(filename);
+	nat32 sz = fat32_file_size(current_dir_cluster, filename);
 	if (sz == 0) {
 		print("File not found\n");
 		return;
@@ -20,7 +20,7 @@ void cmd_cat(const char** args, int argc) {
 		return;
 	}
 
-	if (!fat32_read_file(filename, content, sz + 1)) {
+	if (!fat32_read_file(current_dir_cluster, filename, content, sz + 1)) {
 		print("Failed to read file\n");
 		free(content);
 		return;

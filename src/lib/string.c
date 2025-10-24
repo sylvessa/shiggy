@@ -95,3 +95,18 @@ void snprintf(char *buf, nat32 size, const char *fmt, ...) {
 	buf[i] = 0;
 	va_end(v);
 }
+
+void strcat(char *dest, const char *src) {
+	while (*dest) dest++;
+	while ((*dest++ = *src++));
+}
+
+char* strrchr(const char *s, int c) {
+	const char *last = 0;
+	while (*s) {
+		if (*s == (char)c) last = s;
+		s++;
+	}
+	return (char*)last;
+}
+

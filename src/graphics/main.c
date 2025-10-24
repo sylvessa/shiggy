@@ -20,10 +20,45 @@ void gfx_draw_pixel(int x, int y, nat8 color) {
 }
 
 void draw_thick_pixel(int x, int y, nat8 color, int thickness) {
-		for(int tx = -thickness/2; tx <= thickness/2; tx++)
-			for(int ty = -thickness/2; ty <= thickness/2; ty++)
-				gfx_draw_pixel(x+tx, y+ty, color);
+	int half = thickness / 2;
+	int x_start = x - half;
+	int x_end = x + half;
+	int y_start = y - half;
+	int y_end = y + half;
+
+	if(x_start < 0) x_start = 0;
+	if(y_start < 0) y_start = 0;
+	if(x_end >= VGA_WIDTH) x_end = VGA_WIDTH-1;
+	if(y_end >= VGA_HEIGHT) y_end = VGA_HEIGHT-1;
+
+	for(int py = y_start; py <= y_end; py++) {
+		int byte_start = x_start / 8;
+		int byte_end = x_end / 8;
+
+		for(int plane = 0; plane < 4; plane++) {
+			set_map_mask(1 << plane);
+			volatile nat8 *fb = VGA_FB + py * VGA_BYTES_PER_SCANLINE;
+
+			for(int bx = byte_start; bx <= byte_end; bx++) {
+				int mask = 0xFF;
+
+				// handle left edge
+				if(bx == byte_start) mask &= 0xFF >> (x_start % 8);
+				// handle right edge
+				if(bx == byte_end) mask &= 0xFF << (7 - (x_end % 8));
+
+				if(color & (1 << plane))
+					fb[bx] |= mask;
+				else
+					fb[bx] &= ~mask;
+			}
+		}
 	}
+	set_map_mask(0x0F);
+}
+
+
+
 
 void gfx_draw_line(int x0, int y0, int x1, int y1, nat8 color, int thickness) {
 	if(thickness < 1) thickness = 1;

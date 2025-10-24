@@ -242,18 +242,49 @@ void printf(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	char buf[32];
+	nat8 fg = fg_color;
+	nat8 bg = bg_color;
 
 	for (; *fmt; fmt++) {
-		if (*fmt != '%') {
-			char s[2] = {*fmt, 0};
-			print(s);
+		if(*fmt == '\\') {
+			fmt++;
+			if(*fmt == 'x') { fg = fg_color; bg = bg_color; continue; }
+
+			nat8 new_fg = 15, new_bg = 0;
+			switch(*fmt) {
+				case '0': new_fg=0; break; case '1': new_fg=1; break; case '2': new_fg=2; break;
+				case '3': new_fg=3; break; case '4': new_fg=4; break; case '5': new_fg=5; break;
+				case '6': new_fg=6; break; case '7': new_fg=7; break; case '8': new_fg=8; break;
+				case '9': new_fg=9; break; case 'a': new_fg=10; break; case 'b': new_fg=11; break;
+				case 'c': new_fg=12; break; case 'd': new_fg=13; break; case 'e': new_fg=14; break;
+				case 'f': new_fg=15; break; default: new_fg=15; break;
+			}
+
+			fmt++;
+			if(*fmt) {
+				switch(*fmt) {
+					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
+					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					default: new_bg=0; break;
+				}
+			} else fmt--;
+
+			fg = new_fg;
+			bg = new_bg;
 			continue;
 		}
+
+		if (*fmt != '%') {
+			print_char(*fmt, fg, bg);
+			continue;
+		}
+
 		fmt++;
 		switch (*fmt) {
 			case 's': {
 				char *str = va_arg(args, char*);
-				print(str);
+				for(int i=0; str[i]; i++) print_char(str[i], fg, bg);
 				break;
 			}
 			case 'd': {
@@ -261,13 +292,13 @@ void printf(const char *fmt, ...) {
 				char *p = buf + sizeof(buf) - 1;
 				*p = 0;
 				int neg = num < 0;
-				if (neg) num = -num;
+				if(neg) num = -num;
 				do {
 					*--p = '0' + (num % 10);
 					num /= 10;
-				} while (num);
-				if (neg) *--p = '-';
-				print(p);
+				} while(num);
+				if(neg) *--p = '-';
+				for(char *c=p; *c; c++) print_char(*c, fg, bg);
 				break;
 			}
 			case 'x': {
@@ -278,8 +309,8 @@ void printf(const char *fmt, ...) {
 					int digit = num & 0xF;
 					*--p = digit < 10 ? '0' + digit : 'a' + digit - 10;
 					num >>= 4;
-				} while (num);
-				print(p);
+				} while(num);
+				for(char *c=p; *c; c++) print_char(*c, fg, bg);
 				break;
 			}
 			case 'p': {
@@ -291,19 +322,18 @@ void printf(const char *fmt, ...) {
 					int digit = num & 0xF;
 					*--p = digit < 10 ? '0' + digit : 'a' + digit - 10;
 					num >>= 4;
-				} while (num);
+				} while(num);
 				print("0x");
-				print(p);
+				for(char *c=p; *c; c++) print_char(*c, fg, bg);
 				break;
 			}
 			case 'c': {
 				char c = (char)va_arg(args, int);
-				char s[2] = {c, 0};
-				print(s);
+				print_char(c, fg, bg);
 				break;
 			}
 			case '%': {
-				print("%");
+				print_char('%', fg, bg);
 				break;
 			}
 		}
@@ -316,69 +346,67 @@ void printf_at(int col, int row, const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	char buf[32];
+	nat8 fg = fg_color;
+	nat8 bg = bg_color;
 
-	int orig_col = col;
+	for(; *fmt; fmt++) {
+		if(*fmt == '\\') {
+			fmt++;
+			if(*fmt == 'x') { fg = fg_color; bg = bg_color; continue; }
 
-	for (; *fmt; fmt++) {
-		if (*fmt != '%') {
-			vga_draw_char(col * WFONT, row * HFONT, *fmt, 0x0F, 0x00);
+			nat8 new_fg = 15, new_bg = 0;
+			switch(*fmt) {
+				case '0': new_fg=0; break; case '1': new_fg=1; break; case '2': new_fg=2; break;
+				case '3': new_fg=3; break; case '4': new_fg=4; break; case '5': new_fg=5; break;
+				case '6': new_fg=6; break; case '7': new_fg=7; break; case '8': new_fg=8; break;
+				case '9': new_fg=9; break; case 'a': new_fg=10; break; case 'b': new_fg=11; break;
+				case 'c': new_fg=12; break; case 'd': new_fg=13; break; case 'e': new_fg=14; break;
+				case 'f': new_fg=15; break; default: new_fg=15; break;
+			}
+
+			fmt++;
+			if(*fmt) {
+				switch(*fmt) {
+					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
+					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					default: new_bg=0; break;
+				}
+			} else fmt--;
+
+			fg = new_fg;
+			bg = new_bg;
+			continue;
+		}
+
+		if(*fmt != '%') {
+			vga_draw_char(col * WFONT, row * HFONT, *fmt, fg, bg);
 			col++;
 			continue;
 		}
 
 		fmt++;
-		switch (*fmt) {
+		switch(*fmt) {
 			case 's': {
 				char *str = va_arg(args, char*);
-				for(int i=0; str[i]; i++) {
-					vga_draw_char(col * WFONT, row * HFONT, str[i], 0x0F, 0x00);
-					col++;
-				}
+				for(int i=0; str[i]; i++) { vga_draw_char(col*WFONT,row*HFONT,str[i],fg,bg); col++; }
 				break;
 			}
 			case 'd': {
-				int num = va_arg(args, int);
-				char *p = buf + sizeof(buf) - 1;
-				*p = 0;
-				int neg = num < 0;
-				if (neg) num = -num;
-				do {
-					*--p = '0' + (num % 10);
-					num /= 10;
-				} while (num);
-				if (neg) *--p = '-';
-				for(char *c=p; *c; c++) {
-					vga_draw_char(col * WFONT, row * HFONT, *c, 0x0F, 0x00);
-					col++;
-				}
+				int num = va_arg(args,int);
+				char *p=buf+sizeof(buf)-1; *p=0; int neg=num<0; if(neg) num=-num;
+				do{*--p='0'+(num%10); num/=10;}while(num); if(neg)*--p='-';
+				for(char *c=p;*c;c++){vga_draw_char(col*WFONT,row*HFONT,*c,fg,bg); col++;}
 				break;
 			}
 			case 'x': {
-				unsigned int num = va_arg(args, unsigned int);
-				char *p = buf + sizeof(buf) - 1;
-				*p = 0;
-				do {
-					int digit = num & 0xF;
-					*--p = digit < 10 ? '0' + digit : 'a' + digit - 10;
-					num >>= 4;
-				} while (num);
-				for(char *c=p; *c; c++) {
-					vga_draw_char(col * WFONT, row * HFONT, *c, 0x0F, 0x00);
-					col++;
-				}
+				unsigned int num=va_arg(args,unsigned int); char *p=buf+sizeof(buf)-1; *p=0;
+				do{int d=num&0xF; *--p=d<10?'0'+d:'a'+d-10; num>>=4;}while(num);
+				for(char *c=p;*c;c++){vga_draw_char(col*WFONT,row*HFONT,*c,fg,bg); col++;}
 				break;
 			}
-			case 'c': {
-				char c = (char)va_arg(args, int);
-				vga_draw_char(col * WFONT, row * HFONT, c, 0x0F, 0x00);
-				col++;
-				break;
-			}
-			case '%': {
-				vga_draw_char(col * WFONT, row * HFONT, '%', 0x0F, 0x00);
-				col++;
-				break;
-			}
+			case 'c': { char c=(char)va_arg(args,int); vga_draw_char(col*WFONT,row*HFONT,c,fg,bg); col++; break; }
+			case '%': { vga_draw_char(col*WFONT,row*HFONT,'%',fg,bg); col++; break; }
 		}
 	}
 

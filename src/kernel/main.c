@@ -6,6 +6,9 @@
 #include "drivers/vga.h"
 #include "drivers/mouse.h"
 
+char* current_dir = "/";
+int current_dir_cluster = FIRST_FILE_CLUSTER;
+
 bool gui_mode = false;
 
 void kmain() {
@@ -29,7 +32,9 @@ void kmain() {
 	register_all_commands();
 
 	while (true) {
-		if (!gui_mode) print("\\9x/\\x$ ");
+		if (!gui_mode) {
+			printf("\\9x%s\\x$ ", current_dir);
+		}
 		sconf(input);
 
 		bool handled = false;

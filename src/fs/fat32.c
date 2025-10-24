@@ -1,209 +1,248 @@
 #include "globals.h"
+#include "fs/fat32.h"
 
-#define ROOT_DIR_LBA 2
-#define FIRST_FILE_CLUSTER 3
-#define MAX_ROOT_ENTRIES 16
+nat8 fat32_log = 0;
 
-nat8 fat32_log = 1;
-
-static nat32 fat_start_lba;
-static nat32 cluster2_lba;
-static nat32 sectors_per_fat;
-static nat32 total_clusters;
 static nat32 next_free_cluster;
-
-static nat8 fat[SECTOR_SIZE*8];
-static fat32_dir_entry_t root_dir[MAX_ROOT_ENTRIES];
+fat32_dir_entry_t root_dir[MAX_ROOT_ENTRIES];
 
 static void write_sector_lba(nat32 lba, const nat8 *buffer) {
-    ata_write_sector(lba, buffer);
+	ata_write_sector(lba, buffer);
 }
 
 static void read_sector_lba(nat32 lba, nat8 *buffer) {
-    ata_read_sector(lba, buffer);
+	ata_read_sector(lba, buffer);
 }
 
 static nat32 cluster_to_lba(nat32 cluster) {
-    return cluster2_lba + (cluster - FIRST_FILE_CLUSTER);
-}
-
-static void init_fat() {
-    for (nat32 i = 0; i < total_clusters; i++) fat[i] = 0;
-    fat[0] = 0xF8; fat[1] = 0xFF; fat[2] = 0xFF;
+	int root_dir_sectors = (MAX_ROOT_ENTRIES * sizeof(fat32_dir_entry_t) + SECTOR_SIZE - 1) / SECTOR_SIZE;
+	return ROOT_DIR_LBA + root_dir_sectors + (cluster - FIRST_FILE_CLUSTER);
 }
 
 static void write_root_dir() {
-    nat8 buffer[SECTOR_SIZE];
-    for (int i = 0; i < SECTOR_SIZE; i++) buffer[i] = 0;
+	int total_bytes = sizeof(fat32_dir_entry_t) * MAX_ROOT_ENTRIES;
+	int sectors_needed = (total_bytes + SECTOR_SIZE - 1) / SECTOR_SIZE;
 
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (root_dir[i].name[0] == 0 || root_dir[i].name[0] == 0xE5) continue;
+	if (fat32_log) printf("writing root_dir, %d entries, %d sectors\n", MAX_ROOT_ENTRIES, sectors_needed);
 
-        int offset = i * 32;
-        
-        for (int j = 0; j < 11; j++) buffer[offset + j] = root_dir[i].name[j];
-        buffer[offset + 11] = root_dir[i].attr;
-        
-        buffer[offset + 20] = root_dir[i].first_cluster_high & 0xFF;
-        buffer[offset + 21] = (root_dir[i].first_cluster_high >> 8) & 0xFF;
-        
-        buffer[offset + 26] = root_dir[i].first_cluster_low & 0xFF;
-        buffer[offset + 27] = (root_dir[i].first_cluster_low >> 8) & 0xFF;
-        
-        buffer[offset + 28] = root_dir[i].file_size & 0xFF;
-        buffer[offset + 29] = (root_dir[i].file_size >> 8) & 0xFF;
-        buffer[offset + 30] = (root_dir[i].file_size >> 16) & 0xFF;
-        buffer[offset + 31] = (root_dir[i].file_size >> 24) & 0xFF;
-    }
+	for (int s = 0; s < sectors_needed; s++) {
+		nat8 buffer[SECTOR_SIZE];
+		memset(buffer, 0, SECTOR_SIZE);
 
-    write_sector_lba(ROOT_DIR_LBA, buffer);
+		int non_empty_count = 0;
+
+		for (int j = 0; j < MAX_ROOT_ENTRIES; j++) {
+			int start_byte = j * sizeof(fat32_dir_entry_t);
+			int sector_index = start_byte / SECTOR_SIZE;
+			if (sector_index != s) continue;
+
+			int offset_in_sector = start_byte % SECTOR_SIZE;
+			memcpy(buffer + offset_in_sector, &root_dir[j], sizeof(fat32_dir_entry_t));
+
+			if (root_dir[j].name[0] != 0) non_empty_count++;
+		}
+
+		write_sector_lba(ROOT_DIR_LBA + s, buffer);
+
+		if (fat32_log) {
+			printf("sector %d written, %d non-empty entries\n", ROOT_DIR_LBA + s, non_empty_count);
+			for (int j = 0; j < MAX_ROOT_ENTRIES && non_empty_count > 0; j++) {
+				int start_byte = j * sizeof(fat32_dir_entry_t);
+				if (start_byte / SECTOR_SIZE != s) continue;
+				if (root_dir[j].name[0] != 0) {
+					printf("  entry '%s' cluster %d attr 0x%x size %d\n",
+						root_dir[j].name,
+						root_dir[j].first_cluster,
+						root_dir[j].attr,
+						root_dir[j].file_size);
+				}
+			}
+		}
+	}
+
+	if (fat32_log) printf("finished writing root_dir\n");
 }
 
 static void load_root_dir() {
-    nat8 buffer[SECTOR_SIZE];
-    read_sector_lba(ROOT_DIR_LBA, buffer);
+	int total_bytes = sizeof(fat32_dir_entry_t) * MAX_ROOT_ENTRIES;
+	int sectors_needed = (total_bytes + SECTOR_SIZE - 1) / SECTOR_SIZE;
 
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        int offset = i * 32;
-        for (int j = 0; j < 11; j++) root_dir[i].name[j] = buffer[offset + j];
-        root_dir[i].attr = buffer[offset + 11];
-        root_dir[i].first_cluster_high = (nat16)buffer[offset + 20] | ((nat16)buffer[offset + 21] << 8);
-        root_dir[i].first_cluster_low = (nat16)buffer[offset + 26] | ((nat16)buffer[offset + 27] << 8);
-        root_dir[i].file_size = (nat32)buffer[offset + 28] | 
-                              ((nat32)buffer[offset + 29] << 8) | 
-                              ((nat32)buffer[offset + 30] << 16) | 
-                              ((nat32)buffer[offset + 31] << 24);
-    }
+	if (fat32_log) printf("loading root_dir, %d sectors\n", sectors_needed);
 
-    next_free_cluster = FIRST_FILE_CLUSTER;
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (root_dir[i].first_cluster_low >= next_free_cluster)
-            next_free_cluster = root_dir[i].first_cluster_low + 1;
-    }
+	for (int s = 0; s < sectors_needed; s++) {
+		nat8 buffer[SECTOR_SIZE];
+		read_sector_lba(ROOT_DIR_LBA + s, buffer);
+
+		for (int j = 0; j < MAX_ROOT_ENTRIES; j++) {
+			int start_byte = j * sizeof(fat32_dir_entry_t);
+			int sector_index = start_byte / SECTOR_SIZE;
+			if (sector_index != s) continue;
+
+			int offset_in_sector = start_byte % SECTOR_SIZE;
+			memcpy(&root_dir[j], buffer + offset_in_sector, sizeof(fat32_dir_entry_t));
+
+			if (fat32_log && root_dir[j].name[0] != 0) {
+				printf("loaded entry '%s' cluster %d attr 0x%x size %d\n",
+					root_dir[j].name,
+					root_dir[j].first_cluster,
+					root_dir[j].attr,
+					root_dir[j].file_size);
+			}
+		}
+	}
+
+	// fix next_free_cluster
+	next_free_cluster = FIRST_FILE_CLUSTER;
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] != 0 && root_dir[i].first_cluster >= next_free_cluster) {
+			next_free_cluster = root_dir[i].first_cluster + 1;
+		}
+	}
+
+	if (fat32_log) printf("next free cluster: %d\n", next_free_cluster);
 }
 
+
 static nat8 is_formatted() {
-    nat8 buffer[SECTOR_SIZE];
-    read_sector_lba(0, buffer);
-    return (buffer[510] == 'S' && buffer[511] == 'H') ? 1 : 0;
+	nat8 buffer[SECTOR_SIZE];
+	read_sector_lba(0, buffer);
+	return (buffer[510] == 'S' && buffer[511] == 'H') ? 1 : 0;
 }
 
 static void format_fs() {
-    nat8 buffer[SECTOR_SIZE];
-    for (int i = 0; i < SECTOR_SIZE; i++) buffer[i] = 0;
+	nat8 buffer[SECTOR_SIZE];
+	for (int i = 0; i < SECTOR_SIZE; i++) buffer[i] = 0;
 
-    buffer[510] = 'S';
-    buffer[511] = 'H';
-    write_sector_lba(0, buffer);
+	buffer[510] = 'S';
+	buffer[511] = 'H';
+	write_sector_lba(0, buffer);
 
-    fat_start_lba = 1;
-    sectors_per_fat = 1;
-    cluster2_lba = FIRST_FILE_CLUSTER; // LBA of Cluster 3 data (LBA 3, from hexdump)
-    total_clusters = 256;
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) root_dir[i].name[0] = 0;
+	write_root_dir();
 
-    init_fat();
-
-    for (int i = 0; i < SECTOR_SIZE; i++) buffer[i] = 0;
-    buffer[0] = 0xF8; buffer[1] = 0xFF; buffer[2] = 0xFF;
-    write_sector_lba(fat_start_lba, buffer);
-
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) root_dir[i].name[0] = 0;
-    write_root_dir();
-
-    next_free_cluster = FIRST_FILE_CLUSTER;
+	next_free_cluster = FIRST_FILE_CLUSTER;
 }
 
 void fat32_fs_init() {
-    fat_start_lba = 1;
-    sectors_per_fat = 1;
-    cluster2_lba = FIRST_FILE_CLUSTER; 
-    total_clusters = 256;
-
-    if (!is_formatted()) {
-        format_fs();
-    } else {
-        load_root_dir();
-    }
+	if (!is_formatted()) format_fs();
+	else load_root_dir();
 }
 
-nat8 fat32_create_file(const char *name, const char *content) {
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (root_dir[i].name[0] == 0 || root_dir[i].name[0] == 0xE5) {
-            
-            memset(&root_dir[i], 0, sizeof(fat32_dir_entry_t)); 
+nat8 fat32_create_file(nat32 dir_cluster, const char *name, const char *content) {
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) {
+			memset(&root_dir[i], 0, sizeof(fat32_dir_entry_t));
 
-            strncpy((char*)root_dir[i].name, name, 11);
-            root_dir[i].attr = 0x20;
+			strncpy((char*)root_dir[i].name, name, 255);
+			root_dir[i].name[255] = 0;
 
-            root_dir[i].first_cluster_high = 0; 
-
-            root_dir[i].first_cluster_low = next_free_cluster;
-            nat32 file_cluster = next_free_cluster;
+			root_dir[i].attr = FAT32_ATTR_ARCHIVE;
             next_free_cluster++;
+			root_dir[i].first_cluster = next_free_cluster;
+			root_dir[i].parent_cluster = dir_cluster;
+			root_dir[i].file_size = strlen(content);
 
-            nat32 sz = strlen(content);
-            root_dir[i].file_size = sz;
+			// write content sector(s)
+			nat32 cluster_lba = cluster_to_lba(root_dir[i].first_cluster);
+			nat8 fbuf[SECTOR_SIZE];
+			memset(fbuf, 0, SECTOR_SIZE);
+			strncpy((char*)fbuf, content, SECTOR_SIZE-1);
+			write_sector_lba(cluster_lba, fbuf);
 
-            nat8 buffer[SECTOR_SIZE];
-            for (int j = 0; j < SECTOR_SIZE; j++) buffer[j] = 0;
-            for (nat32 j = 0; j < sz && j < SECTOR_SIZE; j++) buffer[j] = content[j];
-
-            write_sector_lba(cluster_to_lba(file_cluster), buffer);
-            write_root_dir();
-
-            if (fat32_log) printf("[fat32] file '%s' written at cluster %d, size %d\n", name, file_cluster, sz);
-            return 1;
-        }
-    }
-    return 0;
+			write_root_dir();
+			return 1;
+		}
+	}
+	return 0;
 }
 
-nat8 fat32_read_file(const char *name, char *buffer, nat32 max_size) {
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (strncmp((char*)root_dir[i].name, name, 11) == 0) {
-            nat32 sz = root_dir[i].file_size;
-            if (sz > max_size) sz = max_size;
+nat8 fat32_create_dir(nat32 dir_cluster, const char *name) {
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) {
+			memset(&root_dir[i], 0, sizeof(fat32_dir_entry_t));
 
-            nat32 file_cluster = root_dir[i].first_cluster_low;
+			strncpy((char*)root_dir[i].name, name, 255);
+			root_dir[i].name[255] = 0;
 
-            nat8 temp[SECTOR_SIZE];
-            read_sector_lba(cluster_to_lba(file_cluster), temp);
+            next_free_cluster++;
+			root_dir[i].attr = FAT32_ATTR_DIRECTORY;
+			root_dir[i].first_cluster = next_free_cluster;
+			root_dir[i].parent_cluster = dir_cluster;
+			root_dir[i].file_size = 0;
 
-            for (nat32 j = 0; j < sz; j++) buffer[j] = temp[j];
-            buffer[sz] = 0;
-            return 1;
-        }
-    }
-    return 0;
+			write_root_dir();
+			return 1;
+		}
+	}
+	return 0;
 }
 
-nat32 fat32_file_count() {
-    nat32 count = 0;
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (root_dir[i].name[0] != 0 && root_dir[i].name[0] != 0xE5) count++;
-    }
-    return count;
+
+nat8 fat32_read_file(nat32 dir_cluster, const char *name, char *buffer, nat32 max_size) {
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) continue;
+		if (root_dir[i].parent_cluster != dir_cluster) continue;
+		if (strcmp((char*)root_dir[i].name, name) == 0) {
+			nat32 sz = root_dir[i].file_size;
+			if (sz > max_size-1) sz = max_size-1;
+
+			nat8 fbuf[SECTOR_SIZE]; read_sector_lba(cluster_to_lba(root_dir[i].first_cluster), fbuf);
+			strncpy(buffer, (char*)fbuf, sz);
+			buffer[sz] = 0;
+			return 1;
+		}
+	}
+	return 0;
 }
 
-const char* fat32_file_get_name(nat32 index) {
-    char* name = malloc(12);
-    nat32 c = 0;
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (root_dir[i].name[0] != 0 && root_dir[i].name[0] != 0xE5) {
-            if (c == index) {
-                for (int j = 0; j < 11; j++) name[j] = root_dir[i].name[j];
-                name[11] = 0;
-                return name;
-            }
-            c++;
-        }
-    }
-    return 0;
+nat32 fat32_file_count(nat32 dir_cluster) {
+	nat32 count = 0;
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++)
+		if (root_dir[i].name[0] != 0 && !(root_dir[i].attr & FAT32_ATTR_DIRECTORY) && root_dir[i].parent_cluster == dir_cluster) count++;
+	return count;
 }
 
-nat32 fat32_file_size(const char* name) {
-    for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
-        if (strncmp((char*)root_dir[i].name, name, 11) == 0) return root_dir[i].file_size;
-    }
-    return 0;
+nat32 fat32_dir_count(nat32 dir_cluster) {
+	nat32 count = 0;
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++)
+		if (root_dir[i].name[0] != 0 && (root_dir[i].attr & FAT32_ATTR_DIRECTORY) && root_dir[i].parent_cluster == dir_cluster) count++;
+	return count;
+}
+
+void fat32_dir_get_entry(nat32 dir_cluster, nat32 index, fat32_dir_entry_t *entry) {
+	nat32 c = 0;
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) continue;
+		if (root_dir[i].parent_cluster != dir_cluster) continue;
+		if (c == index) {
+			memcpy(entry, &root_dir[i], sizeof(fat32_dir_entry_t));
+			return;
+		}
+		c++;
+	}
+}
+
+nat32 fat32_file_size(nat32 dir_cluster, const char* name) {
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) continue;
+		if (root_dir[i].parent_cluster != dir_cluster) continue;
+		if (strcmp((char*)root_dir[i].name, name) == 0) return root_dir[i].file_size;
+	}
+	return 0;
+}
+
+const char* fat32_file_get_name(nat32 dir_cluster, nat32 index) {
+	static char name[256];
+	nat32 c = 0;
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) continue;
+		if (root_dir[i].parent_cluster != dir_cluster) continue;
+		if (c == index) {
+			strncpy(name, (char*)root_dir[i].name, 255);
+			name[255] = 0;
+			return name;
+		}
+		c++;
+	}
+	return 0;
 }

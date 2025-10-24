@@ -2,26 +2,35 @@
 #include "apps/base.h"
 
 void cmd_ls(const char** args, int argc) {
-	nat32 file_count = fat32_file_count();
-	if (!file_count) {
-		print("no files found\n");
+	nat32 total_files = fat32_file_count(current_dir_cluster);
+	nat32 total_dirs  = fat32_dir_count(current_dir_cluster);
+	nat32 total = total_files + total_dirs;
+
+	if (!total) {
+		print("no files or directories found\n");
 		return;
 	}
 
-	for (nat32 i = 0; i < file_count; i++) {
-		const char* name = fat32_file_get_name(i);
-		if (!name) continue;
-		nat32 size = fat32_file_size(name);
-		printf("%s    %d bytes\n", name, size);
+	for (nat32 i = 0; i < total; i++) {
+		fat32_dir_entry_t entry;
+		fat32_dir_get_entry(current_dir_cluster, i, &entry);
+
+		if (entry.name[0] == 0 || entry.name[0] == 0xE5) continue;
+
+		if (entry.attr & FAT32_ATTR_DIRECTORY) {
+			printf("%s/\n", entry.name);
+		} else {
+			printf("%s    %d bytes\n", entry.name, entry.file_size);
+		}
 	}
 }
 
 void register_ls_cmd(void) {
     register_command(
-		"ls", // name
-		"lists files (no args rn)", // desc
-		0, // hidden
-		cmd_ls, // func
-		0 // args
+		"ls",
+		"lists files and directories in root",
+		0,
+		cmd_ls,
+		0
 	);
 }

@@ -16,6 +16,8 @@ extern void register_clear_cmd(void);
 extern void register_cat_cmd(void);
 extern void register_time_cmd(void);
 extern void register_gui_cmd(void);
+extern void register_mkdir_cmd(void);
+extern void register_cd_cmd(void);
 
 
 void register_command(const char* name, const char* description, int hidden, command_func_t func, int args) {
@@ -41,4 +43,6 @@ void register_all_commands(void) {
 	register_cat_cmd();
 	register_time_cmd();
 	register_gui_cmd();
+	register_mkdir_cmd();
+	register_cd_cmd();
 }
