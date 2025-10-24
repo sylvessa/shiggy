@@ -22,7 +22,6 @@ void kmain() {
 		print("Failed to initialized ACPI\n");
 
 
-	//register_all_commands_from_section();
 	register_all_commands();
 
 	while (true) {

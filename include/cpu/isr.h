@@ -43,8 +43,16 @@ DECLARE_ISR(28) DECLARE_ISR(29) DECLARE_ISR(30) DECLARE_ISR(31)
 DECLARE_IRQ(0)  // system timer
 DECLARE_IRQ(1)  // keyboard
 DECLARE_IRQ(2)  // cascaded from IRQs 8-15
+DECLARE_IRQ(3)  // serial port 2
+DECLARE_IRQ(4)  // serial port 1
+DECLARE_IRQ(5)  // parallel port 2 / sound card
 DECLARE_IRQ(6)  // floppy disk
+DECLARE_IRQ(7)  // parallel port 1 / printer
 DECLARE_IRQ(8)  // real-time clock
+DECLARE_IRQ(9)  // acpi system control
+DECLARE_IRQ(10) // open for peripherals
+DECLARE_IRQ(11) // open for peripherals
+DECLARE_IRQ(12) // PS/2 mouse
 DECLARE_IRQ(13) // CPU co-processor
 DECLARE_IRQ(14) // primary ATA channel (hdd or cd)
 DECLARE_IRQ(15) // secondary ATA channel

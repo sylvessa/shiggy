@@ -58,7 +58,7 @@ void cmd_gfx(const char** args, int argc) {
 	triangle[1] = (point){200, 200};
 	triangle[2] = (point){300, 100};
 
-	center = (point){200, 150};
+	center = (point){150, 150};
 
 	draw_triangle(0x0F);
 
