@@ -24,7 +24,7 @@ void register_test_cmd(void) {
     register_command(
 		"test", // name
 		"test command", // desc
-		1, // hidden
+		0, // hidden
 		cmd_test, // func
 		1 // args
 	);

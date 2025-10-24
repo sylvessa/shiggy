@@ -4,6 +4,7 @@
 #include "apps/base.h"
 #include "cpu/acpi.h"
 #include "drivers/vga.h"
+#include "drivers/mouse.h"
 
 void kmain() {
 	char* input = malloc(255);
@@ -22,6 +23,7 @@ void kmain() {
 		print("Failed to initialized ACPI\n");
 
 
+	init_mouse();
 	register_all_commands();
 
 	while (true) {
