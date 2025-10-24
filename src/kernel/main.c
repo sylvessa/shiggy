@@ -29,7 +29,7 @@ void kmain() {
 	register_all_commands();
 
 	while (true) {
-		if (!gui_mode) print("\\2xOS >\\x ");
+		if (!gui_mode) print("\\9x/\\x$ ");
 		sconf(input);
 
 		bool handled = false;
