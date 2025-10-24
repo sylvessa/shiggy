@@ -9,17 +9,6 @@ point triangle[3];
 point center;
 int inited = 0;
 
-static unsigned int rng_seed = 12345;
-
-unsigned int rand_int() {
-	rng_seed = rng_seed * 1103515245 + 12345;
-	return (rng_seed / 65536) % 32768;
-}
-
-float rand_float() {
-	return rand_int() / 32768.0f;
-}
-
 void draw_triangle(int color) {
 	gfx_draw_line(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y, color, 3);
 	gfx_draw_line(triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y, color, 3);

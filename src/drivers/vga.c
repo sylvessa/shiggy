@@ -1,12 +1,23 @@
 #include "globals.h"
 #include "font/main.h"
 
+#define MAX_COLS (VGA_WIDTH / WFONT)
+#define MAX_ROWS (VGA_HEIGHT / HFONT)
+
 static int cursor_x = 0;
 static int cursor_y = 0;
 static nat8 fg_color = 0x0F;
 static nat8 bg_color = 0x00;
 static int cursor_blink = 0;
 static nat32 cursor_tick = 0;
+
+typedef struct {
+	char c;
+	nat8 fg;
+	nat8 bg;
+} cell_t;
+
+static cell_t screen_buf[MAX_ROWS][MAX_COLS];
 
 static inline void seq_write(nat8 index, nat8 value) {
 	out_byte(0x3C4, index);
@@ -59,7 +70,6 @@ void vga_draw_char(int x, int y, char c, nat8 fg, nat8 bg) {
 	set_map_mask(0x0F);
 }
 
-
 static void clear_char_area(int cx, int cy, nat8 color) {
 	for(int y = 0; y < HFONT; y++) {
 		for(int x = 0; x < WFONT; x++) {
@@ -68,49 +78,65 @@ static void clear_char_area(int cx, int cy, nat8 color) {
 	}
 }
 
-void screen_clear() {
-	for(int y = 0; y < VGA_HEIGHT / HFONT; y++) {
-		for(int x = 0; x < VGA_WIDTH / WFONT; x++) {
-			vga_draw_char(x * WFONT, y * HFONT, ' ', fg_color, bg_color);
+void redraw_screen() {
+	for(int y=0; y<MAX_ROWS; y++) {
+		for(int x=0; x<MAX_COLS; x++) {
+			cell_t *cell = &screen_buf[y][x];
+			vga_draw_char(x * WFONT, y * HFONT, cell->c, cell->fg, cell->bg);
 		}
 	}
-	cursor_x = 0;
-	cursor_y = 0;
 }
 
-void vga_scroll() {
-	int max_rows = VGA_HEIGHT / HFONT;
-	if(cursor_y >= max_rows) {
-		int lines_to_move = cursor_y - max_rows + 1;
-		int pixels_to_move = lines_to_move * HFONT;
-		memmove((void*)VGA_FB, (const void*)(VGA_FB + pixels_to_move * VGA_BYTES_PER_SCANLINE),
-			VGA_HEIGHT * VGA_BYTES_PER_SCANLINE - pixels_to_move * VGA_BYTES_PER_SCANLINE);
-
-		for(int y = max_rows - lines_to_move; y < max_rows; y++) {
-			for(int x = 0; x < VGA_WIDTH / WFONT; x++) {
-				vga_draw_char(x * WFONT, y * HFONT, ' ', fg_color, bg_color);
-			}
+void scroll_buffer() {
+	for(int y=1; y<MAX_ROWS; y++) {
+		for(int x=0; x<MAX_COLS; x++) {
+			screen_buf[y-1][x] = screen_buf[y][x];
 		}
-		cursor_y = max_rows - 1;
+	}
+	// clear last row
+	for(int x=0; x<MAX_COLS; x++) {
+		screen_buf[MAX_ROWS-1][x].c = ' ';
+		screen_buf[MAX_ROWS-1][x].fg = 0x0F;
+		screen_buf[MAX_ROWS-1][x].bg = 0x00;
 	}
 }
 
 void print_char(char c, nat8 fg, nat8 bg) {
-	clear_char_area(cursor_x * WFONT, cursor_y * HFONT, bg);
-
 	if(c == '\n') {
 		cursor_x = 0;
 		cursor_y++;
 	} else {
-		vga_draw_char(cursor_x * WFONT, cursor_y * HFONT, c, fg, bg);
-		cursor_x++;
-		if(cursor_x >= VGA_WIDTH / WFONT) {
+		if(cursor_x >= MAX_COLS) {
 			cursor_x = 0;
 			cursor_y++;
 		}
+
+		screen_buf[cursor_y][cursor_x].c = c;
+		screen_buf[cursor_y][cursor_x].fg = fg;
+		screen_buf[cursor_y][cursor_x].bg = bg;
+		vga_draw_char(cursor_x * WFONT, cursor_y * HFONT, c, fg, bg);
+		cursor_x++;
 	}
 
-	vga_scroll();
+	if(cursor_y >= MAX_ROWS) {
+		scroll_buffer();
+		cursor_y = MAX_ROWS - 1;
+		redraw_screen();
+	}
+}
+
+
+void screen_clear() {
+	for(int y=0; y<MAX_ROWS; y++) {
+		for(int x=0; x<MAX_COLS; x++) {
+			screen_buf[y][x].c = ' ';
+			screen_buf[y][x].fg = 0x0F;
+			screen_buf[y][x].bg = 0x00;
+		}
+	}
+	redraw_screen();
+	cursor_x = 0;
+	cursor_y = 0;
 }
 
 void print(const char *string) {

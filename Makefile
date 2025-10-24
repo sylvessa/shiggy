@@ -29,7 +29,7 @@ OS_IMG=$(BUILD_DIR)/os.img
 HDD_IMG=$(BUILD_DIR)/hdd.img
 
 SECTOR_SIZE=512
-KERNEL_SECTORS=$(shell if [ -f $(KERNEL_BIN) ]; then stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz}'; else echo 42; fi)
+KERNEL_SECTORS=$(shell if [ -f $(KERNEL_BIN) ]; then stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz}'; else echo 50; fi)
 
 GREEN=\033[0;32m
 BLUE=\033[0;34m
