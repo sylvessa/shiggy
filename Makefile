@@ -29,7 +29,6 @@ OS_IMG=$(BUILD_DIR)/os.img
 HDD_IMG=$(BUILD_DIR)/hdd.img
 
 SECTOR_SIZE=512
-KERNEL_SECTORS=$(shell if [ -f $(KERNEL_BIN) ]; then stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz}'; else echo 50; fi)
 
 GREEN=\033[0;32m
 BLUE=\033[0;34m
@@ -64,9 +63,11 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)
 	@echo "$(CYAN)[ASM]$(RESET) $<"
 	@$(ASM) $(NASM_FLAGS) -f elf $< -o $@
 
-$(BOOT_BIN): $(BOOT_SECTOR) | $(BUILD_DIR)
-	@echo "$(CYAN)[BOOT]$(RESET) $< Setting sectors to $(KERNEL_SECTORS)"
-	@$(ASM) $< -DNUM_KERNEL_SECTORS=$(KERNEL_SECTORS) -f bin -I $(SRC_DIR)/boot/ -o $@
+$(BOOT_BIN): $(BOOT_SECTOR) $(KERNEL_BIN) | $(BUILD_DIR)
+	@SECTORS=$$(stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz}'); \
+	echo "$(CYAN)[BOOT]$(RESET) $< Setting sectors to $$SECTORS"; \
+	$(ASM) $< -DNUM_KERNEL_SECTORS=$$SECTORS -f bin -I $(SRC_DIR)/boot/ -o $@
+
 
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
 	@echo "$(BLUE)[LD]$(RESET) linking $@"
