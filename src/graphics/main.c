@@ -57,9 +57,6 @@ void draw_thick_pixel(int x, int y, nat8 color, int thickness) {
 	set_map_mask(0x0F);
 }
 
-
-
-
 void gfx_draw_line(int x0, int y0, int x1, int y1, nat8 color, int thickness) {
 	if(thickness < 1) thickness = 1;
 

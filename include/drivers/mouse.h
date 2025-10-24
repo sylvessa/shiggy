@@ -5,7 +5,8 @@
 
 void init_mouse();
 extern int mouse_x;
-bool is_left_pressed();
 extern int mouse_y;
+bool is_left_pressed();
+bool is_right_pressed();
 
 #endif

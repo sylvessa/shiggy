@@ -15,6 +15,8 @@ static int prev_mouse_x = -1;
 static int prev_mouse_y = -1;
 
 static bool left_pressed = false;
+static bool right_pressed = false;
+
 
 void draw_mouse_block(int x, int y, nat8 color) {
 	for(int px = 0; px < 4; px++) {
@@ -71,15 +73,22 @@ void mouse_callback() {
 		prev_mouse_y = mouse_y;
 
 		left_pressed = (mouse_packet[0] & 0x1);
+		right_pressed = (mouse_packet[0] & 0x2);
+		
 		printf_at(0, 0, "              "); // clear
 		printf_at(0, 1, "              "); // clear
+		printf_at(0, 2, "                          "); // clear
+		printf_at(0, 3, "                          "); // clear
 		printf_at(0, 0, "Mouse X %d", mouse_x);
 		printf_at(0, 1, "Mouse Y %d", mouse_y);
+		if (left_pressed) printf_at(0, 2, "Left click press");
+		if (right_pressed) printf_at(0, 3, "Right click press");
 		
 	}
 }
 
 bool is_left_pressed() { return left_pressed; }
+bool is_right_pressed() { return right_pressed; }
 
 void init_mouse() {
 	out_byte(0x64, 0xA7);
