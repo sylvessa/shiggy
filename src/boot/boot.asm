@@ -1,57 +1,60 @@
-[BITS    16]
-[ORG 0x7C00]
+[org 0x7c00]
 
-%define KERNEL 0x7E00
-
-main:
-    cli
-    cld
-
+start:
     xor ax, ax
     mov ds, ax
     mov es, ax
-
-    mov sp, 0x7C00
     mov ss, ax
+    mov sp, 0x7c00
 
-    sti
+    mov si, msg
+    call print_string
 
-    mov ax, 0x0013
-    int 0x10
+    mov	ax, 0x0012
+	int	0x10
 
-    call read_sectors
-    call setup_gdt
+    ; load protected mode
+    cli
+    lgdt [gdt_descriptor] ; load gdt
+    mov eax, cr0
+    or eax, 1 ; set PE bit
+    mov cr0, eax
+    jmp 0x08:pm_entry ; far jump to flush prefetch
 
-    jmp CODESEG:pmode
+[BITS 32]
+    pm_entry:
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov esp, 0x9fc00 ; stack
 
-read_sectors:
-    mov  cx, 10
+    jmp 0x7e00
 
+print_string:
+    mov ah, 0x0e
 .loop:
-    push cx
-    mov ah, 0x42
-    mov si, DAP
-    int 0x13
-    add dword [DAP + 8], 127
-    add word  [DAP + 6], 0xFE0
-
-    pop cx
-
-    loop .loop
+    lodsb
+    or al, al
+    jz .done
+    int 0x10
+    jmp .loop
+.done:
     ret
 
-align 4
+msg db "we a re", 0x0d, 0x0a, 0
 
-DAP:
-    db 0x10
-    db 0x00
-    dw 0x7F
-    dw 0x0000
-    dw KERNEL >> 4
-    dq 1
+gdt_start:
+    dq 0x0000000000000000 ; null descriptor
+    dq 0x00cf9a000000ffff ; code segment
+    dq 0x00cf92000000ffff ; data segment
+gdt_end:
 
-%include "gdt.asm"
-%include "protected_mode.asm"
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
 
-times 510 - ($ - $$) db 0x00
+times 510-($-$$) db 0
 dw 0xAA55
