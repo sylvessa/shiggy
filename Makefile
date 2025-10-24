@@ -65,7 +65,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm | $(BUILD_DIR)
 
 $(BOOT_BIN): $(BOOT_SECTOR) $(KERNEL_BIN) | $(BUILD_DIR)
 	@SECTORS=$$(stat -c%s $(KERNEL_BIN) | awk -v sz=$(SECTOR_SIZE) '{printf "%d", ($$1+sz-1)/sz+1}'); \
-	echo "$(CYAN)[BOOT]$(RESET) $< Setting sectors to $$SECTORS"; \
+	echo "$(CYAN)[BOOT]$(RESET) setting sectors to $$SECTORS"; \
 	$(ASM) $< -DNUM_KERNEL_SECTORS=$$SECTORS -f bin -I $(SRC_DIR)/boot/ -o $@
 
 
@@ -90,11 +90,11 @@ $(HDD_IMG):
 
 run: $(OS_IMG) $(HDD_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
-	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a
-
+	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa
+ 
 run-nb:
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
-	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a
+	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa
 
 clean:
 	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"

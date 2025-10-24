@@ -14,11 +14,12 @@ void print(const char *str);
 void init_vga_text();
 void do_backspace();
 void draw_char_pixel(int px, int py, nat8 fg, nat8 bg, int set);
-void print_center(const char *string, nat8 bg);
+void print_center(const char *text, nat8 row_bg, ...);
 void printf(const char *fmt, ...);
 void screen_clear();
 void print_char(char c, nat8 fg, nat8 bg);
 void set_map_mask(nat8 mask);
 void printf_at(int col, int row, const char *fmt, ...);
+void do_clear_cursor();
 
 #endif

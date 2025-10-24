@@ -44,6 +44,7 @@ void keyboard_callback() {
 			break;
 		case ENTER:
 			input_buffer[input_size] = '\0';
+			do_clear_cursor();
 			print("\n");
 			ready = true;
 			break;

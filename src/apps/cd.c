@@ -18,7 +18,6 @@ void cmd_cd(const char** args, int argc) {
 	if (strcmp(target, "..") == 0) {
 		if (current_dir_cluster == FIRST_FILE_CLUSTER) return; // already root llol
 
-		fat32_dir_entry_t entry;
 		for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
 			if (root_dir[i].name[0] == 0) continue;
 			if (root_dir[i].first_cluster == current_dir_cluster) {

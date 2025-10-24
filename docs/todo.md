@@ -12,7 +12,7 @@
 - [x] mouse support
 - [x] basic text mode
 - [x] graphics mode support
-- [ ] sound / speaker driver
+- [x] sound / speaker driver
 - [ ] storage drivers (support multiple ata devices, ide/sata) (wip)
 
 ## fs
@@ -22,7 +22,7 @@
 - [x] file read / write
 - [x] file creation
 - [ ] file deletion (`rm`)
-- [ ] directories
+- [x] directories
 - [x] file persistence (write changes to disk)
 - [ ] ext2 implementation
 - [x] port commands over to filesystem instead of all being in memory

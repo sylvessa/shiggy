@@ -215,28 +215,92 @@ void init_vga_text() {
 }
 
 
-void print_center(const char *string, nat8 bg) {
-	int len = 0;
-	for(const char *s = string; *s; s++) len++;
+void print_center(const char *text, nat8 row_bg, ...) {
+	va_list args;
+	va_start(args, row_bg); // start after row_bg
+	char buf[256];
+	int buf_idx = 0;
+	nat8 fg = fg_color;
+	nat8 bg = bg_color;
 
+	for(const char *fmt = text; *fmt; fmt++) {
+		if(*fmt == '\\') {
+			fmt++;
+			if(*fmt == 'x') { fg = fg_color; bg = bg_color; continue; }
+
+			nat8 new_fg = 15, new_bg = 0;
+			switch(*fmt) {
+				case '0': new_fg=0; break; case '1': new_fg=1; break; case '2': new_fg=2; break;
+				case '3': new_fg=3; break; case '4': new_fg=4; break; case '5': new_fg=5; break;
+				case '6': new_fg=6; break; case '7': new_fg=7; break; case '8': new_fg=8; break;
+				case '9': new_fg=9; break; case 'a': new_fg=10; break; case 'b': new_fg=11; break;
+				case 'c': new_fg=12; break; case 'd': new_fg=13; break; case 'e': new_fg=14; break;
+				case 'f': new_fg=15; break; default: new_fg=15; break;
+			}
+
+			fmt++;
+			if(*fmt) {
+				switch(*fmt) {
+					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
+					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					default: new_bg=0; break;
+				}
+			} else fmt--;
+
+			fg = new_fg;
+			bg = new_bg;
+			continue;
+		}
+
+		if(*fmt != '%') {
+			buf[buf_idx++] = *fmt;
+			continue;
+		}
+
+		fmt++;
+		switch(*fmt) {
+			case 's': {
+				char *str = va_arg(args, char*);
+				for(int i=0; str[i]; i++) buf[buf_idx++] = str[i];
+				break;
+			}
+			case 'd': {
+				int num = va_arg(args,int);
+				char tmp[32]; char *p = tmp + sizeof(tmp) - 1; *p=0; int neg=num<0; if(neg) num=-num;
+				do {*--p='0'+(num%10); num/=10;} while(num); if(neg)*--p='-';
+				for(;*p;p++) buf[buf_idx++]=*p;
+				break;
+			}
+			case 'x': {
+				unsigned int num = va_arg(args,unsigned int); char tmp[32]; char *p=tmp+sizeof(tmp)-1; *p=0;
+				do { int d=num&0xF; *--p=d<10?'0'+d:'a'+d-10; num>>=4; } while(num);
+				for(;*p;p++) buf[buf_idx++]=*p;
+				break;
+			}
+			case 'c': buf[buf_idx++]=(char)va_arg(args,int); break;
+			case '%': buf[buf_idx++]='%'; break;
+		}
+	}
+	buf[buf_idx] = 0;
+	va_end(args);
+
+	int len = buf_idx;
 	int start_col = (VGA_WIDTH / WFONT - len) / 2;
 	if(start_col < 0) start_col = 0;
 
 	int row = cursor_y;
 
-	if(bg != 0xFF) {
-		for(int col = 0; col < VGA_WIDTH / WFONT; col++) {
-			vga_draw_char(col * WFONT, row * HFONT, ' ', 0x0F, bg);
-		}
-	}
+	for(int col=0; col<MAX_COLS; col++)
+		vga_draw_char(col*WFONT,row*HFONT,' ',0x0F,row_bg);
 
-	for(int i = 0; string[i]; i++) {
-		vga_draw_char((start_col + i) * WFONT, row * HFONT, string[i], 0x0F, bg);
-	}
+	for(int i=0; i<len; i++)
+		vga_draw_char((start_col+i)*WFONT,row*HFONT,buf[i],fg,row_bg);
 
 	cursor_x = 0;
-	cursor_y = row + 1;
+	cursor_y = row+1;
 }
+
 
 void printf(const char *fmt, ...) {
 	va_list args;
@@ -411,4 +475,12 @@ void printf_at(int col, int row, const char *fmt, ...) {
 	}
 
 	va_end(args);
+}
+
+void do_clear_cursor() {
+	int px = cursor_x * WFONT;
+	int py = cursor_y * HFONT;
+
+	clear_char_area(px, py, bg_color);
+	cursor_blink = 0;
 }
