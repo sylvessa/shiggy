@@ -2,7 +2,7 @@
 #include "lib/memory.h"
 
 static block_t *free_list = 0;
-static word free_mem_addr = (word)&__free_memory_start;
+static word free_mem_addr = 0;
 
 void *memcpy(void *d, const void *s, nat32 n) {
 	byte *a = d;
@@ -35,7 +35,8 @@ int32 memcmp(const void *a, const void *b, nat32 n) {
 }
 
 void *malloc(nat32 n) {
-	//printf("allocating at %p", free_mem_addr);
+	if (free_mem_addr == 0) free_mem_addr = (word)&__free_memory_start; // init
+
 	n = (n + WORD_SIZE - 1) & ~(WORD_SIZE - 1);
 	block_t *p = free_list, *q = 0;
 

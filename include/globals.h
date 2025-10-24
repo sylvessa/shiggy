@@ -14,6 +14,6 @@
 
 extern char kernel_start_addr;
 extern char kernel_end_addr;
-extern char __free_memory_start;
+extern void *__free_memory_start;
 
 #endif
