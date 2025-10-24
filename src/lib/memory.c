@@ -2,72 +2,69 @@
 #include "lib/memory.h"
 
 static block_t *free_list = 0;
-static word free_mem_addr = 0x50000;
+static word free_mem_addr = (word)&__free_memory_start;
 
-void *memcpy(void *dest, const void *source, nat32 no_bytes) {
-	byte *d = (byte*)dest;
-	const byte *s = (const byte*)source;
-	for (nat32 i = 0; i < no_bytes; i++) d[i] = s[i];
-	return dest;
+void *memcpy(void *d, const void *s, nat32 n) {
+	byte *a = d;
+	const byte *b = s;
+	while (n--) *a++ = *b++;
+	return d;
 }
 
-void *memmove(void *dest, const void *src, nat32 n) {
-	byte *d = (byte*)dest;
-	const byte *s = (const byte*)src;
-	if (d < s) {
-		for (nat32 i = 0; i < n; i++) d[i] = s[i];
-	} else if (d > s) {
-		for (nat32 i = n; i > 0; i--) d[i-1] = s[i-1];
-	}
-	return dest;
+void *memmove(void *d, const void *s, nat32 n) {
+	byte *a = d;
+	const byte *b = s;
+	if (a < b) while (n--) *a++ = *b++;
+	else for (nat32 i = n; i--; ) a[i] = b[i];
+	return d;
 }
 
-void *memset(void *ptr, int value, nat32 n) {
-	byte *b = (byte*)ptr;
-	for (nat32 i = 0; i < n; i++) b[i] = (byte)value;
-	return ptr;
+void *memset(void *p, int v, nat32 n) {
+	byte *b = p;
+	while (n--) *b++ = (byte)v;
+	return p;
 }
 
-
-int32 memcmp(const void *ptr1, const void *ptr2, nat32 size) {
-	const byte *p1 = (const byte*)ptr1;
-	const byte *p2 = (const byte*)ptr2;
-	while (size-- > 0) {
-		if (*p1 != *p2) return *p1 - *p2;
-		++p1; ++p2;
+int32 memcmp(const void *a, const void *b, nat32 n) {
+	const byte *x = a, *y = b;
+	while (n--) {
+		if (*x != *y) return *x - *y;
+		x++; y++;
 	}
 	return 0;
 }
 
-void *malloc(nat32 nBytes) {
-	nBytes = (nBytes + WORD_SIZE - 1) & ~(WORD_SIZE - 1);
-	block_t *prev = 0, *curr = free_list;
+void *malloc(nat32 n) {
+	printf("allocating at %p", free_mem_addr);
+	n = (n + WORD_SIZE - 1) & ~(WORD_SIZE - 1);
+	block_t *p = free_list, *q = 0;
 
-	while (curr) {
-		if ((nat32)curr->size >= nBytes) {
-			if (prev) prev->next = curr->next;
-			else free_list = curr->next;
-			return (void*)(curr + 1);
+	while (p) {
+		if (p->size >= n) {
+			if (q) q->next = p->next;
+			else free_list = p->next;
+			return p + 1;
 		}
-		prev = curr; curr = curr->next;
+		q = p;
+		p = p->next;
 	}
 
 	block_t *b = (block_t*)free_mem_addr;
-	b->size = nBytes;
-	free_mem_addr += nBytes + sizeof(block_t);
-	return (void*)(b + 1);
+	b->size = n;
+	free_mem_addr += sizeof(block_t) + n;
+	return b + 1;
 }
 
-void free(void *ptr) {
-	if (!ptr) return;
-	block_t *b = (block_t*)ptr - 1;
+void free(void *p) {
+	if (!p) return;
+	block_t *b = (block_t*)p - 1;
 	b->next = free_list;
 	free_list = b;
 }
 
-void *calloc(nat32 n, nat32 size) {
-	void *ptr = malloc(n * size);
-	byte *b = (byte*)ptr;
-	for (nat32 i = 0; i < n * size; i++) b[i] = 0;
-	return ptr;
+void *calloc(nat32 n, nat32 s) {
+	nat32 size = n * s;
+	void *p = malloc(size);
+	memset(p, 0, size);
+	return p;
 }

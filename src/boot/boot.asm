@@ -14,6 +14,9 @@ load_kernel:
     mov bx, MSG_LOAD_KERNEL
     call print
 
+    mov	ax, 0x0012
+	int 0x10
+
     mov dh, 40
     mov dl, [BOOT_DRIVE]
 

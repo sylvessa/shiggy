@@ -13,11 +13,12 @@ static void cmd_diskinfo(const char** args, int argc) {
 	}
 }
 
-static struct command_reg diskinfo_command = {
-	.name = "diskinfo",
-	.description = "displays hdd drive info",
-	.hidden = false,
-	.func = cmd_diskinfo
-};
-
-__attribute__((used, section(".cmds"))) static struct command_reg* diskinfo_ptr = &diskinfo_command;
+void register_diskinfo_cmd(void) {
+    register_command(
+		"diskinfo", // name
+		"displays hdd drive info", // desc
+		0, // hidden
+		cmd_diskinfo, // func
+		0 // args
+	);
+}

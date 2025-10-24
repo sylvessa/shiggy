@@ -120,9 +120,7 @@ void fat32_fs_init() {
     total_clusters = 256;
 
     if (!is_formatted()) {
-        if (fat32_log) print("[fat32] not formatted, formatting...\n");
         format_fs();
-        fat32_create_file("test.txt", "yesss");
     } else {
         load_root_dir();
     }
@@ -153,7 +151,7 @@ nat8 fat32_create_file(const char *name, const char *content) {
             write_sector_lba(cluster_to_lba(file_cluster), buffer);
             write_root_dir();
 
-            if (fat32_log) printf("[fat32] file '%s' written at cluster %d, size %d\n", name, file_cluster, sz);
+            //if (fat32_log) printf("[fat32] file '%s' written at cluster %d, size %d\n", name, file_cluster, sz);
             return 1;
         }
     }

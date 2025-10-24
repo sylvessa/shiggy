@@ -3,14 +3,15 @@
 
 void cmd_clear(const char** args, int argc) {
 	screen_clear();
-	print_centered("=== shiggy - type help to get list of commands ===", 0x5);
+	print_center("=== shiggy - type help to get list of commands ===", 0x5);
 }
 
-static struct command_reg clear_command = {
-	.name = "clear",
-	.description = "clears the terminal",
-	.hidden = false,
-	.func = cmd_clear
-};
-
-__attribute__((used, section(".cmds"))) static struct command_reg* clear_ptr = &clear_command;
+void register_clear_cmd(void) {
+    register_command(
+		"clear", // name
+		"clears the terminal", // desc
+		0, // hidden
+		cmd_clear, // func
+		0 // args
+	);
+}

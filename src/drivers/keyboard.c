@@ -19,15 +19,6 @@ const char sc_ascii_shift[] = {'?', '?', '!', '@', '#', '$', '%', '^',
 	'H', 'J', 'K', 'L', ':', '"', '~', '?', '|', 'Z', 'X', 'C', 'V',
 	'B', 'N', 'M', '<', '>', '?', '?', '?', ' '};
 
-void do_backspace() {
-	int offset = get_cursor_offset();
-	if (offset <= 0) return;
-	offset -= 2;
-	byte *vid = (byte *)(VIDEO_ADDRESS + offset);
-	vid[0] = ' ';
-	vid[1] = WHITE_ON_BLACK;
-	set_cursor_offset(offset);
-}
 
 void keyboard_callback() {
 	nat8 scancode = in_byte(0x60);
@@ -40,11 +31,6 @@ void keyboard_callback() {
 		shift_pressed = !released;
 		return;
 	}
-
-    // if (code == CAPSLOCK && !released) {
-	// 	caps_lock_on = !caps_lock_on;
-	// 	return;
-	// }
 
 	if (released) return;
 

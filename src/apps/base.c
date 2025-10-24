@@ -1,38 +1,40 @@
+
 #include "globals.h"
 #include "apps/base.h"
 
 command_t commands[MAX_COMMANDS];
 int command_count = 0;
 
-void register_command(const char* name, const char* description, bool hidden, command_func_t func, arg_type_t arg_type) {
+extern void register_colors_cmd(void);
+extern void register_test_cmd(void);
+extern void register_mk_cmd(void);
+extern void register_ls_cmd(void);
+extern void register_help_cmd(void);
+extern void register_format_cmd(void);
+extern void register_diskinfo_cmd(void);
+extern void register_clear_cmd(void);
+extern void register_cat_cmd(void);
+
+
+void register_command(const char* name, const char* description, int hidden, command_func_t func, int args) {
 	if (command_count < MAX_COMMANDS) {
 		commands[command_count].name = name;
 		commands[command_count].description = description;
 		commands[command_count].hidden = hidden;
 		commands[command_count].func = func;
-		commands[command_count].args = arg_type;
+		commands[command_count].args = args;
 		command_count++;
 	}
 }
 
-void list_commands() {
-	print("\ncommands:\n");
-	for (int i = 0; i < command_count; i++) {
-		if (!commands[i].hidden) {
-			print((char*)commands[i].name);
-			print(" - ");
-			print((char*)commands[i].description);
-			print("\n");
-		}
-	}
-}
-
-void register_all_commands_from_section() {
-	struct command_reg** ptr = (struct command_reg**) &__start_cmds;
-	struct command_reg** end = (struct command_reg**) &__stop_cmds;
-
-	while (ptr < end) {
-		register_command((*ptr)->name, (*ptr)->description, (*ptr)->hidden, (*ptr)->func, (*ptr)->args);
-		ptr++;
-	}
+void register_all_commands(void) {
+    register_colors_cmd();
+	register_test_cmd();
+	register_mk_cmd();
+	register_ls_cmd();
+	register_help_cmd();
+	register_format_cmd();
+	register_diskinfo_cmd();
+	register_clear_cmd();
+	register_cat_cmd();
 }

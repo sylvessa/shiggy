@@ -1,41 +1,45 @@
 ENTRY(kmain)
 SECTIONS
 {
-	. = 0x20000;
+    . = 0x20000;
 
-	.text : {
-		*(.text.unlikely .text.*_unlikely .text.unlikely.*)
-		*(.text.exit .text.exit.*)
-		*(.text.startup .text.startup.*)
-		*(.text.hot .text.hot.*)
-		*(.text .stub .text.* .gnu.linkonce.t.*)
-	}
-	PROVIDE(etext = .);
+    PROVIDE(kernel_start_addr = .);
 
-	.rodata : {
-		*(.rodata .rodata.* .gnu.linkonce.r.*)
-		*(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
-		*(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
-	}
+    .text : {
+        *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+        *(.text.exit .text.exit.*)
+        *(.text.startup .text.startup.*)
+        *(.text.hot .text.hot.*)
+        *(.text .stub .text.* .gnu.linkonce.t.*)
+    }
+    PROVIDE(etext = .);
 
-	. = ALIGN(4096);
-	PROVIDE(start_data = .);
-	.data : {
-		*(.data .data.* .gnu.linkonce.d.*)
-		SORT(CONSTRUCTORS)
-	}
-	PROVIDE(edata = .);
+    .rodata : {
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
+        *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+        *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+    }
 
-	.cmds ALIGN(4) : {
-		__start_cmds = .;
-		KEEP(*(.cmds))
-		__stop_cmds = .;
-	}
+    . = ALIGN(4096);
 
-	.bss : {
-		*(.bss .bss.* .gnu.linkonce.b.*)
-	}
-	PROVIDE(end = .);
+    PROVIDE(start_data = .);
+    .data : {
+        *(.data .data.* .gnu.linkonce.d.*)
+        SORT(CONSTRUCTORS)
+    }
+    PROVIDE(edata = .);
 
-	/DISCARD/ : { *(.eh_frame .note.GNU-stack) }
+    .bss : {
+        *(.bss .bss.* .gnu.linkonce.b.*)
+    }
+    PROVIDE(end = .);
+
+    PROVIDE(kernel_end_addr = .);
+    PROVIDE(__free_memory_start = .);
+
+    .boot_info (NOLOAD) : {
+        *(.boot_info)
+    }
+
+    /DISCARD/ : { *(.eh_frame .note.GNU-stack) }
 }

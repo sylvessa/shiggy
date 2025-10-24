@@ -11,15 +11,16 @@ void cmd_mk(const char** args, int argc) {
 	char content[128];
 	snprintf(content, sizeof(content), "this is da content for %s", filename);
 	fat32_create_file(filename, content);
-	printf("created file %s\n", filename);
+	//printf("created file %s\n", filename);
 	free(content);
 }
 
-static struct command_reg mk_command = {
-	.name = "mk",
-	.description = "makes a file",
-	.hidden = false,
-	.func = cmd_mk,
-};
-
-__attribute__((used, section(".cmds"))) static struct command_reg* mk_ptr = &mk_command;
+void register_mk_cmd(void) {
+    register_command(
+		"mk", // name
+		"makes a file", // desc
+		0, // hidden
+		cmd_mk, // func
+		1 // args
+	);
+}

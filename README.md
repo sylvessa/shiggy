@@ -22,9 +22,9 @@ this should also run and build just fine on WSL2.
 
 ## requirements
 
-- `gcc` (with 32-bit support)
+- `i386-elf-gcc`
 - `nasm`
-- `ld` (GNU linker)
+- `i386-elf-ld`
 - `objcopy` (from binutils)
 - `qemu-system-i386` (for testing)
 
@@ -33,6 +33,7 @@ if you dont have them installed:
 ```bash
 sudo apt update
 sudo apt install build-essential nasm qemu-system
+# i386-elf tools requires being built manually, you can find tutorials online for it, i will provide a script for it later
 ```
 
 ## info

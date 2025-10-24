@@ -10,9 +10,9 @@
 
 - [x] keyboard support
 - [ ] mouse support
-- [x] screen / vga driver (basic text mode)
-- [ ] vesa / graphics mode support
-- [ ] sound / speaker driver (optional)
+- [x] basic text mode
+- [x] graphics mode support
+- [ ] sound / speaker driver
 - [ ] storage drivers (support multiple ata devices, ide/sata) (wip)
 
 ## fs
@@ -25,6 +25,7 @@
 - [ ] directories
 - [x] file persistence (write changes to disk)
 - [ ] ext2 implementation
+- [ ] port commands over to filesystem instead of all being in memory
 
 ## shell
 
@@ -38,7 +39,7 @@
 - [ ] text editor in os (nano/vim style)
 - [ ] simple calculator / utilities
 - [ ] system monitor (memory, cpu usage)
-- [ ] mini file manager (optional gui)
+- [ ] mini file manager
 - [ ] ability to launch other programs
 
 ## memory / cpu

@@ -16,11 +16,12 @@ void cmd_ls(const char** args, int argc) {
 	}
 }
 
-static struct command_reg ls_command = {
-    .name = "ls",
-    .description = "lists files (no args rn)",
-    .hidden = false,
-    .func = cmd_ls
-};
-
-__attribute__((used, section(".cmds"))) static struct command_reg* ls_ptr = &ls_command;
+void register_ls_cmd(void) {
+    register_command(
+		"ls", // name
+		"lists files (no args rn)", // desc
+		0, // hidden
+		cmd_ls, // func
+		0 // args
+	);
+}

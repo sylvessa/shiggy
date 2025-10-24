@@ -1,6 +1,6 @@
 ASM=nasm
-CC=gcc
-LD=ld
+CC=i386-elf-gcc
+LD=i386-elf-ld
 OBJCOPY=objcopy
 
 SRC_DIR=src
@@ -68,7 +68,8 @@ $(BOOT_BIN): $(BOOT_SECTOR) | $(BUILD_DIR)
 
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
 	@echo "$(BLUE)[LD]$(RESET) linking $@"
-	@$(LD) -m elf_i386 -T linker.ld -o $@ $^
+	@$(LD) -m elf_i386 -T linker.ld -o $@ $^ -Map $(BUILD_DIR)/kernel.map
+
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	@echo "$(BLUE)[OBJCOPY]$(RESET) $<"

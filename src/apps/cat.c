@@ -17,7 +17,6 @@ void cmd_cat(const char** args, int argc) {
 
 	char* content = (char*)malloc(sz + 1);
 	if (!content) {
-		print("Memory allocation failed\n");
 		return;
 	}
 
@@ -32,12 +31,12 @@ void cmd_cat(const char** args, int argc) {
 	free(content);
 }
 
-static struct command_reg cat_command = {
-	.name = "cat",
-	.description = "shows contents of a file",
-	.hidden = false,
-	.func = cmd_cat,
-	.args = ARG_STRING
-};
-
-__attribute__((used, section(".cmds"))) static struct command_reg* cat_ptr = &cat_command;
+void register_cat_cmd(void) {
+    register_command(
+		"cat", // name
+		"shows contents of a file", // desc
+		0, // hidden
+		cmd_cat, // func
+		1 // args
+	);
+}
