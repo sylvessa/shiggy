@@ -18,5 +18,6 @@ void print_center(const char *string, nat8 bg);
 void printf(const char *fmt, ...);
 void screen_clear();
 void print_char(char c, nat8 fg, nat8 bg);
+void set_map_mask(nat8 mask);
 
 #endif

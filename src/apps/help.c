@@ -16,9 +16,12 @@ static void cmd_help(const char** args, int argc) {
 	} 
 }
 
-__attribute__((used, section(".cmds"))) static struct command_reg help_command = {
-	.name = "help",
-	.description = "shows this help message",
-	.hidden = false,
-	.func = cmd_help
-};
+void register_help_cmd(void) {
+    register_command(
+		"help", // name
+		"shows this help message", // desc
+		0, // hidden
+		cmd_help, // func
+		0 // args
+	);
+}

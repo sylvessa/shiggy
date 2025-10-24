@@ -19,8 +19,8 @@ void isr_install() {
 	pci_init();
 
 	isr_func_t irqs[IRQ_COUNT] = {
-		irq0,  irq1,  irq2,  irq3,  irq4,  irq5,  irq6,  irq7,
-		irq8,  irq9,  irq10, irq11, irq12, irq13, irq14, irq15
+		irq0,  irq1,  irq2,  NULL,  NULL,  NULL,  irq6,  NULL,
+		irq8,  NULL,  NULL, NULL, NULL, irq13, irq14, irq15
 	};
 
 	for (int i = 0; i < IRQ_COUNT; i++)
@@ -30,48 +30,11 @@ void isr_install() {
 	__asm__ __volatile__("sti");
 }
 
-static char *exception_messages[] = {
-        "Division By Zero",
-        "Debug",
-        "Non Maskable Interrupt",
-        "Breakpoint",
-        "Into Detected Overflow",
-        "Out of Bounds",
-        "Invalid Opcode",
-        "No Coprocessor",
-        "Double Fault",
-        "Coprocessor Segment Overrun",
-        "Bad TSS",
-        "Segment Not Present",
-        "Stack Fault",
-        "General Protection Fault",
-        "Page Fault",
-        "Unknown Interrupt",
-        "Coprocessor Fault",
-        "Alignment Check",
-        "Machine Check",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved",
-        "Reserved"};
-
 void isr_handler(registers_t r) {
     print("received interrupt: ");
-    char s[3];
+    char* s = malloc(3);
     dec2str(r.int_no, s);
     print(s);
-    print("\n");
-    print(exception_messages[r.int_no]);
-    print("\n");
 }
 
 void register_interrupt_handler(nat8 n, isr_handler_t handler) {

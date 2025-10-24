@@ -80,11 +80,11 @@ void snprintf(char *buf, nat32 size, const char *fmt, ...) {
 				const char *s = va_arg(v, char*);
 				while (*s && i < size - 1) buf[i++] = *s++;
 			} else if (t == 'd') {
-				char tmp[12];
+				char* tmp = malloc(12);
 				dec2str(va_arg(v,int), tmp);
 				for (nat32 k = 0; tmp[k] && i < size - 1; k++) buf[i++] = tmp[k];
 			} else if (t == 'x') {
-				char tmp[12];
+				char* tmp = malloc(12);
 				hex2str(va_arg(v,nat32), tmp);
 				for (nat32 k = 0; tmp[k] && i < size - 1; k++) buf[i++] = tmp[k];
 			} else if (t == 'c') {

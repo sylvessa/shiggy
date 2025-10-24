@@ -186,7 +186,7 @@ nat32 fat32_file_count() {
 }
 
 const char* fat32_file_get_name(nat32 index) {
-    static char name[12];
+    char* name = malloc(12);
     nat32 c = 0;
     for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
         if (root_dir[i].name[0] != 0 && root_dir[i].name[0] != 0xE5) {

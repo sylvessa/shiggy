@@ -13,7 +13,7 @@ static inline void seq_write(nat8 index, nat8 value) {
 	out_byte(0x3C5, value);
 }
 
-static void set_map_mask(nat8 mask) {
+void set_map_mask(nat8 mask) {
 	seq_write(0x02, mask);
 }
 
@@ -39,7 +39,7 @@ void vga_draw_char(int x, int y, char c, nat8 fg, nat8 bg) {
 	int bytes_per_line = VGA_BYTES_PER_SCANLINE;
 
 	for(int row=0; row<HFONT; row++) {
-		byte bits = isoFont[(nat8)c * HFONT + row];
+		byte bits = (nat8)isoFont[(nat8)c][row];
 		int base = x / 8;
 
 		for(int plane=0; plane<4; plane++) {
@@ -114,39 +114,44 @@ void print_char(char c, nat8 fg, nat8 bg) {
 }
 
 void print(const char *string) {
-	nat8 fg = fg_color;
-	nat8 bg = bg_color;
+	nat8 fg = 0x0F;
+    nat8 bg = 0x00;
 
 	for(; *string; string++) {
 		if(*string == '\\') {
 			string++;
 			if(*string == 'x') { fg = fg_color; bg = bg_color; continue; }
 
+			nat8 new_fg = 15, new_bg = 0;
+
 			switch(*string) {
-				case '0': fg=0; break; case '1': fg=1; break; case '2': fg=2; break;
-				case '3': fg=3; break; case '4': fg=4; break; case '5': fg=5; break;
-				case '6': fg=6; break; case '7': fg=7; break; case '8': fg=8; break;
-				case '9': fg=9; break; case 'a': fg=10; break; case 'b': fg=11; break;
-				case 'c': fg=12; break; case 'd': fg=13; break; case 'e': fg=14; break;
-				case 'f': fg=15; break; default: fg=15; break;
+				case '0': new_fg=0; break; case '1': new_fg=1; break; case '2': new_fg=2; break;
+				case '3': new_fg=3; break; case '4': new_fg=4; break; case '5': new_fg=5; break;
+				case '6': new_fg=6; break; case '7': new_fg=7; break; case '8': new_fg=8; break;
+				case '9': new_fg=9; break; case 'a': new_fg=10; break; case 'b': new_fg=11; break;
+				case 'c': new_fg=12; break; case 'd': new_fg=13; break; case 'e': new_fg=14; break;
+				case 'f': new_fg=15; break; default: new_fg=15; break;
 			}
 
 			string++;
 			if(*string) {
 				switch(*string) {
-					case '0': bg=0; break; case '1': bg=1; break; case '2': bg=2; break;
-					case '3': bg=3; break; case '4': bg=4; break; case '5': bg=5; break;
-					case '6': bg=6; break; case '7': bg=7; break; case 'x': bg=0; break;
-					default: bg=0; break;
+					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
+					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					default: new_bg=0; break;
 				}
 			} else string--;
 
+			fg = new_fg;
+			bg = new_bg;
 			continue;
 		}
 
 		print_char(*string, fg, bg);
 	}
 }
+
 
 static void toggle_cursor() {
 	cursor_tick++;
@@ -199,7 +204,7 @@ void print_center(const char *string, nat8 bg) {
 	}
 
 	for(int i = 0; string[i]; i++) {
-		vga_draw_char((start_col + i) * WFONT, row * HFONT, string[i], fg_color, bg);
+		vga_draw_char((start_col + i) * WFONT, row * HFONT, string[i], 0x0F, bg);
 	}
 
 	cursor_x = 0;

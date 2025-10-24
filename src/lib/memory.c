@@ -35,12 +35,12 @@ int32 memcmp(const void *a, const void *b, nat32 n) {
 }
 
 void *malloc(nat32 n) {
-	printf("allocating at %p", free_mem_addr);
+	//printf("allocating at %p", free_mem_addr);
 	n = (n + WORD_SIZE - 1) & ~(WORD_SIZE - 1);
 	block_t *p = free_list, *q = 0;
 
 	while (p) {
-		if (p->size >= n) {
+		if ((nat32)p->size >= n) {
 			if (q) q->next = p->next;
 			else free_list = p->next;
 			return p + 1;

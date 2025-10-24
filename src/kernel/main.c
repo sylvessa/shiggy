@@ -6,7 +6,7 @@
 #include "drivers/vga.h"
 
 void kmain() {
-	char input[255];
+	char* input = malloc(255);
 
 	isr_install();
 	init_timer(50);
@@ -22,8 +22,8 @@ void kmain() {
 		print("Failed to initialized ACPI\n");
 
 
-	register_all_commands_from_section();
-	//register_all_commands();
+	//register_all_commands_from_section();
+	register_all_commands();
 
 	while (true) {
 		print("\\2xOS >\\x ");
