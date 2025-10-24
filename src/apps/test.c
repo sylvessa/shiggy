@@ -20,12 +20,10 @@ static void cmd_test(const char** args, int argc) {
 	printf("allocated %d bytes at address %p\n", n, phys_addr);
 }
 
-void register_test_cmd(void) {
-    register_command(
-		"test", // name
-		"test command", // desc
-		1, // hidden
-		cmd_test, // func
-		1 // args
-	);
-}
+__attribute__((used, section(".cmds"))) static struct command_reg test_command = {
+	.name = "test",
+	.description = "test command",
+	.hidden = false,
+	.func = cmd_test,
+	.args = ARG_NUMBER
+};

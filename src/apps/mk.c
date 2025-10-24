@@ -15,12 +15,11 @@ void cmd_mk(const char** args, int argc) {
 	free(content);
 }
 
-void register_mk_cmd(void) {
-    register_command(
-		"mk", // name
-		"makes a file", // desc
-		0, // hidden
-		cmd_mk, // func
-		1 // args
-	);
-}
+
+
+__attribute__((used, section(".cmds"))) static struct command_reg mk_command = {
+	.name = "mk",
+	.description = "makes a file",
+	.hidden = false,
+	.func = cmd_mk,
+};

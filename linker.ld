@@ -29,6 +29,12 @@ SECTIONS
     }
     PROVIDE(edata = .);
 
+	.cmds ALIGN(4) : {
+		__start_cmds = .;
+		KEEP(*(.cmds))
+		__stop_cmds = .;
+	}
+
     .bss : {
         *(.bss .bss.* .gnu.linkonce.b.*)
     }

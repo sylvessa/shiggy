@@ -6,9 +6,6 @@
 #include "drivers/vga.h"
 
 void kmain() {
-	unsigned long kernel_start = (unsigned long)&kernel_start_addr;
-    unsigned long heap_start = (unsigned long)&__free_memory_start;
-	
 	char input[255];
 
 	isr_install();
@@ -25,8 +22,8 @@ void kmain() {
 		print("Failed to initialized ACPI\n");
 
 
-	//register_all_commands_from_section();
-	register_all_commands();
+	register_all_commands_from_section();
+	//register_all_commands();
 
 	while (true) {
 		print("\\2xOS >\\x ");
