@@ -5,8 +5,6 @@
 #include "apps/gfx.h"
 #include "graphics/3d.h"
 
-typedef struct { int x, y; } point;
-
 float angle = 0;
 float speed = 20.0f;
 int inited = 0;
@@ -60,20 +58,24 @@ void gfx_app_timer_callback() {
 
 	point new_proj[8];
 
-	//angle += speed * dt;
-	//if (angle > 6.283185f) angle -= 6.283185f;
+	// angle += speed * dt;
+	// if (angle > 6.283185f) angle -= 6.283185f;
 
-	rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
+	// rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
 	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
 
 	update_rainbow_color();
 	
-
 	for (int i = 0; i < cube.edge_count; i++) {
 		int a = cube.edges[i][0];
 		int b = cube.edges[i][1];
 		gfx_draw_line(new_proj[a].x, new_proj[a].y, new_proj[b].x, new_proj[b].y, 0x0B, 1);
 	}
+
+	vec3 c = cube_center(&cube);
+	printf_at(0, 27, "X: %f  ", c.x);
+	printf_at(0, 28, "Y: %f  ", c.y);
+	printf_at(0, 29, "Z: %f  ", c.z);
 
 	for (int i = 0; i < cube.vertex_count; i++) prev_proj[i] = new_proj[i];
 }
@@ -95,10 +97,11 @@ void cmd_gfx(const char** args, int argc){
 		return;
 	}
 
-	if(argc >= 1) speed = atof(args[0]);
-	if(argc >= 2) cube = cube_mesh(atof(args[1]));
 
+	if(argc >= 1) cube = cube_mesh(atof(args[1]));
 	else cube = cube_mesh(15.0f);
+
+	print("control the cube with arrow keys. space = up backspace = down\n");
 	
 	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, prev_proj);
 
@@ -109,7 +112,7 @@ void cmd_gfx(const char** args, int argc){
 void register_gfx_cmd(void){
 	register_command(
 		"gfx",
-		"shows rotating 3d cube. gfx <speed> <size>",
+		"shows 3d cube. gfx <size>",
 		0,
 		cmd_gfx,
 		1

@@ -1,6 +1,8 @@
 #include "globals.h"
 #include "font/main.h"
 
+// todo: combine all the formatting for print and printf's into a single func whenever i make a new print that does something unique
+
 #define MAX_COLS (VGA_WIDTH / WFONT)
 #define MAX_ROWS (VGA_HEIGHT / HFONT)
 
@@ -500,6 +502,31 @@ void printf_at(int col, int row, const char *fmt, ...) {
 				unsigned int num=va_arg(args,unsigned int); char *p=buf+sizeof(buf)-1; *p=0;
 				do{int d=num&0xF; *--p=d<10?'0'+d:'a'+d-10; num>>=4;}while(num);
 				for(char *c=p;*c;c++){vga_draw_char(col*WFONT,row*HFONT,*c,fg,bg); col++;}
+				break;
+			}
+			case 'f': {
+				double num = va_arg(args,double);
+				int int_part = (int)num;
+				double frac_part = num - int_part;
+				if(frac_part < 0) frac_part = -frac_part;
+				int frac = (int)(frac_part * 100);
+				char *p = buf + sizeof(buf) - 1;
+				*p = 0;
+
+				char frac_buf[4];
+				frac_buf[0] = '0' + frac / 10;
+				frac_buf[1] = '0' + frac % 10;
+				frac_buf[2] = 0;
+
+				int neg = int_part < 0;
+				if(neg) int_part = -int_part;
+				do { *--p = '0' + (int_part % 10); int_part /= 10; } while(int_part);
+				if(neg) *--p = '-';
+
+				for(char *c = p; *c; c++) { vga_draw_char(col*WFONT, row*HFONT, *c, fg, bg); col++; }
+				vga_draw_char(col*WFONT, row*HFONT, '.', fg, bg); col++;
+				for(int i=0; frac_buf[i]; i++) { vga_draw_char(col*WFONT, row*HFONT, frac_buf[i], fg, bg); col++; }
+
 				break;
 			}
 			case 'c': { char c=(char)va_arg(args,int); vga_draw_char(col*WFONT,row*HFONT,c,fg,bg); col++; break; }

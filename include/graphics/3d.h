@@ -8,6 +8,8 @@ typedef struct {
 	float x, y, z;
 } vec3;
 
+typedef struct { int x, y; } point;
+
 typedef struct {
 	vec3 *vertices;
 	int vertex_count;
@@ -21,5 +23,6 @@ void project_point(vec3 v, int *sx, int *sy, float scale, int cx, int cy);
 void draw_mesh(mesh3d *mesh, float scale, int cx, int cy, nat8 color);
 int is_mesh_empty(mesh3d *m);
 void translate_mesh(mesh3d *mesh, float tx, float ty, float tz);
+vec3 cube_center(mesh3d *mesh);
 
 #endif

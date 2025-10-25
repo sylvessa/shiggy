@@ -13,6 +13,10 @@ make run
 
 this should also run and build just fine on WSL2.
 
+## showcase 10/25/2025:
+
+<img src="https://raw.githubusercontent.com/sylvessa/sylvessa/refs/heads/main/msrdc_vQ8qDDAxYO.gif">
+
 ## features
 
 - entirely custom kernel and bootloader

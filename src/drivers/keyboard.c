@@ -1,11 +1,13 @@
 #include "globals.h"
 #include "drivers/keyboard.h"
+#include "apps/gfx.h"
 
 static char input_buffer[256];
 static nat32 input_size = 0;
 static bool ready = false;
 static bool shift_pressed = false;
 static bool caps_lock_on = false;
+static bool extended = false;
 
 const char sc_ascii[] = {'?', '?', '1', '2', '3', '4', '5', '6',
 	'7', '8', '9', '0', '-', '=', '?', '?', 'q', 'w', 'e', 'r', 't', 'y',
@@ -25,6 +27,33 @@ void keyboard_callback() {
 	bool released = (scancode & 0x80) != 0;
 	nat8 code = scancode & 0x7F;
 
+	if (scancode == 0xE0) { 
+		extended = true;
+		return;
+	}
+
+	if (extended) {
+		float move_amount = 1.0f;
+
+		switch (code) {
+			case 0x48: // up
+				if (!released && !is_mesh_empty(&cube)) translate_mesh(&cube, 0, 0, -move_amount);
+				break;
+			case 0x50: // down
+				if (!released && !is_mesh_empty(&cube)) translate_mesh(&cube, 0, 0, move_amount);
+				break;
+			case 0x4B: // left
+				if (!released && !is_mesh_empty(&cube)) translate_mesh(&cube, -move_amount, 0, 0);
+				break;
+			case 0x4D: // right
+				if (!released && !is_mesh_empty(&cube)) translate_mesh(&cube, move_amount, 0, 0);
+				break;
+		}
+		extended = false;
+		return;
+	}
+
+
 	if (code > SC_MAX) return;
 
 	if (code == LSHIFT || code == RSHIFT) {
@@ -37,6 +66,7 @@ void keyboard_callback() {
 
 	switch (code) {
 		case BACKSPACE:
+			if (!released && !is_mesh_empty(&cube)) translate_mesh(&cube, 0, 1.0f, 0);
 			if (input_size > 0) {
 				input_size--;
 				do_backspace();
@@ -48,6 +78,8 @@ void keyboard_callback() {
 			print("\n");
 			ready = true;
 			break;
+		case 0x39:
+			if (!released && !is_mesh_empty(&cube)) translate_mesh(&cube, 0, -1.0f, 0);
 		default: {
 			char letter = (shift_pressed || caps_lock_on) ? sc_ascii_shift[code] : sc_ascii[code];
 			if (letter != '?' && input_size < (sizeof(input_buffer) - 1)) {

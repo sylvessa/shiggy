@@ -52,8 +52,10 @@ void rotate_mesh(mesh3d *mesh, float rx, float ry, float rz) {
 }
 
 void project_point(vec3 v, int *sx, int *sy, float scale, int cx, int cy){
-	*sx = (int)(v.x*scale) + cx;
-	*sy = (int)(v.y*scale) + cy;
+	float distance = 50.0f; // distance from camera
+	float factor = distance / (distance - v.z);
+	*sx = (int)(v.x * scale * factor) + cx;
+	*sy = (int)(v.y * scale * factor) + cy;
 }
 
 void draw_mesh(mesh3d *mesh, float scale, int cx, int cy, nat8 color){
@@ -68,6 +70,22 @@ void draw_mesh(mesh3d *mesh, float scale, int cx, int cy, nat8 color){
 		gfx_draw_line(x0,y0,x1,y1,color,4);
 	}
 }
+
+vec3 cube_center(mesh3d *mesh) {
+	vec3 center = {0,0,0};
+	if(is_mesh_empty(mesh)) return center;
+
+	for(int i = 0; i < mesh->vertex_count; i++) {
+		center.x += mesh->vertices[i].x;
+		center.y -= mesh->vertices[i].y;
+		center.z += mesh->vertices[i].z;
+	}
+	center.x /= mesh->vertex_count;
+	center.y /= mesh->vertex_count;
+	center.z /= mesh->vertex_count;
+	return center;
+}
+
 
 int is_mesh_empty(mesh3d *m) {
 	return m == NULL || m->vertices == NULL || m->vertex_count == 0;
