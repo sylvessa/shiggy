@@ -32,5 +32,6 @@ const char* fat32_file_get_name(nat32 dir_cluster, nat32 index);
 nat32 fat32_file_count(nat32 dir_cluster);
 nat32 fat32_dir_count(nat32 dir_cluster);
 void fat32_dir_get_entry(nat32 dir_cluster, nat32 index, fat32_dir_entry_t *entry);
+nat8 is_formatted();
 
 #endif

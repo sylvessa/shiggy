@@ -103,7 +103,7 @@ static void load_root_dir() {
 }
 
 
-static nat8 is_formatted() {
+nat8 is_formatted() {
 	nat8 buffer[SECTOR_SIZE];
 	read_sector_lba(0, buffer);
 	return (buffer[510] == 'S' && buffer[511] == 'H') ? 1 : 0;

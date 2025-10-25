@@ -6,8 +6,8 @@ static void cmd_diskinfo(const char** args, int argc) {
 		print("Found IDE Drive\n");
 		printf("%d MB\n", ata_get_drive_size() / 2048);
 
-		//int formatted = fat32_is_formatted();
-		//printf("formatted: %s\n", formatted ? "yes" : "no");
+		int formatted = is_formatted();
+		printf("formatted: %s\n", formatted ? "yes" : "no");
 	} else {
 		print("no hdd\n");
 	}
