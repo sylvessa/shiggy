@@ -2,79 +2,89 @@
 #include "apps/base.h"
 #include "graphics/main.h"
 #include "lib/math.h"
+#include "graphics/3d.h"
 
 typedef struct { int x, y; } point;
 
-point base_square[4];
-point square[4];
-point center;
 float angle = 0;
-float speed = 0.01f;
+float speed = 20.0f;
 int inited = 0;
+mesh3d cube;
 
-void update_square() {
-	for(int i = 0; i < 4; i++) {
-		int dx = base_square[i].x - center.x;
-		int dy = base_square[i].y - center.y;
-		int nx = (int)(dx * cos(angle) - dy * sin(angle));
-		int ny = (int)(dx * sin(angle) + dy * cos(angle));
-		square[i].x = center.x + nx;
-		square[i].y = center.y + ny;
+static point prev_proj[8];
+
+void project_mesh(mesh3d *mesh, float scale, int cx, int cy, point *out){
+	for (int i=0; i < mesh->vertex_count; i++) {
+		project_point(mesh->vertices[i], &out[i].x, &out[i].y, scale, cx, cy);
 	}
-}
-
-void draw_square(int color) {
-	gfx_draw_line(square[0].x, square[0].y, square[1].x, square[1].y, color, 3);
-	gfx_draw_line(square[1].x, square[1].y, square[2].x, square[2].y, color, 3);
-	gfx_draw_line(square[2].x, square[2].y, square[3].x, square[3].y, color, 3);
-	gfx_draw_line(square[3].x, square[3].y, square[0].x, square[0].y, color, 3);
 }
 
 void timer_callback() {
-	if(!inited) return;
-	draw_square(0xA);
-	angle += speed;
-	if(angle > 6.283185f) angle -= 6.283185f;
-	update_square();
-	draw_square(0xF);
+	static nat32 last_tick = 0;
+	nat32 now = timer_ticks;
+	float dt = (now - last_tick) / 1000.0f;
+	last_tick = now;
+
+	if (!inited) return;
+
+	point new_proj[8];
+	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
+
+	for (int i=0; i < cube.edge_count; i++) {
+		int a = cube.edges[i][0];
+		int b = cube.edges[i][1];
+		gfx_draw_line(prev_proj[a].x, prev_proj[a].y, prev_proj[b].x, prev_proj[b].y, 0x0, 1);
+	}
+
+	angle += speed * dt;
+	if (angle > 6.283185f) angle -= 6.283185f;
+
+	rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
+
+	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
+
+	for (int i=0; i < cube.edge_count; i++) {
+		int a = cube.edges[i][0];
+		int b = cube.edges[i][1];
+		gfx_draw_line(new_proj[a].x, new_proj[a].y, new_proj[b].x, new_proj[b].y, 0x0F, 1);
+	}
+
+	for (int i=0; i < cube.vertex_count; i++) prev_proj[i] = new_proj[i];
 }
 
-void cmd_gfx(const char** args, int argc) {
-	if(inited) {
+void cmd_gfx(const char** args, int argc){
+	if (inited) {
+		point erase_proj[8];
+
+		project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, erase_proj);
+
+		for(int i=0; i<cube.edge_count; i++){
+			int a = cube.edges[i][0];
+			int b = cube.edges[i][1];
+			gfx_draw_line(erase_proj[a].x, erase_proj[a].y, erase_proj[b].x, erase_proj[b].y, 0x0, 1);
+		}
+
 		inited = 0;
-		draw_square(0x0);
 		return;
 	}
 
-	if(argc >= 1) {
-		speed = atof(args[0]);
-		if (speed > 1) {
-			print("too much speeeed\n");
-			return;
-		}
-	}
-
-	base_square[0] = (point){200, 200};
-	base_square[1] = (point){300, 200};
-	base_square[2] = (point){300, 300};
-	base_square[3] = (point){200, 300};
-
-	center = (point){250, 250};
-
-	angle = 0;
-	update_square();
-	draw_square(0xF);
+	if(argc >= 1) speed = atof(args[0]);
+	if(argc >= 2) cube = cube_mesh(atof(args[1]));
+	else cube = cube_mesh(15.0f);
+	
+	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, prev_proj);
 
 	register_interrupt_handler(32, timer_callback);
 	inited = 1;
 }
 
-void register_gfx_cmd(void) {
+
+void register_gfx_cmd(void){
 	register_command(
-		"gfx", 
-		"shows rotating square. optional arg for rotate speed (gfx <speed>)", 
-		0, 
-		cmd_gfx, 
+		"gfx",
+		"shows rotating 3d cube. gfx <speed> <size>",
+		0,
+		cmd_gfx,
 		1
 	);
 }

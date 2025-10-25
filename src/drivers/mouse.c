@@ -17,28 +17,34 @@ static int prev_mouse_y = -1;
 static bool left_pressed = false;
 static bool right_pressed = false;
 
+static const int cursor_size = 16;
 
-void draw_mouse_block(int x, int y, nat8 color) {
-	for(int px = 0; px < 4; px++) {
-		for(int py = 0; py < 4; py++) {
-			int draw_x = x + px;
-			int draw_y = y + py;
-			if(draw_x >= 0 && draw_x < VGA_WIDTH && draw_y >= 0 && draw_y < VGA_HEIGHT)
-				draw_char_pixel(draw_x, draw_y, color, color, 1);
+void draw_mouse_arrow(int x, int y, nat8 color) {
+	for(int row = 0; row < cursor_size; row++) {
+		for(int col = 0; col < cursor_size; col++) {
+			if(cursor_mask[row] & (1 << (15 - col))) {
+				int draw_x = x + col;
+				int draw_y = y + row;
+				if(draw_x >= 0 && draw_x < VGA_WIDTH && draw_y >= 0 && draw_y < VGA_HEIGHT)
+					draw_char_pixel(draw_x, draw_y, color, 0x00, 1);
+			}
 		}
 	}
 }
 
-void erase_mouse_block(int x, int y) {
-	for(int px = 0; px < 4; px++) {
-		for(int py = 0; py < 4; py++) {
-			int draw_x = x + px;
-			int draw_y = y + py;
-			if(draw_x >= 0 && draw_x < VGA_WIDTH && draw_y >= 0 && draw_y < VGA_HEIGHT)
-				draw_char_pixel(draw_x, draw_y, 0x00, 0x00, 0);
+void erase_mouse_arrow(int x, int y) {
+	for(int row = 0; row < cursor_size; row++) {
+		for(int col = 0; col < cursor_size; col++) {
+			if(cursor_mask[row] & (1 << (15 - col))) {
+				int draw_x = x + col;
+				int draw_y = y + row;
+				if(draw_x >= 0 && draw_x < VGA_WIDTH && draw_y >= 0 && draw_y < VGA_HEIGHT)
+					draw_char_pixel(draw_x, draw_y, 0x00, 0x00, 0);
+			}
 		}
 	}
 }
+
 
 void mouse_callback() {
 	if (!gui_mode) return;
@@ -65,9 +71,9 @@ void mouse_callback() {
 		if(mouse_y >= VGA_HEIGHT) mouse_y = VGA_HEIGHT - 1;
 
 		if(prev_mouse_x >= 0 && prev_mouse_y >= 0)
-			erase_mouse_block(prev_mouse_x, prev_mouse_y);
+			erase_mouse_arrow(prev_mouse_x, prev_mouse_y);
 
-		draw_mouse_block(mouse_x, mouse_y, 0x0F);
+		draw_mouse_arrow(mouse_x, mouse_y, 0x0F);
 
 		prev_mouse_x = mouse_x;
 		prev_mouse_y = mouse_y;
@@ -83,7 +89,6 @@ void mouse_callback() {
 		printf_at(0, 1, "Mouse Y %d", mouse_y);
 		if (left_pressed) printf_at(0, 2, "Left click press");
 		if (right_pressed) printf_at(0, 3, "Right click press");
-		
 	}
 }
 

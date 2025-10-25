@@ -35,15 +35,35 @@ void draw_char_pixel(int px, int py, nat8 fg, nat8 bg, int set) {
 
 	for(int plane = 0; plane < 4; plane++) {
 		set_map_mask(1 << plane);
-		int base = px / 8;
-		int bit = 7 - (px % 8);
+		int byte_index = px / 8;
+		int bit_index = 7 - (px % 8);
+		nat8 mask = 1 << bit_index;
+		nat8 val = fb[py * bytes_per_line + byte_index];
+
 		if((color >> plane) & 1)
-			fb[py * bytes_per_line + base] |= (1 << bit);
+			val |= mask;
 		else
-			fb[py * bytes_per_line + base] &= ~(1 << bit);
+			val &= ~mask;
+
+		fb[py * bytes_per_line + byte_index] = val;
+	}
+
+	set_map_mask(0x0F);
+}
+
+void draw_pixel(int x, int y, nat8 color) {
+	volatile nat8 *fb = VGA_FB;
+	int bytes_per_line = VGA_BYTES_PER_SCANLINE;
+	for(int plane=0; plane<4; plane++) {
+		set_map_mask(1 << plane);
+		int byte = x/8;
+		int bit = 7-(x%8);
+		if(color & (1<<plane)) fb[y*bytes_per_line + byte] |= (1<<bit);
+		else fb[y*bytes_per_line + byte] &= ~(1<<bit);
 	}
 	set_map_mask(0x0F);
 }
+
 
 void vga_draw_char(int x, int y, char c, nat8 fg, nat8 bg) {
 	volatile nat8 *fb = VGA_FB;
@@ -243,7 +263,11 @@ void print_center(const char *text, nat8 row_bg, ...) {
 				switch(*fmt) {
 					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
 					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
-					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case '8': new_bg=8; break;
+					case '9': new_bg=9; break; case 'a': new_bg=10; break; case 'b': new_bg=11; break;
+					case 'c': new_bg=12; break; case 'd': new_bg=13; break; case 'e': new_bg=14; break;
+					case 'f': new_bg=15; break;
+					case 'x': new_bg=0; break;
 					default: new_bg=0; break;
 				}
 			} else fmt--;
@@ -329,7 +353,11 @@ void printf(const char *fmt, ...) {
 				switch(*fmt) {
 					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
 					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
-					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case '8': new_bg=8; break;
+					case '9': new_bg=9; break; case 'a': new_bg=10; break; case 'b': new_bg=11; break;
+					case 'c': new_bg=12; break; case 'd': new_bg=13; break; case 'e': new_bg=14; break;
+					case 'f': new_bg=15; break;
+					case 'x': new_bg=0; break;
 					default: new_bg=0; break;
 				}
 			} else fmt--;
@@ -433,7 +461,11 @@ void printf_at(int col, int row, const char *fmt, ...) {
 				switch(*fmt) {
 					case '0': new_bg=0; break; case '1': new_bg=1; break; case '2': new_bg=2; break;
 					case '3': new_bg=3; break; case '4': new_bg=4; break; case '5': new_bg=5; break;
-					case '6': new_bg=6; break; case '7': new_bg=7; break; case 'x': new_bg=0; break;
+					case '6': new_bg=6; break; case '7': new_bg=7; break; case '8': new_bg=8; break;
+					case '9': new_bg=9; break; case 'a': new_bg=10; break; case 'b': new_bg=11; break;
+					case 'c': new_bg=12; break; case 'd': new_bg=13; break; case 'e': new_bg=14; break;
+					case 'f': new_bg=15; break;
+					case 'x': new_bg=0; break;
 					default: new_bg=0; break;
 				}
 			} else fmt--;
@@ -483,4 +515,15 @@ void do_clear_cursor() {
 
 	clear_char_area(px, py, bg_color);
 	cursor_blink = 0;
+}
+
+void set_bg_color(nat8 color) {
+	bg_color = color;
+
+	for(int y=0; y<MAX_ROWS; y++) {
+		for(int x=0; x<MAX_COLS; x++) {
+			screen_buf[y][x].bg = color;
+			vga_draw_char(x * WFONT, y * HFONT, screen_buf[y][x].c, screen_buf[y][x].fg, color);
+		}
+	}
 }

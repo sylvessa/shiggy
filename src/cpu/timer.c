@@ -1,9 +1,10 @@
 #include "globals.h"
 #include "cpu/timer.h"
 
+nat32 timer_ticks = 0;
+
 static void timer_callback() {
-    static nat32 tick = 0;
-    tick++;
+    timer_ticks++;
 }
 
 void init_timer(nat32 freq) {

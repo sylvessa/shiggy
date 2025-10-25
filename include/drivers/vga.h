@@ -21,5 +21,7 @@ void print_char(char c, nat8 fg, nat8 bg);
 void set_map_mask(nat8 mask);
 void printf_at(int col, int row, const char *fmt, ...);
 void do_clear_cursor();
+void draw_pixel(int px, int py, nat8 color);
+void set_bg_color(nat8 color);
 
 #endif

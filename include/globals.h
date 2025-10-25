@@ -12,6 +12,8 @@
 #include "drivers/vga.h"
 #include "lib/rand.h"
 #include "drivers/cmos.h"
+#include "lib/math.h"
+#include "cpu/timer.h"
 
 extern char kernel_start_addr;
 extern char kernel_end_addr;
