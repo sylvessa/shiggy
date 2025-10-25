@@ -26,7 +26,7 @@ void draw_mouse_arrow(int x, int y, nat8 color) {
 				int draw_x = x + col;
 				int draw_y = y + row;
 				if(draw_x >= 0 && draw_x < VGA_WIDTH && draw_y >= 0 && draw_y < VGA_HEIGHT)
-					draw_char_pixel(draw_x, draw_y, color, 0x00, 1);
+					draw_char_pixel(draw_x, draw_y, color, color, 1);
 			}
 		}
 	}
@@ -73,7 +73,9 @@ void mouse_callback() {
 		if(prev_mouse_x >= 0 && prev_mouse_y >= 0)
 			erase_mouse_arrow(prev_mouse_x, prev_mouse_y);
 
-		draw_mouse_arrow(mouse_x, mouse_y, 0x0F);
+		
+
+		draw_mouse_arrow(mouse_x, mouse_y, 5);
 
 		prev_mouse_x = mouse_x;
 		prev_mouse_y = mouse_y;

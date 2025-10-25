@@ -34,13 +34,13 @@ void draw_char_pixel(int px, int py, nat8 fg, nat8 bg, int set) {
 	nat8 color = set ? fg : bg;
 
 	for(int plane = 0; plane < 4; plane++) {
-		set_map_mask(1 << plane);
+		set_map_mask((color == 0) ? 0x0F : color);
 		int byte_index = px / 8;
 		int bit_index = 7 - (px % 8);
 		nat8 mask = 1 << bit_index;
 		nat8 val = fb[py * bytes_per_line + byte_index];
 
-		if((color >> plane) & 1)
+		if((color == 0) ? color & (1 << plane) : color)
 			val |= mask;
 		else
 			val &= ~mask;
@@ -48,7 +48,7 @@ void draw_char_pixel(int px, int py, nat8 fg, nat8 bg, int set) {
 		fb[py * bytes_per_line + byte_index] = val;
 	}
 
-	set_map_mask(0x0F);
+	set_map_mask(color);
 }
 
 void draw_pixel(int x, int y, nat8 color) {

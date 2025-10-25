@@ -65,6 +65,6 @@ void draw_mesh(mesh3d *mesh, float scale, int cx, int cy, nat8 color){
 		project_point(a,&x0,&y0,scale,cx,cy);
 		project_point(b,&x1,&y1,scale,cx,cy);
 
-		gfx_draw_line(x0,y0,x1,y1,color,1);
+		gfx_draw_line(x0,y0,x1,y1,color,4);
 	}
 }

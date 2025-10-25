@@ -36,25 +36,24 @@ void draw_thick_pixel(int x, int y, nat8 color, int thickness) {
 		int byte_end = x_end / 8;
 
 		for(int plane = 0; plane < 4; plane++) {
-			set_map_mask(1 << plane);
+			set_map_mask((color == 0) ? 0x0F : color);
 			volatile nat8 *fb = VGA_FB + py * VGA_BYTES_PER_SCANLINE;
 
 			for(int bx = byte_start; bx <= byte_end; bx++) {
 				int mask = 0xFF;
 
-				// handle left edge
 				if(bx == byte_start) mask &= 0xFF >> (x_start % 8);
-				// handle right edge
 				if(bx == byte_end) mask &= 0xFF << (7 - (x_end % 8));
 
-				if(color & (1 << plane))
+				if((color == 0) ? color & (1 << plane) : color)
 					fb[bx] |= mask;
 				else
 					fb[bx] &= ~mask;
 			}
 		}
 	}
-	set_map_mask(0x0F);
+
+	set_map_mask(color);
 }
 
 void gfx_draw_line(int x0, int y0, int x1, int y1, nat8 color, int thickness) {
