@@ -17,6 +17,13 @@ typedef struct {
 	nat8 bg;
 } cell_t;
 
+static nat8 ega_to_dac[16] = {
+	0, 1, 2, 3,
+	4, 5, 20, 7,
+	56, 57, 58, 59,
+	60, 61, 62, 63
+};
+
 static cell_t screen_buf[MAX_ROWS][MAX_COLS];
 
 static inline void seq_write(nat8 index, nat8 value) {
@@ -520,4 +527,17 @@ void set_bg_color(nat8 color) {
 			vga_draw_char(x * WFONT, y * HFONT, screen_buf[y][x].c, screen_buf[y][x].fg, color);
 		}
 	}
+}
+
+void set_color(nat8 color, nat8 r255, nat8 g255, nat8 b255) {
+	nat8 r = r255 >> 2;
+	nat8 g = g255 >> 2;
+	nat8 b = b255 >> 2;
+
+	nat8 dac = ega_to_dac[color];
+
+	out_byte(0x3C8, dac);
+	out_byte(0x3C9, r);
+	out_byte(0x3C9, g);
+	out_byte(0x3C9, b);
 }

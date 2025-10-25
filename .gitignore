@@ -1,3 +1,4 @@
 .vscode
 qemu.log
 build
+tools/bin

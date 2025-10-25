@@ -24,5 +24,6 @@ void do_clear_cursor();
 void draw_pixel(int px, int py, nat8 color);
 void set_bg_color(nat8 color);
 void timer_vga_callback();
+void set_color(nat8 color, nat8 r255, nat8 g255, nat8 b255);
 
 #endif

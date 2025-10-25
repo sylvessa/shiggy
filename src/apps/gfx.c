@@ -18,30 +18,25 @@ static nat8 rainbow_step = 0;
 
 static void update_rainbow_color() {
 	nat8 r = 0, g = 0, b = 0;
-	nat8 phase = rainbow_step % 192; // 3*64
+	nat16 phase = rainbow_step % 192;
 
 	if(phase < 64) {
-		r = 63 - phase;
-		g = phase;
+		r = 255 - phase * 4;
+		g = phase * 4;
 		b = 0;
 	} else if(phase < 128) {
 		r = 0;
-		g = 127 - phase;
-		b = phase - 64;
+		g = 255 - (phase - 64) * 4;
+		b = (phase - 64) * 4;
 	} else {
-		r = phase - 128;
+		r = (phase - 128) * 4;
 		g = 0;
-		b = 191 - phase;
+		b = 255 - (phase - 128) * 4;
 	}
 
 	rainbow_step++;
-
-	out_byte(0x3C8, 7);
-	out_byte(0x3C9, r);
-	out_byte(0x3C9, g);
-	out_byte(0x3C9, b);
+	set_color(0x0B, r, g, b);
 }
-
 
 void project_mesh(mesh3d *mesh, float scale, int cx, int cy, point *out){
 	for (int i=0; i < mesh->vertex_count; i++) {
@@ -52,10 +47,10 @@ void project_mesh(mesh3d *mesh, float scale, int cx, int cy, point *out){
 void gfx_app_timer_callback() {
 	if (!inited) return;
 
-	static nat32 last_tick = 0;
-	nat32 now = 1;
-	float dt = (now - last_tick) / 1000.0f;
-	last_tick = now;
+	// static nat32 last_tick = 0;
+	// nat32 now = 1;
+	// float dt = (now - last_tick) / 1000.0f;
+	// last_tick = now;
 
 	for (int i = 0; i < cube.edge_count; i++) {
 		int a = cube.edges[i][0];
@@ -64,20 +59,20 @@ void gfx_app_timer_callback() {
 	}
 
 	point new_proj[8];
-	//project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
 
-	// angle += speed * dt;
-	// if (angle > 6.283185f) angle -= 6.283185f;
+	//angle += speed * dt;
+	//if (angle > 6.283185f) angle -= 6.283185f;
 
-	//rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
+	rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
 	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
 
 	update_rainbow_color();
+	
 
 	for (int i = 0; i < cube.edge_count; i++) {
 		int a = cube.edges[i][0];
 		int b = cube.edges[i][1];
-		gfx_draw_line(new_proj[a].x, new_proj[a].y, new_proj[b].x, new_proj[b].y, 7, 1);
+		gfx_draw_line(new_proj[a].x, new_proj[a].y, new_proj[b].x, new_proj[b].y, 0x0B, 1);
 	}
 
 	for (int i = 0; i < cube.vertex_count; i++) prev_proj[i] = new_proj[i];

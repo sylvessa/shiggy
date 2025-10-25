@@ -25,7 +25,7 @@
 - [x] directories
 - [x] file persistence (write changes to disk)
 - [ ] ext2 implementation
-- [x] port commands over to filesystem instead of all being in memory
+- [ ] port commands over to filesystem instead of all being in memory
 
 ## shell
 
@@ -33,6 +33,7 @@
 - [ ] environment variables (`$path`, `$home`, etc.)
 - [ ] command history / autocomplete
 - [ ] advanced argument parsing (quotes, escape characters)
+- [ ] better way of registering commands
 
 ## apps
 
@@ -64,7 +65,7 @@
 - [ ] window manager / gui
 - [ ] mouse input integration
 - [ ] basic widgets: buttons, text fields, menus
-- [ ] custom color palette (fully, cant use 6, 8, 9, 10, 11, 12, 13, 14, and 15 rn, terrible)
+- [x] custom color palette (fully, cant use 6, 8, 9, 10, 11, 12, 13, 14, and 15 rn, terrible)
 
 ## user / security
 

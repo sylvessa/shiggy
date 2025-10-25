@@ -1,6 +1,7 @@
 ASM=nasm
 CC=i386-elf-gcc
 LD=i386-elf-ld
+HOST_CC=gcc
 OBJCOPY=objcopy
 
 SRC_DIR=src
@@ -27,6 +28,8 @@ KERNEL_ELF=$(BUILD_DIR)/kernel.elf
 KERNEL_BIN=$(BUILD_DIR)/kernel.bin
 OS_IMG=$(BUILD_DIR)/os.img
 HDD_IMG=$(BUILD_DIR)/hdd.img
+MEM_UPDATER_SRC=tools/mem-layout-updater/main.c
+MEM_UPDATER_BIN=tools/bin/mem-layout-updater
 
 SECTOR_SIZE=512
 
@@ -99,3 +102,18 @@ run-nb:
 clean:
 	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"
 	@rm -rf $(BUILD_DIR)
+
+
+# mem l,ayout udpater
+
+$(MEM_UPDATER_BIN): $(MEM_UPDATER_SRC) | tools/bin
+	@mkdir -p $(dir $@)
+	@echo "$(BLUE)[CC]$(RESET) compiling memory layout updater"
+	@$(HOST_CC) -O2 -Wall -o $@ $<
+
+tools/bin:
+	@mkdir -p tools/bin
+
+update-mem-layout: $(KERNEL_ELF) $(MEM_UPDATER_BIN)
+	@echo "$(CYAN)[MEM]$(RESET) updating memory layout"
+	@$(MEM_UPDATER_BIN)

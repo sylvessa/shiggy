@@ -18,7 +18,6 @@ static void cmd_test(const char** args, int argc) {
 
 	void *phys_addr = malloc(n);
 	printf("free mem starts at %p\nallocated %d bytes at address %p\n", &__free_memory_start, n, phys_addr);
-	sleep_s(4);
 }
 
 void register_test_cmd(void) {
