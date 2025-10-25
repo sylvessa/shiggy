@@ -19,5 +19,7 @@ mesh3d cube_mesh(float size);
 void rotate_mesh(mesh3d *mesh, float rx, float ry, float rz);
 void project_point(vec3 v, int *sx, int *sy, float scale, int cx, int cy);
 void draw_mesh(mesh3d *mesh, float scale, int cx, int cy, nat8 color);
+int is_mesh_empty(mesh3d *m);
+void translate_mesh(mesh3d *mesh, float tx, float ty, float tz);
 
 #endif

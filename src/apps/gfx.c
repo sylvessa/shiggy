@@ -2,6 +2,7 @@
 #include "apps/base.h"
 #include "graphics/main.h"
 #include "lib/math.h"
+#include "apps/gfx.h"
 #include "graphics/3d.h"
 
 typedef struct { int x, y; } point;
@@ -48,40 +49,40 @@ void project_mesh(mesh3d *mesh, float scale, int cx, int cy, point *out){
 	}
 }
 
-void timer_callback() {
+void gfx_app_timer_callback() {
+	if (!inited) return;
+
 	static nat32 last_tick = 0;
-	nat32 now = timer_ticks;
+	nat32 now = 1;
 	float dt = (now - last_tick) / 1000.0f;
 	last_tick = now;
 
-	if (!inited) return;
-
-	point new_proj[8];
-	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
-
-	for (int i=0; i < cube.edge_count; i++) {
+	for (int i = 0; i < cube.edge_count; i++) {
 		int a = cube.edges[i][0];
 		int b = cube.edges[i][1];
 		gfx_draw_line(prev_proj[a].x, prev_proj[a].y, prev_proj[b].x, prev_proj[b].y, 0, 1);
 	}
 
-	angle += speed * dt;
-	if (angle > 6.283185f) angle -= 6.283185f;
+	point new_proj[8];
+	//project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
 
-	rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
+	// angle += speed * dt;
+	// if (angle > 6.283185f) angle -= 6.283185f;
 
+	//rotate_mesh(&cube, angle*0.5f, angle, angle*0.25f);
 	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, new_proj);
 
 	update_rainbow_color();
 
-	for (int i=0; i < cube.edge_count; i++) {
+	for (int i = 0; i < cube.edge_count; i++) {
 		int a = cube.edges[i][0];
 		int b = cube.edges[i][1];
 		gfx_draw_line(new_proj[a].x, new_proj[a].y, new_proj[b].x, new_proj[b].y, 7, 1);
 	}
 
-	for (int i=0; i < cube.vertex_count; i++) prev_proj[i] = new_proj[i];
+	for (int i = 0; i < cube.vertex_count; i++) prev_proj[i] = new_proj[i];
 }
+
 
 void cmd_gfx(const char** args, int argc){
 	if (inited) {
@@ -106,7 +107,6 @@ void cmd_gfx(const char** args, int argc){
 	
 	project_mesh(&cube, 5.0f, VGA_WIDTH/2, VGA_HEIGHT/2, prev_proj);
 
-	register_interrupt_handler(32, timer_callback);
 	inited = 1;
 }
 

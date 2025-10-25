@@ -55,13 +55,13 @@ void draw_pixel(int x, int y, nat8 color) {
 	volatile nat8 *fb = VGA_FB;
 	int bytes_per_line = VGA_BYTES_PER_SCANLINE;
 	for(int plane=0; plane<4; plane++) {
-		set_map_mask(1 << plane);
+		set_map_mask((color == 0) ? 0x0F : color);
 		int byte = x/8;
 		int bit = 7-(x%8);
-		if(color & (1<<plane)) fb[y*bytes_per_line + byte] |= (1<<bit);
+		if((color == 0) ? color & (1 << plane) : color) fb[y*bytes_per_line + byte] |= (1<<bit);
 		else fb[y*bytes_per_line + byte] &= ~(1<<bit);
 	}
-	set_map_mask(0x0F);
+	set_map_mask(color);
 }
 
 
@@ -199,7 +199,7 @@ void print(const char *string) {
 }
 
 
-static void toggle_cursor() {
+void timer_vga_callback() {
 	cursor_tick++;
 	if(cursor_tick % 20 != 0) return;
 	if (gui_mode) return;
@@ -228,12 +228,6 @@ void do_backspace() {
 	int py = cursor_y * HFONT;
 	if(cursor_blink) vga_draw_char(px, py, '_', fg_color, bg_color);
 }
-
-
-void init_vga_text() {
-	register_interrupt_handler(32, toggle_cursor);
-}
-
 
 void print_center(const char *text, nat8 row_bg, ...) {
 	va_list args;

@@ -23,5 +23,6 @@ void printf_at(int col, int row, const char *fmt, ...);
 void do_clear_cursor();
 void draw_pixel(int px, int py, nat8 color);
 void set_bg_color(nat8 color);
+void timer_vga_callback();
 
 #endif

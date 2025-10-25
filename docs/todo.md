@@ -64,6 +64,7 @@
 - [ ] window manager / gui
 - [ ] mouse input integration
 - [ ] basic widgets: buttons, text fields, menus
+- [ ] custom color palette (fully, cant use 6, 8, 9, 10, 11, 12, 13, 14, and 15 rn, terrible)
 
 ## user / security
 

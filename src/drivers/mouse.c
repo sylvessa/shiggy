@@ -45,7 +45,6 @@ void erase_mouse_arrow(int x, int y) {
 	}
 }
 
-
 void mouse_callback() {
 	if (!gui_mode) return;
 	mouse_data = in_byte(0x60);
@@ -72,8 +71,6 @@ void mouse_callback() {
 
 		if(prev_mouse_x >= 0 && prev_mouse_y >= 0)
 			erase_mouse_arrow(prev_mouse_x, prev_mouse_y);
-
-		
 
 		draw_mouse_arrow(mouse_x, mouse_y, 5);
 

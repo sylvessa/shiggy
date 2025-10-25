@@ -45,8 +45,6 @@ void cmd_gui(const char** args, int argc) {
 
 	screen_clear();
 
-	// set_bg_color(0x0F);
-
 	draw_smiley(400, 50);
 	print_center("soon", 0x00);
 }

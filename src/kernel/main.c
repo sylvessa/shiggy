@@ -17,7 +17,6 @@ void kmain() {
 	isr_install();
 	init_timer(50);
 	init_ata();
-	init_vga_text();
 	init_keyboard();
 	
 	print_center("=== shiggy - type help to get list of commands ===", 0x5);
@@ -26,7 +25,6 @@ void kmain() {
 
 	if (acpi_init() != SUCCESS)
 		print("Failed to initialized ACPI\n");
-
 
 	init_mouse();
 	register_all_commands();

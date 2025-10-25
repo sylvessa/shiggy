@@ -18,6 +18,8 @@ extern void register_time_cmd(void);
 extern void register_gui_cmd(void);
 extern void register_mkdir_cmd(void);
 extern void register_cd_cmd(void);
+extern void register_crotate_cmd(void);
+extern void register_ctranslate_cmd(void);
 extern void register_beep_cmd(void);
 
 void register_command(const char* name, const char* description, int hidden, command_func_t func, int args) {
@@ -45,5 +47,7 @@ void register_all_commands(void) {
 	register_gui_cmd();
 	register_mkdir_cmd();
 	register_cd_cmd();
+	register_crotate_cmd();
 	register_beep_cmd();
+	register_ctranslate_cmd();
 }

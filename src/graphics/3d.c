@@ -68,3 +68,17 @@ void draw_mesh(mesh3d *mesh, float scale, int cx, int cy, nat8 color){
 		gfx_draw_line(x0,y0,x1,y1,color,4);
 	}
 }
+
+int is_mesh_empty(mesh3d *m) {
+	return m == NULL || m->vertices == NULL || m->vertex_count == 0;
+}
+
+void translate_mesh(mesh3d *mesh, float tx, float ty, float tz) {
+	if(is_mesh_empty(mesh)) return;
+
+	for(int i=0; i < mesh->vertex_count; i++) {
+		mesh->vertices[i].x += tx;
+		mesh->vertices[i].y += ty;
+		mesh->vertices[i].z += tz;
+	}
+}
