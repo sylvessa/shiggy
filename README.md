@@ -2,7 +2,7 @@
 
 an experimental OS I made for fun.
 
-shiggy is written in C with a bit of x86 assembly. theres is a work in progress file system, this is just the kernel and bootloader all handcrafted.
+shiggy is written in C with a bit of x86 assembly. bootloader, kernel, graphics, etc are all handcrafted
 
 you can build and run it with:
 

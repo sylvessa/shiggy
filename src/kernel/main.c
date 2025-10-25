@@ -15,7 +15,7 @@ void kmain() {
 	char* input = malloc(255);
 
 	isr_install();
-	init_timer(50);
+	init_timer(1);
 	init_ata();
 	init_keyboard();
 	
