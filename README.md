@@ -7,6 +7,7 @@ shiggy is written in C with a bit of x86 assembly. bootloader, kernel, graphics,
 you can build and run it with:
 
 ```bash
+make toolchain # run only if you dont haev i386 build tools already installed
 make
 make run
 ```
@@ -29,7 +30,7 @@ this should also run and build just fine on WSL2.
 - `i386-elf-gcc`
 - `nasm`
 - `i386-elf-ld`
-- `objcopy` (from binutils)
+- `i386-elf-objcopy`
 - `qemu-system-i386` (for testing)
 
 if you dont have them installed:
@@ -37,7 +38,7 @@ if you dont have them installed:
 ```bash
 sudo apt update
 sudo apt install build-essential nasm qemu-system
-# i386-elf tools requires being built manually, you can find tutorials online for it, i will provide a script for it later
+make toolchain
 ```
 
 ## info

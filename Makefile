@@ -2,7 +2,7 @@ ASM=nasm
 CC=i386-elf-gcc
 LD=i386-elf-ld
 HOST_CC=gcc
-OBJCOPY=objcopy
+OBJCOPY=i386-elf-objcopy
 
 SRC_DIR=src
 BUILD_DIR=build
@@ -39,7 +39,32 @@ CYAN=\033[0;36m
 YELLOW=\033[1;33m
 RESET=\033[0m
 
-all: $(OS_IMG)
+# absolute local bin path where build-i386-elf.sh installs tools
+LOCAL_BIN := $(CURDIR)/tools/bin/bin
+
+REQUIRED_TOOLS := i386-elf-gcc i386-elf-ld i386-elf-objcopy
+
+check_toolchain:
+	@missing=""; \
+	for t in $(REQUIRED_TOOLS); do \
+		if command -v $$t >/dev/null 2>&1; then \
+			continue; \
+		elif [ -x "$(LOCAL_BIN)/$$t" ]; then \
+			export PATH="$(LOCAL_BIN):$$PATH"; \
+			echo "added $(LOCAL_BIN) to PATH for $$t"; \
+		else \
+			missing="$$missing $$t"; \
+		fi; \
+	done; \
+	if [ "$$missing" != "" ]; then \
+		echo "$(YELLOW)missing toolchain:$$missing$(RESET)"; \
+		echo "run: make toolchain"; \
+		exit 1; \
+	fi
+
+export PATH := $(LOCAL_BIN):$(PATH)
+
+all: check_toolchain $(OS_IMG)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
@@ -71,7 +96,6 @@ $(BOOT_BIN): $(BOOT_SECTOR) $(KERNEL_BIN) | $(BUILD_DIR)
 	echo "$(CYAN)[BOOT]$(RESET) setting sectors to $$SECTORS"; \
 	$(ASM) $< -DNUM_KERNEL_SECTORS=$$SECTORS -f bin -I $(SRC_DIR)/boot/ -o $@
 
-
 $(KERNEL_ELF): $(KERNEL_MAIN_OBJ) $(OTHER_OBJECTS) $(ASM_OBJECTS) | $(BUILD_DIR)
 	@echo "$(BLUE)[LD]$(RESET) linking $@"
 	@$(LD) -m elf_i386 -T linker.ld -o $@ $^ -Map $(BUILD_DIR)/kernel.map
@@ -91,10 +115,10 @@ $(HDD_IMG):
 	@dd if=/dev/zero of=$(HDD_IMG) bs=1M count=64 status=none
 	@echo "$(GREEN)[OK]$(RESET) created $(HDD_IMG)"
 
-run: $(OS_IMG) $(HDD_IMG)
+run: check_toolchain $(OS_IMG) $(HDD_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa
- 
+
 run-nb:
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa
@@ -103,8 +127,7 @@ clean:
 	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"
 	@rm -rf $(BUILD_DIR)
 
-
-# mem l,ayout udpater
+# mem layout
 
 $(MEM_UPDATER_BIN): $(MEM_UPDATER_SRC) | tools/bin
 	@mkdir -p $(dir $@)
@@ -117,3 +140,8 @@ tools/bin:
 update-mem-layout: $(KERNEL_ELF) $(MEM_UPDATER_BIN)
 	@echo "$(CYAN)[MEM]$(RESET) updating memory layout"
 	@$(MEM_UPDATER_BIN)
+
+toolchain:
+	@echo "$(CYAN)installing local i386 toolchain$(RESET)"
+	@cd tools && ./build-i386-elf.sh
+	@echo "$(GREEN)ok$(RESET)"

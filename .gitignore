@@ -2,3 +2,4 @@
 qemu.log
 build
 tools/bin
+tools/toolchain
