@@ -4,5 +4,5 @@
 
 extern mesh3d cube;
 void gfx_app_timer_callback();
-
+extern int gfx_app_inited;
 #endif

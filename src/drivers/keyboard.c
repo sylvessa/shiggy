@@ -36,19 +36,19 @@ void keyboard_callback() {
 
 		switch (code) {
 			case 0x48: // up
-				if (!released && !is_mesh_empty(&cube))
+				if (!released && gfx_app_inited)
 					translate_mesh(&cube, 0, 0, -move_amount);
 				break;
 			case 0x50: // down
-				if (!released && !is_mesh_empty(&cube))
+				if (!released && gfx_app_inited)
 					translate_mesh(&cube, 0, 0, move_amount);
 				break;
 			case 0x4B: // left
-				if (!released && !is_mesh_empty(&cube))
+				if (!released && gfx_app_inited)
 					translate_mesh(&cube, -move_amount, 0, 0);
 				break;
 			case 0x4D: // right
-				if (!released && !is_mesh_empty(&cube))
+				if (!released && gfx_app_inited)
 					translate_mesh(&cube, move_amount, 0, 0);
 				break;
 		}
@@ -71,7 +71,7 @@ void keyboard_callback() {
 
 	switch (code) {
 		case BACKSPACE:
-			if (!released && !is_mesh_empty(&cube)) {
+			if (!released && gfx_app_inited) {
 				translate_mesh(&cube, 0, 1.0f, 0);
 			} else {
 				if (input_size > 0) {
@@ -87,8 +87,8 @@ void keyboard_callback() {
 			ready = true;
 			break;
 		default: {
-			if (code == 0x39 && !is_mesh_empty(&cube)) {
-				if (!released) translate_mesh(&cube, 0, -1.0f, 0);
+			if (code == 0x39 && gfx_app_inited) {
+				translate_mesh(&cube, 0, -1.0f, 0);
 			} else {
 				char letter = (shift_pressed || caps_lock_on) ? sc_ascii_shift[code] : sc_ascii[code];
 				if (letter != '?' && input_size < (sizeof(input_buffer) - 1)) {

@@ -7,7 +7,7 @@
 
 float angle = 0;
 float speed = 20.0f;
-int inited = 0;
+int gfx_app_inited = 0;
 mesh3d cube;
 
 static point prev_proj[8];
@@ -43,7 +43,7 @@ void project_mesh(mesh3d* mesh, float scale, int cx, int cy, point* out) {
 }
 
 void gfx_app_timer_callback() {
-	if (!inited)
+	if (!gfx_app_inited)
 		return;
 
 	// static nat32 last_tick = 0;
@@ -83,7 +83,7 @@ void gfx_app_timer_callback() {
 }
 
 void cmd_gfx(const char** args, int argc) {
-	if (inited) {
+	if (gfx_app_inited) {
 		point erase_proj[8];
 
 		project_mesh(&cube, 5.0f, VGA_WIDTH / 2, VGA_HEIGHT / 2, erase_proj);
@@ -94,7 +94,7 @@ void cmd_gfx(const char** args, int argc) {
 			gfx_draw_line(erase_proj[a].x, erase_proj[a].y, erase_proj[b].x, erase_proj[b].y, 0, 1);
 		}
 
-		inited = 0;
+		gfx_app_inited = 0;
 		return;
 	}
 
@@ -107,7 +107,7 @@ void cmd_gfx(const char** args, int argc) {
 
 	project_mesh(&cube, 5.0f, VGA_WIDTH / 2, VGA_HEIGHT / 2, prev_proj);
 
-	inited = 1;
+	gfx_app_inited = 1;
 }
 
 command_t gfx_cmd __attribute__((section(".cmds"))) = {
