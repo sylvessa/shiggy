@@ -24,7 +24,6 @@ void kmain() {
 	if (acpi_init() != SUCCESS)
 		print("Failed to initialized ACPI\n");
 
-	// init_mouse();
 	register_all_commands();
 	print_center("=== shiggy - type help to get list of commands ===", 0x5);
 
@@ -32,6 +31,7 @@ void kmain() {
 		if (!gui_mode) {
 			printf("\\9x%s\\x$ ", current_dir);
 		}
+
 		sconf(input);
 
 		bool handled = false;

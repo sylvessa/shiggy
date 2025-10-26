@@ -24,7 +24,7 @@ void show_pci_devices() {
 			nat16 device_id = (nat16)(data >> 16);
 
 			if (vendor_id != 0xFFFF) {
-				printf("pci device found at %d, %d: vendor id = %p, device id = %p\n", device, func, vendor_id, device_id);
+				printf("pci device found at %d, %d: vendor id = 0x%p, device id = 0x%p\n", device, func, vendor_id, device_id);
 			}
 		}
 	}

@@ -9,7 +9,7 @@
 ## drivers
 
 - [x] keyboard support
-- [ ] mouse support (needs additional debugging)
+- [x] mouse support (needs additional debugging, mouse and keyboard cant be used at the same time)
 - [x] basic text mode
 - [x] graphics mode support
 - [x] sound / speaker driver

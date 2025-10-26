@@ -48,6 +48,7 @@ nat32 RTL8139_FIND_DEVICE() {
 
 	return 0x00;
 }
+
 void init_rtl8139() {
 	out_byte(iobase + 0x52, 0x00);
 	out_byte(iobase + RTL8139_REG_COMMAND, RTL8139_CMD_RESET); // software reset
@@ -75,6 +76,7 @@ void init_rtl8139() {
 
 void rtl8139_handler() {
 	word intr_status = in_b16(iobase + RTL8139_REG_INTR_STATUS);
+	print("RTL8139 GOT something\n");
 
 	if (intr_status & 0x01) {
 		// goit a packet
@@ -92,11 +94,11 @@ void init_network() {
 		init_rtl8139();
 
 		byte irq = pci_config_read_word(RTL8139BUS, RTL8139SLOT, 0x00, 0x3C) & 0xFF;
-		printf("got irq for RTL8139: %p %d\n", irq, irq);
+		printf("got irq for RTL8139: 0x%p (%d)\n", irq, IRQ_BASE + irq);
 
 		byte* mac = get_mac();
-		printf("MAC: %d:%d:%d:%d:%d:%d\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		printf("MAC: %p:%p:%p:%p:%p:%p\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-		register_interrupt_handler(irq, rtl8139_handler);
+		register_interrupt_handler(IRQ_BASE + irq, rtl8139_handler);
 	}
 }

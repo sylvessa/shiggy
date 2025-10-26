@@ -108,7 +108,7 @@ void init_mouse() {
 	register_interrupt_handler(IRQ_BASE + 12, mouse_callback);
 
 	out_byte(0x64, 0x20);
-	nat8 status = in_byte(0x60) | 2;
+	nat8 status = in_byte(0x60) | 3;
 	out_byte(0x64, 0x60);
 	out_byte(0x60, status);
 

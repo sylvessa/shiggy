@@ -1,4 +1,5 @@
 #include "apps/base.h"
+#include "drivers/mouse.h"
 #include "globals.h"
 
 void draw_smiley(int start_x, int start_y) {
@@ -39,9 +40,8 @@ void draw_smiley(int start_x, int start_y) {
 }
 
 void cmd_gui(const char** args, int argc) {
-	print("disabled 4 now because bug with mouse\n");
-	return;
 	gui_mode = true;
+	init_mouse();
 
 	screen_clear();
 

@@ -17,7 +17,7 @@ static void cmd_test(const char** args, int argc) {
 	}
 
 	void* phys_addr = malloc(n);
-	printf("free mem starts at %p\nallocated %d bytes at address %p\n", &__free_memory_start, n, phys_addr);
+	printf("free mem starts at 0x%p\nallocated %d bytes at address 0x%p\n", &__free_memory_start, n, phys_addr);
 }
 
 command_t test_cmd __attribute__((section(".cmds"))) = {

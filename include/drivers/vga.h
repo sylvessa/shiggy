@@ -8,10 +8,14 @@
 #define VGA_BYTES_PER_SCANLINE (VGA_WIDTH / 8) // 80
 #define VGA_FB ((volatile nat8*)0xA0000)
 
+typedef struct {
+	char ch;
+	nat8 fg;
+	nat8 bg;
+} formatted_char;
+
 void vga_draw_char(int x, int y, char c, nat8 fg, nat8 bg);
-void vga_draw_text(int x, int y, const char* str, nat8 color);
 void print(const char* str);
-void init_vga_text();
 void do_backspace();
 void draw_char_pixel(int px, int py, nat8 fg, nat8 bg, int set);
 void print_center(const char* text, nat8 row_bg, ...);

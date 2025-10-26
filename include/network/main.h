@@ -20,7 +20,10 @@ typedef struct
 	byte mac[6];
 } rtl8139;
 
+extern rtl8139 rtl8139Device;
+
 void init_network();
 byte* get_mac();
+void send_frame(byte* data, int len);
 
 #endif
