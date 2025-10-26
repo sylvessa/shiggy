@@ -361,8 +361,7 @@ void print(const char* string) {
 	nat8 bg = bg_color;
 
 	formatted_char buf[1024];
-	va_list empty;
-	int len = format_to_buffer(buf, 1024, string, empty, &fg, &bg, false);
+	int len = format_to_buffer(buf, 1024, string, NULL, &fg, &bg, false);
 
 	for (int i = 0; i < len; i++) {
 		print_char(buf[i].ch, buf[i].fg, buf[i].bg);
