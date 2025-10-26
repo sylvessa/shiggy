@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 void draw_smiley(int start_x, int start_y) {
 	nat8 fg = 15;
@@ -39,6 +39,8 @@ void draw_smiley(int start_x, int start_y) {
 }
 
 void cmd_gui(const char** args, int argc) {
+	print("disabled 4 now because bug with mouse\n");
+	return;
 	gui_mode = true;
 
 	screen_clear();
@@ -51,7 +53,7 @@ void register_gui_cmd(void) {
 	register_command(
 		"gui",		// name
 		"gui mode", // desc
-		0,			// hidden
+		1,			// hidden
 		cmd_gui,	// func
 		0			// args
 	);

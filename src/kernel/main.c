@@ -26,7 +26,7 @@ void kmain() {
 	if (acpi_init() != SUCCESS)
 		print("Failed to initialized ACPI\n");
 
-	init_mouse();
+	// init_mouse();
 	register_all_commands();
 
 	while (true) {
