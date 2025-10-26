@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := all
+
 ASM=nasm
 CC=i386-elf-gcc
 LD=i386-elf-ld
@@ -63,7 +65,7 @@ check_toolchain:
 
 export PATH := $(LOCAL_BIN):$(PATH)
 
-all: check_toolchain $(OS_IMG)
+all: $(OS_IMG)
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
@@ -116,7 +118,7 @@ $(HDD_IMG):
 
 run: check_toolchain $(OS_IMG) $(HDD_IMG)
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
-	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa
+	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa 
 
 run-nb:
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."

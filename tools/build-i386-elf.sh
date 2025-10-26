@@ -60,7 +60,7 @@ mkdir -p build-gcc
 cd build-gcc
 ../gcc-$gccv/configure --target=$target --prefix=$prefix --disable-nls --enable-languages=c --without-headers
 make all-gcc -j$(nproc) V=1
-make install -j$(nproc)
+make install-gcc
 cd ..
 
 if [ ! -f "$prefix/bin/i386-elf-gcc" ]; then
