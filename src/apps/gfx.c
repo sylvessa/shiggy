@@ -110,11 +110,10 @@ void cmd_gfx(const char** args, int argc) {
 	inited = 1;
 }
 
-void register_gfx_cmd(void) {
-	register_command(
-		"gfx",
-		"shows 3d cube. gfx <size>",
-		0,
-		cmd_gfx,
-		1);
-}
+command_t gfx_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "gfx",
+	.description = "shows 3d cube. gfx <size>",
+	.hidden = 0,
+	.func = cmd_gfx,
+	.args = 1};

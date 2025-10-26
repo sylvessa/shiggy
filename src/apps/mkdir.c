@@ -15,12 +15,10 @@ void cmd_mkdir(const char** args, int argc) {
 	}
 }
 
-void register_mkdir_cmd(void) {
-	register_command(
-		"mkdir",		// name
-		"makes a file", // desc
-		0,				// hidden
-		cmd_mkdir,		// func
-		1				// args
-	);
-}
+command_t mkdir_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "mkdir",
+	.description = "makes a directory",
+	.hidden = 0,
+	.func = cmd_mkdir,
+	.args = 1};

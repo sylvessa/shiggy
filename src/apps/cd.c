@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 void cmd_cd(const char** args, int argc) {
 	if (argc < 1) {
@@ -68,3 +68,11 @@ void register_cd_cmd(void) {
 		1					   // args
 	);
 }
+
+command_t cd_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "cd",
+	.description = "go into a directory",
+	.hidden = 0,
+	.func = cmd_cd,
+	.args = 1};

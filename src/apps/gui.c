@@ -49,12 +49,10 @@ void cmd_gui(const char** args, int argc) {
 	print_center("soon", 0x00);
 }
 
-void register_gui_cmd(void) {
-	register_command(
-		"gui",		// name
-		"gui mode", // desc
-		1,			// hidden
-		cmd_gui,	// func
-		0			// args
-	);
-}
+command_t gui_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "gui",
+	.description = "gui mode",
+	.hidden = 1,
+	.func = cmd_gui,
+	.args = 0};

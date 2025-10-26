@@ -8,12 +8,10 @@ void cmd_time(const char** args, int argc) {
 	printf("%d:%d\n", h, m);
 }
 
-void register_time_cmd(void) {
-	register_command(
-		"time",			  // name
-		"shows the time", // desc
-		0,				  // hidden
-		cmd_time,		  // func
-		0				  // args
-	);
-}
+command_t time_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "time",
+	.description = "shows the time",
+	.hidden = 0,
+	.func = cmd_time,
+	.args = 0};

@@ -1,6 +1,6 @@
-#include "globals.h"
 #include "apps/base.h"
 #include "drivers/pcspeaker.h"
+#include "globals.h"
 
 static void cmd_beep(const char** args, int argc) {
 	if (argc < 1) {
@@ -20,12 +20,10 @@ static void cmd_beep(const char** args, int argc) {
 	pc_speaker_beep(n, 1000);
 }
 
-void register_beep_cmd(void) {
-	register_command(
-		"beep",	  // name
-		"beep",	  // desc
-		0,		  // hidden
-		cmd_beep, // func
-		1		  // args
-	);
-}
+command_t beep_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "beep",
+	.description = "beep",
+	.hidden = 0,
+	.func = cmd_beep,
+	.args = 1};

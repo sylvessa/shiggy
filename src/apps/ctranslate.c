@@ -1,9 +1,9 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "apps/gfx.h"
+#include "globals.h"
+#include "graphics/3d.h"
 #include "graphics/main.h"
 #include "lib/math.h"
-#include "apps/gfx.h"
-#include "graphics/3d.h"
 
 void cmd_ctranslate(const char** args, int argc) {
 	if (argc >= 1) {
@@ -33,11 +33,10 @@ void cmd_ctranslate(const char** args, int argc) {
 	}
 }
 
-void register_ctranslate_cmd(void) {
-	register_command(
-		"ctranslate",
-		"translates (moves) a cube",
-		0,
-		cmd_ctranslate,
-		3);
-}
+command_t ctranslate_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "ctranslate",
+	.description = "translates (moves) a cube",
+	.hidden = 0,
+	.func = cmd_ctranslate,
+	.args = 3};

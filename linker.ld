@@ -20,6 +20,13 @@ SECTIONS
         *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
     }
 
+    .cmds : {
+        __start_cmds = .;
+        KEEP(*(.cmds))
+        __stop_cmds = .;
+    }
+
+
     . = ALIGN(4096);
 
     PROVIDE(start_data = .);

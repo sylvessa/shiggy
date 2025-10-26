@@ -26,11 +26,10 @@ void cmd_ls(const char** args, int argc) {
 	}
 }
 
-void register_ls_cmd(void) {
-	register_command(
-		"ls",
-		"lists files and directories in root",
-		0,
-		cmd_ls,
-		0);
-}
+command_t ls_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "ls",
+	.description = "lists files and directories in current dir",
+	.hidden = 0,
+	.func = cmd_ls,
+	.args = 0};

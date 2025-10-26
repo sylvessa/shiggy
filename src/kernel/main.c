@@ -19,8 +19,6 @@ void kmain() {
 	init_ata();
 	init_keyboard();
 
-	print_center("=== shiggy - type help to get list of commands ===", 0x5);
-
 	fat32_fs_init();
 
 	if (acpi_init() != SUCCESS)
@@ -28,6 +26,7 @@ void kmain() {
 
 	// init_mouse();
 	register_all_commands();
+	print_center("=== shiggy - type help to get list of commands ===", 0x5);
 
 	while (true) {
 		if (!gui_mode) {

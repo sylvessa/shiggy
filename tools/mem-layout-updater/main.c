@@ -30,15 +30,16 @@ int main() {
 	fprintf(out, "| 0x7E00 - 0x0FFFF  | bootloader stack / temporary buffers          |\n");
 
 	char line[512];
-	const char* sections[] = {".text", ".rodata", ".data", ".bss"};
+	const char* sections[] = {".text", ".rodata", ".cmds", ".data", ".bss"};
 	const char* labels[] = {
 		"kernel `.text` section (code)",
 		"kernel `.rodata` section (read-only data)",
+		"kernel `.cmds` section (in-built commands)",
 		"kernel `.data` section (initialized globals)",
 		"kernel `.bss` section (zero-initialized data)"};
 
 	while (fgets(line, sizeof(line), fp)) {
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 5; i++) {
 			if (strstr(line, sections[i])) {
 				unsigned long size = 0, vma = 0;
 				// sscanf: index, name, size, vma, lma, file offset, align

@@ -1,9 +1,9 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "apps/gfx.h"
+#include "globals.h"
+#include "graphics/3d.h"
 #include "graphics/main.h"
 #include "lib/math.h"
-#include "apps/gfx.h"
-#include "graphics/3d.h"
 
 void cmd_crotate(const char** args, int argc) {
 	if (argc >= 1) {
@@ -33,11 +33,10 @@ void cmd_crotate(const char** args, int argc) {
 	}
 }
 
-void register_crotate_cmd(void) {
-	register_command(
-		"crotate",
-		"crotates a cube",
-		0,
-		cmd_crotate,
-		3);
-}
+command_t crotate_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "crotate",
+	.description = "rotates a cube",
+	.hidden = 0,
+	.func = cmd_crotate,
+	.args = 3};

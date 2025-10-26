@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 void cmd_colors(const char** args, int argc) {
 	print("\n");
@@ -11,12 +11,10 @@ void cmd_colors(const char** args, int argc) {
 	print("\n");
 }
 
-void register_colors_cmd(void) {
-	register_command(
-		"colors",		   // name
-		"shows 16 colors", // desc
-		0,				   // hidden
-		cmd_colors,		   // func
-		0				   // args
-	);
-}
+command_t colors_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "colors",
+	.description = "shows 16 colors",
+	.hidden = 0,
+	.func = cmd_colors,
+	.args = 0};

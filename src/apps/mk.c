@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 void cmd_mk(const char** args, int argc) {
 	if (argc < 1) {
@@ -15,12 +15,10 @@ void cmd_mk(const char** args, int argc) {
 	free(content);
 }
 
-void register_mk_cmd(void) {
-	register_command(
-		"mk",			// name
-		"makes a file", // desc
-		0,				// hidden
-		cmd_mk,			// func
-		1				// args
-	);
-}
+command_t mk_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "mk",
+	.description = "makes a file",
+	.hidden = 0,
+	.func = cmd_mk,
+	.args = 1};

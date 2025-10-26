@@ -64,12 +64,10 @@ static void cmd_help(const char** args, int argc) {
 	print("\n");
 }
 
-void register_help_cmd(void) {
-	register_command(
-		"help",					   // name
-		"shows this help message", // desc
-		0,						   // hidden
-		cmd_help,				   // func
-		0						   // args
-	);
-}
+command_t help_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "help",
+	.description = "shows this message",
+	.hidden = 0,
+	.func = cmd_help,
+	.args = 0};

@@ -20,12 +20,10 @@ static void cmd_test(const char** args, int argc) {
 	printf("free mem starts at %p\nallocated %d bytes at address %p\n", &__free_memory_start, n, phys_addr);
 }
 
-void register_test_cmd(void) {
-	register_command(
-		"test",			// name
-		"test command", // desc
-		0,				// hidden
-		cmd_test,		// func
-		1				// args
-	);
-}
+command_t test_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "test",
+	.description = "test command",
+	.hidden = 1,
+	.func = cmd_test,
+	.args = 1};

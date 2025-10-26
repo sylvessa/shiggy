@@ -42,11 +42,10 @@ static void cmd_setcolor(const char** args, int argc) {
 	printf("set color %d to rgb(%d,%d,%d)\n", color, r, g, b);
 }
 
-void register_setcolor_cmd(void) {
-	register_command(
-		"setcolor",
-		"sets a color in the palette",
-		0,
-		cmd_setcolor,
-		4);
-}
+command_t setcolor_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "setcolor",
+	.description = "sets a color in the palette",
+	.hidden = 0,
+	.func = cmd_setcolor,
+	.args = 4};

@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 void cmd_cat(const char** args, int argc) {
 	if (argc < 1) {
@@ -31,12 +31,10 @@ void cmd_cat(const char** args, int argc) {
 	free(content);
 }
 
-void register_cat_cmd(void) {
-	register_command(
-		"cat",						// name
-		"shows contents of a file", // desc
-		0,							// hidden
-		cmd_cat,					// func
-		1							// args
-	);
-}
+command_t cat_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "cat",
+	.description = "shows contents of a file",
+	.hidden = 0,
+	.func = cmd_cat,
+	.args = 1};

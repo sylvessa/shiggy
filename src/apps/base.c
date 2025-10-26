@@ -1,27 +1,12 @@
 
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
+
+extern command_t __start_cmds;
+extern command_t __stop_cmds;
 
 command_t commands[MAX_COMMANDS];
 int command_count = 0;
-
-extern void register_colors_cmd(void);
-extern void register_test_cmd(void);
-extern void register_mk_cmd(void);
-extern void register_ls_cmd(void);
-extern void register_help_cmd(void);
-extern void register_gfx_cmd(void);
-extern void register_diskinfo_cmd(void);
-extern void register_clear_cmd(void);
-extern void register_cat_cmd(void);
-extern void register_time_cmd(void);
-extern void register_gui_cmd(void);
-extern void register_mkdir_cmd(void);
-extern void register_cd_cmd(void);
-extern void register_crotate_cmd(void);
-extern void register_ctranslate_cmd(void);
-extern void register_beep_cmd(void);
-extern void register_setcolor_cmd(void);
 
 void register_command(const char* name, const char* description, int hidden, command_func_t func, int args) {
 	if (command_count < MAX_COMMANDS) {
@@ -35,21 +20,13 @@ void register_command(const char* name, const char* description, int hidden, com
 }
 
 void register_all_commands(void) {
-	register_colors_cmd();
-	register_test_cmd();
-	register_mk_cmd();
-	register_ls_cmd();
-	register_help_cmd();
-	register_gfx_cmd();
-	register_diskinfo_cmd();
-	register_clear_cmd();
-	register_cat_cmd();
-	register_time_cmd();
-	register_gui_cmd();
-	register_mkdir_cmd();
-	register_cd_cmd();
-	register_crotate_cmd();
-	register_beep_cmd();
-	register_ctranslate_cmd();
-	register_setcolor_cmd();
+	// printf("__start_cmds: %p\n__stop_cmds: %p\n", __start_cmds, __stop_cmds);
+	command_t* cmd = &__start_cmds;
+	while (cmd < &__stop_cmds) {
+		if (cmd->magic == COMMAND_MAGIC && cmd->name && cmd->func) {
+			// printf("registering command %s - %s\n", cmd->name, cmd->description);
+			register_command(cmd->name, cmd->description, cmd->hidden, cmd->func, cmd->args);
+		}
+		cmd++;
+	}
 }

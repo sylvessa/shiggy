@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 static void cmd_diskinfo(const char** args, int argc) {
 	if (ata_identify()) {
@@ -13,12 +13,10 @@ static void cmd_diskinfo(const char** args, int argc) {
 	}
 }
 
-void register_diskinfo_cmd(void) {
-	register_command(
-		"diskinfo",				   // name
-		"displays hdd drive info", // desc
-		0,						   // hidden
-		cmd_diskinfo,			   // func
-		0						   // args
-	);
-}
+command_t diskinfo_cmd __attribute__((section(".cmds"))) = {
+	.magic = COMMAND_MAGIC,
+	.name = "diskinfo",
+	.description = "displays hdd drive info",
+	.hidden = 0,
+	.func = cmd_diskinfo,
+	.args = 0};
