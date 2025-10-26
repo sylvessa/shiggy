@@ -65,7 +65,6 @@ static void cmd_help(const char** args, int argc) {
 }
 
 command_t help_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "help",
 	.description = "shows this message",
 	.hidden = 0,

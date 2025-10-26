@@ -43,7 +43,6 @@ static void cmd_setcolor(const char** args, int argc) {
 }
 
 command_t setcolor_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "setcolor",
 	.description = "sets a color in the palette",
 	.hidden = 0,

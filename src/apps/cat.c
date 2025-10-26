@@ -32,7 +32,6 @@ void cmd_cat(const char** args, int argc) {
 }
 
 command_t cat_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "cat",
 	.description = "shows contents of a file",
 	.hidden = 0,

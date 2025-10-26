@@ -23,10 +23,8 @@ void register_all_commands(void) {
 	// printf("__start_cmds: %p\n__stop_cmds: %p\n", __start_cmds, __stop_cmds);
 	command_t* cmd = &__start_cmds;
 	while (cmd < &__stop_cmds) {
-		if (cmd->magic == COMMAND_MAGIC && cmd->name && cmd->func) {
-			// printf("registering command %s - %s\n", cmd->name, cmd->description);
-			register_command(cmd->name, cmd->description, cmd->hidden, cmd->func, cmd->args);
-		}
+		// printf("registering command %s - %s\n", cmd->name, cmd->description);
+		register_command(cmd->name, cmd->description, cmd->hidden, cmd->func, cmd->args);
 		cmd++;
 	}
 }

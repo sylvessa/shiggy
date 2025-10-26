@@ -70,7 +70,6 @@ void register_cd_cmd(void) {
 }
 
 command_t cd_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "cd",
 	.description = "go into a directory",
 	.hidden = 0,

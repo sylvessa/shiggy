@@ -14,7 +14,6 @@ static void cmd_diskinfo(const char** args, int argc) {
 }
 
 command_t diskinfo_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "diskinfo",
 	.description = "displays hdd drive info",
 	.hidden = 0,

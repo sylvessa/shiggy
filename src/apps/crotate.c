@@ -34,7 +34,6 @@ void cmd_crotate(const char** args, int argc) {
 }
 
 command_t crotate_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "crotate",
 	.description = "rotates a cube",
 	.hidden = 0,

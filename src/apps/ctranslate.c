@@ -34,7 +34,6 @@ void cmd_ctranslate(const char** args, int argc) {
 }
 
 command_t ctranslate_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "ctranslate",
 	.description = "translates (moves) a cube",
 	.hidden = 0,

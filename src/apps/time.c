@@ -9,7 +9,6 @@ void cmd_time(const char** args, int argc) {
 }
 
 command_t time_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "time",
 	.description = "shows the time",
 	.hidden = 0,

@@ -21,7 +21,6 @@ static void cmd_test(const char** args, int argc) {
 }
 
 command_t test_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "test",
 	.description = "test command",
 	.hidden = 1,

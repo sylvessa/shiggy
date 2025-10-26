@@ -12,7 +12,6 @@ void cmd_colors(const char** args, int argc) {
 }
 
 command_t colors_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "colors",
 	.description = "shows 16 colors",
 	.hidden = 0,

@@ -50,7 +50,6 @@ void cmd_gui(const char** args, int argc) {
 }
 
 command_t gui_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "gui",
 	.description = "gui mode",
 	.hidden = 1,

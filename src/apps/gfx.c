@@ -111,7 +111,6 @@ void cmd_gfx(const char** args, int argc) {
 }
 
 command_t gfx_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "gfx",
 	.description = "shows 3d cube. gfx <size>",
 	.hidden = 0,

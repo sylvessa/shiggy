@@ -16,7 +16,6 @@ void cmd_mkdir(const char** args, int argc) {
 }
 
 command_t mkdir_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "mkdir",
 	.description = "makes a directory",
 	.hidden = 0,

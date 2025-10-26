@@ -6,7 +6,6 @@ static void cmd_lspci(const char** args, int argc) {
 }
 
 command_t lspci_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "lspci",
 	.description = "shows pci info",
 	.hidden = 0,

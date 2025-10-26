@@ -21,7 +21,6 @@ static void cmd_beep(const char** args, int argc) {
 }
 
 command_t beep_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "beep",
 	.description = "beep",
 	.hidden = 0,

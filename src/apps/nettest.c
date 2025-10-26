@@ -7,7 +7,6 @@ static void cmd_nettest(const char** args, int argc) {
 }
 
 command_t nettest_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "nettest",
 	.description = "network test",
 	.hidden = 1,

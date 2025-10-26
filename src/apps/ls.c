@@ -27,7 +27,6 @@ void cmd_ls(const char** args, int argc) {
 }
 
 command_t ls_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "ls",
 	.description = "lists files and directories in current dir",
 	.hidden = 0,

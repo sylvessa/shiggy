@@ -16,7 +16,6 @@ void cmd_mk(const char** args, int argc) {
 }
 
 command_t mk_cmd __attribute__((section(".cmds"))) = {
-	.magic = COMMAND_MAGIC,
 	.name = "mk",
 	.description = "makes a file",
 	.hidden = 0,
