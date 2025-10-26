@@ -9,17 +9,17 @@
 #define VGA_FB ((volatile nat8*)0xA0000)
 
 void vga_draw_char(int x, int y, char c, nat8 fg, nat8 bg);
-void vga_draw_text(int x, int y, const char *str, nat8 color);
-void print(const char *str);
+void vga_draw_text(int x, int y, const char* str, nat8 color);
+void print(const char* str);
 void init_vga_text();
 void do_backspace();
 void draw_char_pixel(int px, int py, nat8 fg, nat8 bg, int set);
-void print_center(const char *text, nat8 row_bg, ...);
-void printf(const char *fmt, ...);
+void print_center(const char* text, nat8 row_bg, ...);
+void printf(const char* fmt, ...);
 void screen_clear();
 void print_char(char c, nat8 fg, nat8 bg);
 void set_map_mask(nat8 mask);
-void printf_at(int col, int row, const char *fmt, ...);
+void printf_at(int col, int row, const char* fmt, ...);
 void do_clear_cursor();
 void draw_pixel(int px, int py, nat8 color);
 void set_bg_color(nat8 color);

@@ -33,13 +33,7 @@ this should also run and build just fine on WSL2.
 - `i386-elf-objcopy`
 - `qemu-system-i386` (for testing)
 
-if you dont have them installed:
-
-```bash
-sudo apt update
-sudo apt install build-essential nasm qemu-system
-make toolchain
-```
+if you dont have them installed, just run `make toolchain`
 
 ## info
 

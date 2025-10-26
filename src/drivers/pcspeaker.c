@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "drivers/pcspeaker.h"
+#include "globals.h"
 
 #define PIT_CTRL 0x43
 #define PIT_CHANNEL2 0x42
@@ -28,7 +28,7 @@ void pc_speaker_stop() {
 
 void pc_speaker_beep(nat32 frequency, nat32 duration_ms) {
 	pc_speaker_play(frequency);
-	for (nat32 i = 0; i < duration_ms * 50000; i++) __asm__ volatile("nop");
+	for (nat32 i = 0; i < duration_ms * 50000; i++)
+		__asm__ volatile("nop");
 	pc_speaker_stop();
 }
-

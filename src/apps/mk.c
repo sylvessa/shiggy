@@ -16,11 +16,11 @@ void cmd_mk(const char** args, int argc) {
 }
 
 void register_mk_cmd(void) {
-    register_command(
-		"mk", // name
+	register_command(
+		"mk",			// name
 		"makes a file", // desc
-		0, // hidden
-		cmd_mk, // func
-		1 // args
+		0,				// hidden
+		cmd_mk,			// func
+		1				// args
 	);
 }

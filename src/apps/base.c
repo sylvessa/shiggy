@@ -35,7 +35,7 @@ void register_command(const char* name, const char* description, int hidden, com
 }
 
 void register_all_commands(void) {
-    register_colors_cmd();
+	register_colors_cmd();
 	register_test_cmd();
 	register_mk_cmd();
 	register_ls_cmd();

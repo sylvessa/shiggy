@@ -1,10 +1,10 @@
-#include "globals.h"
-#include "drivers/keyboard.h"
-#include "cpu/timer.h"
 #include "apps/base.h"
 #include "cpu/acpi.h"
-#include "drivers/vga.h"
+#include "cpu/timer.h"
+#include "drivers/keyboard.h"
 #include "drivers/mouse.h"
+#include "drivers/vga.h"
+#include "globals.h"
 
 char* current_dir = "/";
 int current_dir_cluster = FIRST_FILE_CLUSTER;
@@ -18,7 +18,7 @@ void kmain() {
 	init_timer(50);
 	init_ata();
 	init_keyboard();
-	
+
 	print_center("=== shiggy - type help to get list of commands ===", 0x5);
 
 	fat32_fs_init();
@@ -41,8 +41,9 @@ void kmain() {
 			strlower(input);
 			int cmd_len = strlen(commands[i].name);
 			if (strncmp(input, commands[i].name, cmd_len) == 0 && (input[cmd_len] == '\0' || input[cmd_len] == ' ')) {
-				char *args_start = input + cmd_len;
-				while (*args_start == ' ') args_start++;
+				char* args_start = input + cmd_len;
+				while (*args_start == ' ')
+					args_start++;
 
 				const char* argv[8];
 				int argc = 0;
@@ -51,7 +52,8 @@ void kmain() {
 					char* token = args_start;
 					while (*token && argc < 8) {
 						argv[argc++] = token;
-						while (*token && *token != ' ') token++;
+						while (*token && *token != ' ')
+							token++;
 						if (*token) {
 							*token = '\0';
 							token++;

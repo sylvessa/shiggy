@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 static void cmd_test(const char** args, int argc) {
 	if (argc < 1) {
@@ -16,16 +16,16 @@ static void cmd_test(const char** args, int argc) {
 		n = n * 10 + (args[0][i] - '0');
 	}
 
-	void *phys_addr = malloc(n);
+	void* phys_addr = malloc(n);
 	printf("free mem starts at %p\nallocated %d bytes at address %p\n", &__free_memory_start, n, phys_addr);
 }
 
 void register_test_cmd(void) {
-    register_command(
-		"test", // name
+	register_command(
+		"test",			// name
 		"test command", // desc
-		0, // hidden
-		cmd_test, // func
-		1 // args
+		0,				// hidden
+		cmd_test,		// func
+		1				// args
 	);
 }

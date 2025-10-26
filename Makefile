@@ -39,7 +39,6 @@ CYAN=\033[0;36m
 YELLOW=\033[1;33m
 RESET=\033[0m
 
-# absolute local bin path where build-i386-elf.sh installs tools
 LOCAL_BIN := $(CURDIR)/tools/bin/bin
 
 REQUIRED_TOOLS := i386-elf-gcc i386-elf-ld i386-elf-objcopy

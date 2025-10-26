@@ -9,6 +9,6 @@
 #define CAPSLOCK 0x3A
 
 void init_keyboard();
-void sconf(char *buffer);
+void sconf(char* buffer);
 
 #endif

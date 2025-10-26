@@ -14,11 +14,11 @@ static void cmd_diskinfo(const char** args, int argc) {
 }
 
 void register_diskinfo_cmd(void) {
-    register_command(
-		"diskinfo", // name
+	register_command(
+		"diskinfo",				   // name
 		"displays hdd drive info", // desc
-		0, // hidden
-		cmd_diskinfo, // func
-		0 // args
+		0,						   // hidden
+		cmd_diskinfo,			   // func
+		0						   // args
 	);
 }

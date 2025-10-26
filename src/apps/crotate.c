@@ -6,12 +6,12 @@
 #include "graphics/3d.h"
 
 void cmd_crotate(const char** args, int argc) {
-	if(argc >= 1) {
+	if (argc >= 1) {
 		float xamt = atof(args[0]);
 		float yamt = (argc >= 2) ? atof(args[1]) : 0;
 		float zamt = (argc >= 3) ? atof(args[2]) : 0;
 
-		if(is_mesh_empty(&cube)) {
+		if (is_mesh_empty(&cube)) {
 			print("init a cube with gfx command\n");
 			return;
 		}
@@ -22,7 +22,7 @@ void cmd_crotate(const char** args, int argc) {
 		float dz = zamt / steps;
 
 		int i = 0;
-		while(i < (int)steps) {
+		while (i < (int)steps) {
 			rotate_mesh(&cube, dx, dy, dz);
 			sleep_ms(5);
 			i++;
@@ -39,6 +39,5 @@ void register_crotate_cmd(void) {
 		"crotates a cube",
 		0,
 		cmd_crotate,
-		3
-	);
+		3);
 }

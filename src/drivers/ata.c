@@ -29,18 +29,22 @@ nat32 ata_get_drive_size() {
 int ata_identify() {
 	out_byte(ATA_PRIMARY_CTRL, 0x0);
 	out_byte(ATA_PRIMARY_IO + 6, 0xA0);
-	for (int i=2;i<=5;i++) out_byte(ATA_PRIMARY_IO+i,0x0);
+	for (int i = 2; i <= 5; i++)
+		out_byte(ATA_PRIMARY_IO + i, 0x0);
 	out_byte(ATA_PRIMARY_IO + 7, 0xEC);
 
 	nat8 status = in_byte(ATA_PRIMARY_IO + 7);
-	if(status==0) return 0;
-
-	while(status & 0x80) status = in_byte(ATA_PRIMARY_IO + 7);
-
-	if(in_byte(ATA_PRIMARY_IO + 4) != 0 || in_byte(ATA_PRIMARY_IO + 5) != 0)
+	if (status == 0)
 		return 0;
 
-	while(!(in_byte(ATA_PRIMARY_IO + 7) & 0x08));
+	while (status & 0x80)
+		status = in_byte(ATA_PRIMARY_IO + 7);
+
+	if (in_byte(ATA_PRIMARY_IO + 4) != 0 || in_byte(ATA_PRIMARY_IO + 5) != 0)
+		return 0;
+
+	while (!(in_byte(ATA_PRIMARY_IO + 7) & 0x08))
+		;
 	return 1;
 }
 
@@ -58,8 +62,8 @@ static void ata_wait_drq() {
 	} while (!(status & 0x08));
 }
 
-void ata_read_sector(nat32 lba, nat8 *buffer) {
-	out_byte(ATA_PRIMARY_IO + 6, 0xE0 | ((lba >> 24) & 0x0F)); 
+void ata_read_sector(nat32 lba, nat8* buffer) {
+	out_byte(ATA_PRIMARY_IO + 6, 0xE0 | ((lba >> 24) & 0x0F));
 	out_byte(ATA_PRIMARY_IO + 2, 1);
 	out_byte(ATA_PRIMARY_IO + 3, lba & 0xFF);
 	out_byte(ATA_PRIMARY_IO + 4, (lba >> 8) & 0xFF);
@@ -71,12 +75,12 @@ void ata_read_sector(nat32 lba, nat8 *buffer) {
 
 	for (int i = 0; i < 256; i++) {
 		nat16 word = in_b16(ATA_PRIMARY_IO);
-		buffer[i*2] = word & 0xFF;
-		buffer[i*2+1] = word >> 8;
+		buffer[i * 2] = word & 0xFF;
+		buffer[i * 2 + 1] = word >> 8;
 	}
 }
 
-void ata_write_sector(nat32 lba, const nat8 *buffer) {
+void ata_write_sector(nat32 lba, const nat8* buffer) {
 	out_byte(ATA_PRIMARY_IO + 6, 0xE0 | ((lba >> 24) & 0x0F));
 	out_byte(ATA_PRIMARY_IO + 2, 1);
 	out_byte(ATA_PRIMARY_IO + 3, lba & 0xFF);
@@ -88,8 +92,8 @@ void ata_write_sector(nat32 lba, const nat8 *buffer) {
 	ata_wait_drq();
 
 	for (int i = 0; i < 256; i++) {
-		nat16 word = buffer[i*2] | (buffer[i*2+1] << 8);
-		__asm__ __volatile__("out %%ax, %%dx" :: "a"(word), "d"(ATA_PRIMARY_IO));
+		nat16 word = buffer[i * 2] | (buffer[i * 2 + 1] << 8);
+		__asm__ __volatile__("out %%ax, %%dx" ::"a"(word), "d"(ATA_PRIMARY_IO));
 	}
 
 	// flush cache

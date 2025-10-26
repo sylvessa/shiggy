@@ -19,5 +19,4 @@ extern int command_count;
 void register_command(const char* name, const char* description, int hidden, command_func_t func, int args);
 void register_all_commands(void);
 
-
 #endif

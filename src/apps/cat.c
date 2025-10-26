@@ -32,11 +32,11 @@ void cmd_cat(const char** args, int argc) {
 }
 
 void register_cat_cmd(void) {
-    register_command(
-		"cat", // name
+	register_command(
+		"cat",						// name
 		"shows contents of a file", // desc
-		0, // hidden
-		cmd_cat, // func
-		1 // args
+		0,							// hidden
+		cmd_cat,					// func
+		1							// args
 	);
 }

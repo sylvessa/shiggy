@@ -21,11 +21,11 @@ static void cmd_beep(const char** args, int argc) {
 }
 
 void register_beep_cmd(void) {
-    register_command(
-		"beep", // name
-		"beep", // desc
-		0, // hidden
+	register_command(
+		"beep",	  // name
+		"beep",	  // desc
+		0,		  // hidden
 		cmd_beep, // func
-		1 // args
+		1		  // args
 	);
 }

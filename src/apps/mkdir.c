@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "apps/base.h"
+#include "globals.h"
 
 void cmd_mkdir(const char** args, int argc) {
 	if (argc < 1) {
@@ -16,11 +16,11 @@ void cmd_mkdir(const char** args, int argc) {
 }
 
 void register_mkdir_cmd(void) {
-    register_command(
-		"mkdir", // name
+	register_command(
+		"mkdir",		// name
 		"makes a file", // desc
-		0, // hidden
-		cmd_mkdir, // func
-		1 // args
+		0,				// hidden
+		cmd_mkdir,		// func
+		1				// args
 	);
 }

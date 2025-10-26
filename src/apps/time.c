@@ -1,6 +1,6 @@
-#include "globals.h"
 #include "apps/base.h"
 #include "drivers/cmos.h"
+#include "globals.h"
 
 void cmd_time(const char** args, int argc) {
 	nat32 h = getRTCHours();
@@ -9,11 +9,11 @@ void cmd_time(const char** args, int argc) {
 }
 
 void register_time_cmd(void) {
-    register_command(
-		"time", // name
+	register_command(
+		"time",			  // name
 		"shows the time", // desc
-		0, // hidden
-		cmd_time, // func
-		0 // args
+		0,				  // hidden
+		cmd_time,		  // func
+		0				  // args
 	);
 }
