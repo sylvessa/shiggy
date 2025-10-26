@@ -5,6 +5,7 @@
 #include "cpu/timer.h"
 #include "drivers/ata.h"
 #include "drivers/cmos.h"
+#include "drivers/pci.h"
 #include "drivers/vga.h"
 #include "fs/fat32.h"
 #include "lib/math.h"

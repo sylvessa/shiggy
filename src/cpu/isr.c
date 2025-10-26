@@ -15,7 +15,7 @@ void isr_install() {
 	for (int i = 0; i < ISR_COUNT; i++)
 		set_idt_gate(i, (nat32)isrs[i]);
 
-	pci_init();
+	pic_init();
 
 	isr_func_t irqs[IRQ_COUNT] = {
 		irq0, irq1, irq2, irq3, irq4, irq5, irq6, irq7,

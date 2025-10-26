@@ -26,6 +26,6 @@
 
 #define PIC_8086_MODE 0x01 // 8086/88 (MCS-80/85) mode (lol)
 
-void pci_init();
+void pic_init();
 
 #endif

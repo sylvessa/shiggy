@@ -1,7 +1,7 @@
 #include "drivers/pic.h"
 #include "globals.h"
 
-void pci_init() {
+void pic_init() {
 	// save masks
 	byte b1, b2;
 	b1 = in_byte(PIC_MASTER_DATA_PORT);
