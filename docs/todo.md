@@ -9,7 +9,7 @@
 ## drivers
 
 - [x] keyboard support
-- [x] mouse support
+- [ ] mouse support (needs additional debugging)
 - [x] basic text mode
 - [x] graphics mode support
 - [x] sound / speaker driver
@@ -66,6 +66,7 @@
 - [ ] mouse input integration
 - [ ] basic widgets: buttons, text fields, menus
 - [x] custom color palette (fully, cant use 6, 8, 9, 10, 11, 12, 13, 14, and 15 rn, terrible)
+- [ ] fix some colors not displaying correctly
 
 ## user / security
 
