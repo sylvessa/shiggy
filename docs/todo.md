@@ -21,7 +21,7 @@
 - [x] root directory / cluster management (semi-complete)
 - [x] file read / write
 - [x] file creation
-- [ ] file deletion (`rm`)
+- [x] file deletion (`rm`) (needs improvement, wip)
 - [x] directories
 - [x] file persistence (write changes to disk)
 - [ ] ext2 implementation

@@ -26,7 +26,6 @@ SECTIONS
         __stop_cmds = .;
     }
 
-
     . = ALIGN(4096);
 
     PROVIDE(start_data = .);

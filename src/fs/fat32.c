@@ -249,3 +249,22 @@ const char* fat32_file_get_name(nat32 dir_cluster, nat32 index) {
 	}
 	return 0;
 }
+
+nat8 fat32_delete_file(nat32 dir_cluster, const char* name) {
+	for (int i = 0; i < MAX_ROOT_ENTRIES; i++) {
+		if (root_dir[i].name[0] == 0) continue;
+		if (root_dir[i].parent_cluster != dir_cluster) continue;
+		if (strcmp((char*)root_dir[i].name, name) == 0) {
+			if (root_dir[i].attr & FAT32_ATTR_DIRECTORY) {
+				// cannot delete directories yet
+				return 0;
+			}
+			root_dir[i].name[0] = 0;
+			root_dir[i].first_cluster = 0;
+			root_dir[i].file_size = 0;
+			write_root_dir();
+			return 1;
+		}
+	}
+	return 0;
+}
