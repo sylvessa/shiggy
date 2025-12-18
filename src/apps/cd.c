@@ -7,6 +7,11 @@ void cmd_cd(const char** args, int argc) {
 		return;
 	}
 
+	if (!is_hdd_present()) {
+		print("No HDD detected!\n");
+		return;
+	}
+
 	char* target = (char*)args[0];
 
 	if (strcmp(target, "/") == 0) {

@@ -7,6 +7,11 @@ void cmd_mkdir(const char** args, int argc) {
 		return;
 	}
 
+	if (!is_hdd_present()) {
+		print("No HDD detected!\n");
+		return;
+	}
+
 	char* dirname = (char*)args[0];
 	if (fat32_create_dir(current_dir_cluster, dirname)) {
 		printf("created directory %s/\n", dirname);

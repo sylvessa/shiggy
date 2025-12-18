@@ -124,7 +124,17 @@ static void format_fs() {
 	next_free_cluster = FIRST_FILE_CLUSTER;
 }
 
+nat8 is_hdd_present() {
+	nat8 buffer[SECTOR_SIZE];
+	return ata_read_sector(0, buffer);
+}
+
 void fat32_fs_init() {
+	if (!is_hdd_present()) {
+		printf("No HDD detected!\n");
+		return;
+	}
+
 	if (!is_formatted())
 		format_fs();
 	else

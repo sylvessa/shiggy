@@ -2,6 +2,11 @@
 #include "globals.h"
 
 void cmd_ls(const char** args, int argc) {
+	if (!is_hdd_present()) {
+		print("No HDD detected!\n");
+		return;
+	}
+
 	nat32 total_files = fat32_file_count(current_dir_cluster);
 	nat32 total_dirs = fat32_dir_count(current_dir_cluster);
 	nat32 total = total_files + total_dirs;

@@ -2,7 +2,7 @@
 #include "globals.h"
 
 static void cmd_diskinfo(const char** args, int argc) {
-	if (ata_identify()) {
+	if (is_hdd_present()) {
 		print("Found IDE Drive\n");
 		printf("%d MB\n", ata_get_drive_size() / 2048);
 

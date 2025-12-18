@@ -26,6 +26,7 @@ nat32 ata_get_drive_size() {
 	return ((nat32)buffer[61] << 16) | buffer[60];
 }
 
+// LEGACY. USE is_hdd_present() FROM fat32.h IF YOU NEED TO CHECK FOR HDD
 int ata_identify() {
 	out_byte(ATA_PRIMARY_CTRL, 0x0);
 	out_byte(ATA_PRIMARY_IO + 6, 0xA0);
@@ -48,21 +49,28 @@ int ata_identify() {
 	return 1;
 }
 
-static void ata_wait_bsy() {
+nat8 ata_wait_bsy() {
+	nat32 timeout = 1000000;
 	nat8 status;
-	do {
+	while (timeout--) {
 		status = in_byte(ATA_PRIMARY_IO + 7);
-	} while (status & 0x80);
+		if (!(status & 0x80)) return 1; // BSY cleared
+	}
+	return 0; // timed out
 }
 
-static void ata_wait_drq() {
+nat8 ata_wait_drq() {
+	nat32 timeout = 1000000;
 	nat8 status;
-	do {
+	while (timeout--) {
 		status = in_byte(ATA_PRIMARY_IO + 7);
-	} while (!(status & 0x08));
+		if (status & 0x08) return 1; // DRQ set
+		if (status & 0x01) return 0; // error
+	}
+	return 0; // timed out
 }
 
-void ata_read_sector(nat32 lba, nat8* buffer) {
+nat8 ata_read_sector(nat32 lba, nat8* buffer) {
 	out_byte(ATA_PRIMARY_IO + 6, 0xE0 | ((lba >> 24) & 0x0F));
 	out_byte(ATA_PRIMARY_IO + 2, 1);
 	out_byte(ATA_PRIMARY_IO + 3, lba & 0xFF);
@@ -70,14 +78,16 @@ void ata_read_sector(nat32 lba, nat8* buffer) {
 	out_byte(ATA_PRIMARY_IO + 5, (lba >> 16) & 0xFF);
 	out_byte(ATA_PRIMARY_IO + 7, 0x20); // READ SECTORS
 
-	ata_wait_bsy();
-	ata_wait_drq();
+	if (!ata_wait_bsy()) return 0; // no HDD or busy too long
+	if (!ata_wait_drq()) return 0; // never got DRQ
 
 	for (int i = 0; i < 256; i++) {
 		nat16 word = in_b16(ATA_PRIMARY_IO);
 		buffer[i * 2] = word & 0xFF;
 		buffer[i * 2 + 1] = word >> 8;
 	}
+
+	return 1;
 }
 
 void ata_write_sector(nat32 lba, const nat8* buffer) {

@@ -7,6 +7,11 @@ void cmd_rm(const char** args, int argc) {
 		return;
 	}
 
+	if (!is_hdd_present()) {
+		print("No HDD detected!\n");
+		return;
+	}
+
 	char* filename = (char*)args[0];
 
 	if (!fat32_delete_file(current_dir_cluster, filename)) {

@@ -34,5 +34,6 @@ nat32 fat32_dir_count(nat32 dir_cluster);
 void fat32_dir_get_entry(nat32 dir_cluster, nat32 index, fat32_dir_entry_t* entry);
 nat8 is_formatted();
 nat8 fat32_delete_file(nat32 dir_cluster, const char* name);
+nat8 is_hdd_present();
 
 #endif
