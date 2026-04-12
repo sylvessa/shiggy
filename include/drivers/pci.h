@@ -7,6 +7,7 @@
 #define PCI_CONFIG_DATA 0xCFC
 
 nat32 pci_config_read_word(nat8 bus, nat8 slot, nat8 func, nat8 offset);
+void pci_config_write_word(nat8 bus, nat8 slot, nat8 func, nat8 offset, nat32 value);
 void show_pci_devices();
 
 #endif

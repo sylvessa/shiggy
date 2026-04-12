@@ -4,6 +4,7 @@
 #include "drivers/keyboard.h"
 #include "drivers/mouse.h"
 #include "drivers/vga.h"
+#include "network/main.h"
 #include "globals.h"
 
 char* current_dir = "/";
@@ -20,6 +21,8 @@ void kmain() {
 	init_keyboard();
 
 	print_center("=== shiggy - type help to get list of commands ===", 0x5);
+	
+	init_network();
 
 	fat32_fs_init();
 
