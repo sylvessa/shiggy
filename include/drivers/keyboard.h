@@ -3,6 +3,7 @@
 
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
+#define TAB 0x0F
 #define SC_MAX 114
 #define LSHIFT 0x2A
 #define RSHIFT 0x36
