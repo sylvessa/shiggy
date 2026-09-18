@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -31,12 +30,10 @@ int main() {
 
 	char line[512];
 	const char* sections[] = {".text", ".rodata", ".cmds", ".data", ".bss"};
-	const char* labels[] = {
-		"kernel `.text` section (code)",
-		"kernel `.rodata` section (read-only data)",
-		"kernel `.cmds` section (in-built commands)",
-		"kernel `.data` section (initialized globals)",
-		"kernel `.bss` section (zero-initialized data)"};
+	const char* labels[] = {"kernel `.text` section (code)", "kernel `.rodata` section (read-only data)",
+							"kernel `.cmds` section (in-built commands)",
+							"kernel `.data` section (initialized globals)",
+							"kernel `.bss` section (zero-initialized data)"};
 
 	while (fgets(line, sizeof(line), fp)) {
 		for (int i = 0; i < 5; i++) {

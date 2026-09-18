@@ -17,7 +17,7 @@ b16 in_b16(nat16 port) {
 }
 
 void out_b16(nat16 port, b16 data) {
-	__asm__ __volatile__("out %%al, %%dx" ::"a"(data), "d"(port));
+	__asm__ __volatile__("outw %%ax, %%dx" ::"a"(data), "d"(port));
 }
 
 void io_wait() {
@@ -30,6 +30,6 @@ void out_long(nat16 port, nat32 value) {
 
 nat32 in_long(nat32 port) {
 	nat32 ret;
-	__asm__ __volatile__("inl %1, %0" : "=a"(ret) : "Nd"(port));
+	__asm__ __volatile__("inl %%dx, %%eax" : "=a"(ret) : "d"(port));
 	return ret;
 }

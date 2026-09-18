@@ -3,3 +3,5 @@ qemu.log
 build
 tools/bin
 tools/toolchain
+compile_commands.json
+.cache

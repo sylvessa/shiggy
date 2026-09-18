@@ -5,8 +5,8 @@ green="\033[0;32m"
 yellow="\033[1;33m"
 reset="\033[0m"
 
-binv=2.40
-gccv=13.2.0
+binv=2.47
+gccv=16.2.0
 target=i386-elf
 prefix="$(pwd)/bin"
 prefix=$(realpath "$prefix")

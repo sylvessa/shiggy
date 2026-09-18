@@ -1,11 +1,10 @@
 #ifndef IDT_H
 #define IDT_H
 
-#include "lib/memory.h"
 #include "types.h"
 
 void set_idt_gate(int n, nat32 handler);
-void set_idt();
+void set_idt(void);
 
 #define KERNEL_CS 0x08 // gdt.asm
 

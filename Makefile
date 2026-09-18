@@ -35,15 +35,31 @@ MEM_UPDATER_BIN=tools/bin/mem-layout-updater
 
 SECTOR_SIZE=512
 
-GREEN=\033[0;32m
-BLUE=\033[0;34m
-CYAN=\033[0;36m
-YELLOW=\033[1;33m
-RESET=\033[0m
+GREEN := $(shell printf '\033[0;32m')
+BLUE := $(shell printf '\033[0;34m')
+CYAN := $(shell printf '\033[0;36m')
+YELLOW := $(shell printf '\033[1;33m')
+RESET := $(shell printf '\033[0m')
 
 LOCAL_BIN := $(CURDIR)/tools/bin/bin
 
 REQUIRED_TOOLS := i386-elf-gcc i386-elf-ld i386-elf-objcopy
+
+ifeq ($(BEAR_ACTIVE),)
+.DEFAULT_GOAL := all
+
+all:
+	@if command -v bear >/dev/null 2>&1; then \
+		BEAR_ACTIVE=1 bear -- $(MAKE) BEAR_ACTIVE=1; \
+	else \
+		echo "$(YELLOW)bear not found, building without compile_commands.json$(RESET)"; \
+		$(MAKE) BEAR_ACTIVE=1; \
+	fi
+else
+.DEFAULT_GOAL := all
+
+all: check_toolchain $(OS_IMG)
+endif
 
 check_toolchain:
 	@missing=""; \
