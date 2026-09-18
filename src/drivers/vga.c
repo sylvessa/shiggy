@@ -1,7 +1,8 @@
 #include "font/main.h"
 #include "globals.h"
 
-// todo: combine all the formatting for print and printf's into a single func whenever i make a new print that does something unique
+// todo: combine all the formatting for print and printf's into a single func whenever i make a new print that does
+// something unique
 
 #define MAX_COLS (VGA_WIDTH / WFONT)
 #define MAX_ROWS (VGA_HEIGHT / HFONT)
@@ -12,6 +13,9 @@ static nat8 fg_color = 0x0F;
 static nat8 bg_color = 0x00;
 static int cursor_blink = 0;
 static nat32 cursor_tick = 0;
+static int cursor_drawn = 0;
+static int cursor_drawn_x = 0;
+static int cursor_drawn_y = 0;
 
 typedef struct {
 	char c;
@@ -19,11 +23,7 @@ typedef struct {
 	nat8 bg;
 } cell_t;
 
-static nat8 ega_to_dac[16] = {
-	0, 1, 2, 3,
-	4, 5, 20, 7,
-	56, 57, 58, 59,
-	60, 61, 62, 63};
+static nat8 ega_to_dac[16] = {0, 1, 2, 3, 4, 5, 20, 7, 56, 57, 58, 59, 60, 61, 62, 63};
 
 static cell_t screen_buf[MAX_ROWS][MAX_COLS];
 
@@ -32,25 +32,28 @@ static inline void seq_write(nat8 index, nat8 value) {
 	out_byte(0x3C5, value);
 }
 
-void set_map_mask(nat8 mask) {
-	seq_write(0x02, mask);
-}
+void set_map_mask(nat8 mask) { seq_write(0x02, mask); }
 
 static nat8 hex_digit(char c) {
-	if (c >= '0' && c <= '9') return c - '0';
-	if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
-	if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return 10 + (c - 'a');
+	if (c >= 'A' && c <= 'F')
+		return 10 + (c - 'A');
 	return 0;
 }
 
-static int format_to_buffer(formatted_char* out, int out_sz, const char* fmt, va_list args, nat8* end_fg, nat8* end_bg, bool enable_formatting) {
+static int format_to_buffer(formatted_char* out, int out_sz, const char* fmt, va_list args, nat8* end_fg, nat8* end_bg,
+							bool enable_formatting) {
 	int idx = 0;
 	nat8 fg = fg_color;
 	nat8 bg = bg_color;
 	for (; *fmt && idx < out_sz - 1; fmt++) {
 		if (*fmt == '\\') {
 			fmt++;
-			if (!*fmt) break;
+			if (!*fmt)
+				break;
 			if (*fmt == 'x') {
 				fg = fg_color;
 				bg = bg_color;
@@ -60,7 +63,8 @@ static int format_to_buffer(formatted_char* out, int out_sz, const char* fmt, va
 			nat8 new_fg = hex_digit(*fmt);
 			fmt++;
 			nat8 new_bg = *fmt ? hex_digit(*fmt) : 0;
-			if (!*fmt) fmt--;
+			if (!*fmt)
+				fmt--;
 			fg = new_fg;
 			bg = new_bg;
 			continue;
@@ -82,145 +86,154 @@ static int format_to_buffer(formatted_char* out, int out_sz, const char* fmt, va
 			continue;
 		}
 		fmt++;
-		if (!*fmt) break;
+		if (!*fmt)
+			break;
 		switch (*fmt) {
-			case 's': {
-				char* s = va_arg(args, char*);
-				for (int i = 0; s[i] && idx < out_sz - 1; i++) {
-					out[idx].ch = s[i];
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-				break;
-			}
-			case 'd': {
-				int n = va_arg(args, int);
-				char tmp[32];
-				char* p = tmp + sizeof(tmp) - 1;
-				*p = 0;
-				int neg = n < 0;
-				if (neg) n = -n;
-				do {
-					*--p = '0' + (n % 10);
-					n /= 10;
-				} while (n);
-				if (neg) *--p = '-';
-				for (; *p && idx < out_sz - 1; p++) {
-					out[idx].ch = *p;
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-				break;
-			}
-			case 'x': {
-				unsigned int n = va_arg(args, unsigned int);
-				char tmp[32];
-				char* p = tmp + sizeof(tmp) - 1;
-				*p = 0;
-				do {
-					int d = n & 0xF;
-					*--p = d < 10 ? '0' + d : 'a' + d - 10;
-					n >>= 4;
-				} while (n);
-				for (; *p && idx < out_sz - 1; p++) {
-					out[idx].ch = *p;
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-				break;
-			}
-			case 'f': {
-				double num = va_arg(args, double);
-				int int_part = (int)num;
-				double frac_part = num - int_part;
-				if (frac_part < 0) frac_part = -frac_part;
-
-				int frac = (int)(frac_part * 100);
-
-				char tmp[32];
-				char* p = tmp + sizeof(tmp) - 1;
-				*p = 0;
-
-				int neg = int_part < 0;
-				if (neg) int_part = -int_part;
-
-				do {
-					*--p = '0' + (int_part % 10);
-					int_part /= 10;
-				} while (int_part);
-
-				if (neg) *--p = '-';
-
-				for (; *p && idx < out_sz - 1; p++) {
-					out[idx].ch = *p;
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-
-				if (idx < out_sz - 1) {
-					out[idx].ch = '.';
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-
-				char frac_buf[3];
-				frac_buf[0] = '0' + ((frac / 10) % 10);
-				frac_buf[1] = '0' + (frac % 10);
-				frac_buf[2] = 0;
-
-				for (int i = 0; frac_buf[i] && idx < out_sz - 1; i++) {
-					out[idx].ch = frac_buf[i];
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-
-				break;
-			}
-			case 'p': {
-				void* ptr = va_arg(args, void*);
-				unsigned long n = (unsigned long)ptr;
-				char tmp[32];
-				char* p = tmp + sizeof(tmp) - 1;
-				*p = 0;
-				do {
-					int d = n & 0xF;
-					*--p = d < 10 ? '0' + d : 'A' + d - 10;
-					n >>= 4;
-				} while (n);
-				for (; *p && idx < out_sz - 1; p++) {
-					out[idx].ch = *p;
-					out[idx].fg = fg;
-					out[idx].bg = bg;
-					idx++;
-				}
-				break;
-			}
-			case 'c': {
-				int ci = va_arg(args, int);
-				out[idx].ch = (char)ci;
+		case 's': {
+			char* s = va_arg(args, char*);
+			for (int i = 0; s[i] && idx < out_sz - 1; i++) {
+				out[idx].ch = s[i];
 				out[idx].fg = fg;
 				out[idx].bg = bg;
 				idx++;
-				break;
 			}
-			case '%': {
-				out[idx].ch = '%';
+			break;
+		}
+		case 'd': {
+			int n = va_arg(args, int);
+			char tmp[32];
+			char* p = tmp + sizeof(tmp) - 1;
+			*p = 0;
+			int neg = n < 0;
+			if (neg)
+				n = -n;
+			do {
+				*--p = '0' + (n % 10);
+				n /= 10;
+			} while (n);
+			if (neg)
+				*--p = '-';
+			for (; *p && idx < out_sz - 1; p++) {
+				out[idx].ch = *p;
 				out[idx].fg = fg;
 				out[idx].bg = bg;
 				idx++;
-				break;
 			}
+			break;
+		}
+		case 'x': {
+			unsigned int n = va_arg(args, unsigned int);
+			char tmp[32];
+			char* p = tmp + sizeof(tmp) - 1;
+			*p = 0;
+			do {
+				int d = n & 0xF;
+				*--p = d < 10 ? '0' + d : 'a' + d - 10;
+				n >>= 4;
+			} while (n);
+			for (; *p && idx < out_sz - 1; p++) {
+				out[idx].ch = *p;
+				out[idx].fg = fg;
+				out[idx].bg = bg;
+				idx++;
+			}
+			break;
+		}
+		case 'f': {
+			double num = va_arg(args, double);
+			int int_part = (int)num;
+			double frac_part = num - int_part;
+			if (frac_part < 0)
+				frac_part = -frac_part;
+
+			int frac = (int)(frac_part * 100);
+
+			char tmp[32];
+			char* p = tmp + sizeof(tmp) - 1;
+			*p = 0;
+
+			int neg = int_part < 0;
+			if (neg)
+				int_part = -int_part;
+
+			do {
+				*--p = '0' + (int_part % 10);
+				int_part /= 10;
+			} while (int_part);
+
+			if (neg)
+				*--p = '-';
+
+			for (; *p && idx < out_sz - 1; p++) {
+				out[idx].ch = *p;
+				out[idx].fg = fg;
+				out[idx].bg = bg;
+				idx++;
+			}
+
+			if (idx < out_sz - 1) {
+				out[idx].ch = '.';
+				out[idx].fg = fg;
+				out[idx].bg = bg;
+				idx++;
+			}
+
+			char frac_buf[3];
+			frac_buf[0] = '0' + ((frac / 10) % 10);
+			frac_buf[1] = '0' + (frac % 10);
+			frac_buf[2] = 0;
+
+			for (int i = 0; frac_buf[i] && idx < out_sz - 1; i++) {
+				out[idx].ch = frac_buf[i];
+				out[idx].fg = fg;
+				out[idx].bg = bg;
+				idx++;
+			}
+
+			break;
+		}
+		case 'p': {
+			void* ptr = va_arg(args, void*);
+			unsigned long n = (unsigned long)ptr;
+			char tmp[32];
+			char* p = tmp + sizeof(tmp) - 1;
+			*p = 0;
+			do {
+				int d = n & 0xF;
+				*--p = d < 10 ? '0' + d : 'A' + d - 10;
+				n >>= 4;
+			} while (n);
+			for (; *p && idx < out_sz - 1; p++) {
+				out[idx].ch = *p;
+				out[idx].fg = fg;
+				out[idx].bg = bg;
+				idx++;
+			}
+			break;
+		}
+		case 'c': {
+			int ci = va_arg(args, int);
+			out[idx].ch = (char)ci;
+			out[idx].fg = fg;
+			out[idx].bg = bg;
+			idx++;
+			break;
+		}
+		case '%': {
+			out[idx].ch = '%';
+			out[idx].fg = fg;
+			out[idx].bg = bg;
+			idx++;
+			break;
+		}
 		}
 	}
-	if (end_fg) *end_fg = fg;
-	if (end_bg) *end_bg = bg;
-	if (idx >= out_sz) idx = out_sz - 1;
+	if (end_fg)
+		*end_fg = fg;
+	if (end_bg)
+		*end_bg = bg;
+	if (idx >= out_sz)
+		idx = out_sz - 1;
 	out[idx].ch = 0;
 	return idx;
 }
@@ -264,37 +277,36 @@ void draw_pixel(int x, int y, nat8 color) {
 }
 
 void vga_draw_char(int x, int y, char c, nat8 fg, nat8 bg) {
+	if (cursor_drawn && x == cursor_drawn_x && y == cursor_drawn_y)
+		cursor_drawn = 0;
+
 	volatile nat8* fb = VGA_FB;
 	int bytes_per_line = VGA_BYTES_PER_SCANLINE;
+	const nat8* font = isoFont[(nat8)c];
+	int base = x / 8;
 
-	for (int row = 0; row < HFONT; row++) {
-		byte bits = (nat8)isoFont[(nat8)c][row];
-		int base = x / 8;
-
-		for (int plane = 0; plane < 4; plane++) {
-			set_map_mask(1 << plane);
-			nat8 byte_val = 0;
-			for (int bit = 0; bit < 8; bit++) {
-				int mask = 1 << (7 - bit);
-				int pixel_on = (bits & mask) != 0;
-				if (pixel_on)
-					byte_val |= ((fg >> plane) & 1) << (7 - bit);
-				else
-					byte_val |= ((bg >> plane) & 1) << (7 - bit);
-			}
-			fb[(y + row) * bytes_per_line + base] = byte_val;
+	for (int plane = 0; plane < 4; plane++) {
+		set_map_mask(1 << plane);
+		nat8 fgb = (nat8)((fg >> plane) & 1);
+		nat8 bgb = (nat8)((bg >> plane) & 1);
+		for (int row = 0; row < HFONT; row++) {
+			nat8 bits = font[row];
+			nat8 val;
+			if (fgb && bgb)
+				val = 0xFF;
+			else if (fgb)
+				val = bits;
+			else if (bgb)
+				val = ~bits;
+			else
+				val = 0x00;
+			fb[(y + row) * bytes_per_line + base] = val;
 		}
 	}
 	set_map_mask(0x0F);
 }
 
-static void clear_char_area(int cx, int cy, nat8 color) {
-	for (int y = 0; y < HFONT; y++) {
-		for (int x = 0; x < WFONT; x++) {
-			draw_char_pixel(cx + x, cy + y, color, color, 0);
-		}
-	}
-}
+static void clear_char_area(int cx, int cy, nat8 color) { vga_draw_char(cx, cy, ' ', color, color); }
 
 void redraw_screen() {
 	for (int y = 0; y < MAX_ROWS; y++) {
@@ -319,6 +331,38 @@ void scroll_buffer() {
 	}
 }
 
+static void scroll_framebuffer() {
+	volatile nat8* fb = VGA_FB;
+	int bytes_per_line = VGA_BYTES_PER_SCANLINE;
+	int row_bytes = HFONT * bytes_per_line;
+	int total = VGA_HEIGHT * bytes_per_line;
+
+	out_byte(0x3CE, 5);
+	out_byte(0x3CF, 0x01);
+	set_map_mask(0x0F);
+	for (int i = 0; i < total - row_bytes; i++)
+		fb[i] = fb[i + row_bytes];
+
+	out_byte(0x3CE, 5);
+	out_byte(0x3CF, 0x00);
+	for (int i = total - row_bytes; i < total; i++)
+		fb[i] = 0x00;
+}
+
+static void scrub_cursor_cell() {
+	if (!cursor_drawn)
+		return;
+	int ccx = cursor_drawn_x / WFONT;
+	int ccy = cursor_drawn_y / HFONT;
+	if (ccx >= MAX_COLS || ccy >= MAX_ROWS) {
+		cursor_drawn = 0;
+		return;
+	}
+	cell_t* cell = &screen_buf[ccy][ccx];
+	vga_draw_char(cursor_drawn_x, cursor_drawn_y, cell->c, cell->fg, cell->bg);
+	cursor_drawn = 0;
+}
+
 void print_char(char c, nat8 fg, nat8 bg) {
 	if (c == '\n') {
 		cursor_x = 0;
@@ -328,18 +372,21 @@ void print_char(char c, nat8 fg, nat8 bg) {
 			cursor_x = 0;
 			cursor_y++;
 		}
+	}
 
+	if (cursor_y >= MAX_ROWS) {
+		scrub_cursor_cell();
+		scroll_buffer();
+		scroll_framebuffer();
+		cursor_y = MAX_ROWS - 1;
+	}
+
+	if (c != '\n') {
 		screen_buf[cursor_y][cursor_x].c = c;
 		screen_buf[cursor_y][cursor_x].fg = fg;
 		screen_buf[cursor_y][cursor_x].bg = bg;
 		vga_draw_char(cursor_x * WFONT, cursor_y * HFONT, c, fg, bg);
 		cursor_x++;
-	}
-
-	if (cursor_y >= MAX_ROWS) {
-		scroll_buffer();
-		cursor_y = MAX_ROWS - 1;
-		redraw_screen();
 	}
 }
 
@@ -370,21 +417,29 @@ void print(const char* string) {
 
 void timer_vga_callback() {
 	cursor_tick++;
-	if (cursor_tick % 20 != 0) return;
-	if (gui_mode) return;
+	if (cursor_tick % 20 != 0)
+		return;
+	if (gui_mode)
+		return;
 	cursor_blink ^= 1;
 
 	int px = cursor_x * WFONT;
 	int py = cursor_y * HFONT;
 
-	if (cursor_blink)
+	if (cursor_blink) {
 		vga_draw_char(px, py, '_', 0x0F, 0x00);
-	else
+		cursor_drawn = 1;
+		cursor_drawn_x = px;
+		cursor_drawn_y = py;
+	} else {
 		vga_draw_char(px, py, ' ', 0x0F, 0x00);
+		cursor_drawn = 0;
+	}
 }
 
 void do_backspace() {
-	if (cursor_x == 0 && cursor_y == 0) return;
+	if (cursor_x == 0 && cursor_y == 0)
+		return;
 
 	int old_px = cursor_x * WFONT;
 	int old_py = cursor_y * HFONT;
@@ -401,7 +456,8 @@ void do_backspace() {
 
 	int px = cursor_x * WFONT;
 	int py = cursor_y * HFONT;
-	if (cursor_blink) vga_draw_char(px, py, '_', fg_color, bg_color);
+	if (cursor_blink)
+		vga_draw_char(px, py, '_', fg_color, bg_color);
 }
 
 void print_center(const char* fmt, nat8 row_bg, ...) {
@@ -412,7 +468,8 @@ void print_center(const char* fmt, nat8 row_bg, ...) {
 	va_end(args);
 
 	int start_col = (VGA_WIDTH / WFONT - len) / 2;
-	if (start_col < 0) start_col = 0;
+	if (start_col < 0)
+		start_col = 0;
 
 	int row = cursor_y;
 	for (int col = 0; col < MAX_COLS; col++)
