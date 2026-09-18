@@ -8,7 +8,7 @@ static nat32 iobase;
 static nat8 RTL8139SLOT;
 static nat8 RTL8139BUS;
 static nat16 rx_read_ptr; // software RX ring read pointer
-static nat8 tx_slot; // 4 TX descriptors to use next
+static nat8 tx_slot;	  // 4 TX descriptors to use next
 
 rtl8139 rtl8139Device;
 
@@ -18,14 +18,9 @@ static const byte gateway[4] = NET_GATEWAY;
 static byte gw_mac[6];
 static int gw_mac_valid = 0;
 
-static inline nat16 htons(nat16 x) {
-	return (nat16)((x >> 8) | (x << 8));
-}
+static inline nat16 htons(nat16 x) { return (nat16)((x >> 8) | (x << 8)); }
 static inline nat32 htonl(nat32 x) {
-	return ((x >> 24) & 0xFF)
-	     | ((x >> 8) & 0x0000FF00)
-	     | ((x << 8) & 0x00FF0000)
-	     | ((x << 24) & 0xFF000000);
+	return ((x >> 24) & 0xFF) | ((x >> 8) & 0x0000FF00) | ((x << 8) & 0x00FF0000) | ((x << 24) & 0xFF000000);
 }
 
 static nat16 ip_checksum(void* data, nat32 len) {
@@ -35,8 +30,10 @@ static nat16 ip_checksum(void* data, nat32 len) {
 		sum += *ptr++;
 		len -= 2;
 	}
-	if (len) sum += *(nat8*)ptr;
-	while (sum >> 16) sum = (sum & 0xFFFF) + (sum >> 16);
+	if (len)
+		sum += *(nat8*)ptr;
+	while (sum >> 16)
+		sum = (sum & 0xFFFF) + (sum >> 16);
 	return (nat16)(~sum);
 }
 
@@ -44,7 +41,8 @@ static nat32 rtl8139_find() {
 	nat32 n = 0;
 	for (nat16 bus = 0; bus < 256; bus++) {
 		for (nat8 slot = 0; slot < 32; slot++) {
-			if (++n > RTL8139_DETECT_TIMEOUT) return 0;
+			if (++n > RTL8139_DETECT_TIMEOUT)
+				return 0;
 			nat32 vd = pci_config_read_word(bus, slot, 0, 0x00);
 			if (vd == (nat32)((RTL8139_DEVICE_ID << 16) | RTL8139_VENDOR_ID)) {
 				nat32 bar = pci_config_read_word(bus, slot, 0, 0x10);
@@ -63,7 +61,8 @@ static nat32 rtl8139_find() {
 }
 
 byte* get_mac() {
-	for (int i = 0; i < 6; i++) rtl8139Device.mac[i] = in_byte((nat16)(iobase + i));
+	for (int i = 0; i < 6; i++)
+		rtl8139Device.mac[i] = in_byte((nat16)(iobase + i));
 	return rtl8139Device.mac;
 }
 
@@ -71,7 +70,8 @@ static void init_rtl8139() {
 	out_byte((nat16)(iobase + 0x52), 0x00);
 
 	out_byte((nat16)(iobase + RTL8139_REG_COMMAND), RTL8139_CMD_RESET);
-	while (in_byte((nat16)(iobase + RTL8139_REG_COMMAND)) & RTL8139_CMD_RESET) {}
+	while (in_byte((nat16)(iobase + RTL8139_REG_COMMAND)) & RTL8139_CMD_RESET) {
+	}
 
 	get_mac();
 
@@ -105,7 +105,8 @@ static void init_rtl8139() {
 }
 
 void send_frame(byte* data, int len) {
-	if (len > 1500) return;
+	if (len > 1500)
+		return;
 
 	nat8 slot = tx_slot & 3;
 	tx_slot++;
@@ -117,11 +118,13 @@ void send_frame(byte* data, int len) {
 	out_long((nat16)(iobase + 0x10 + slot * 4), (nat32)len & 0x1FFF);
 
 	nat32 spin = 0;
-	while (!(in_long(iobase + 0x10 + slot * 4) & 0x8000) && ++spin < 100000) {}
+	while (!(in_long(iobase + 0x10 + slot * 4) & 0x8000) && ++spin < 100000) {
+	}
 }
 
 static byte* rtl8139_poll_rx(nat32* len_out) {
-	if (in_byte((nat16)(iobase + RTL8139_REG_COMMAND)) & 0x01) return NULL;
+	if (in_byte((nat16)(iobase + RTL8139_REG_COMMAND)) & 0x01)
+		return NULL;
 
 	byte* buf = (byte*)rtl8139Device.rxBuffer;
 	nat16 offset = rx_read_ptr % 8192;
@@ -129,8 +132,10 @@ static byte* rtl8139_poll_rx(nat32* len_out) {
 	nat16 pkt_status = *(nat16*)(buf + offset);
 	nat16 pkt_len = *(nat16*)(buf + offset + 2);
 
-	if (!(pkt_status & 0x01)) return NULL;
-	if (pkt_len < 4 || pkt_len > 1522) return NULL; // sanity
+	if (!(pkt_status & 0x01))
+		return NULL;
+	if (pkt_len < 4 || pkt_len > 1522)
+		return NULL; // sanity
 
 	nat32 data_len = (nat32)(pkt_len - 4);
 	byte* pkt_data = buf + offset + 4;
@@ -168,18 +173,22 @@ static void arp_request(const byte target_ip[4]) {
 	memset(arp.tha, 0x00, 6);
 	memcpy(arp.tpa, target_ip, 4);
 
-	byte bcast[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+	byte bcast[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 	eth_send(bcast, ETHERTYPE_ARP, (byte*)&arp, (int)sizeof(arp_packet_t));
 }
 
 static int arp_handle_reply(byte* pkt, nat32 len, const byte wanted_ip[4], byte out_mac[6]) {
-	if (len < sizeof(eth_header_t) + sizeof(arp_packet_t)) return 0;
+	if (len < sizeof(eth_header_t) + sizeof(arp_packet_t))
+		return 0;
 	eth_header_t* eth = (eth_header_t*)pkt;
-	if (htons(eth->ethertype) != ETHERTYPE_ARP) return 0;
+	if (htons(eth->ethertype) != ETHERTYPE_ARP)
+		return 0;
 
 	arp_packet_t* arp = (arp_packet_t*)(pkt + sizeof(eth_header_t));
-	if (htons(arp->oper) != ARP_OP_REPLY) return 0;
-	if (memcmp(arp->spa, wanted_ip, 4) != 0) return 0;
+	if (htons(arp->oper) != ARP_OP_REPLY)
+		return 0;
+	if (memcmp(arp->spa, wanted_ip, 4) != 0)
+		return 0;
 
 	memcpy(out_mac, arp->sha, 6);
 	return 1;
@@ -188,15 +197,18 @@ static int arp_handle_reply(byte* pkt, nat32 len, const byte wanted_ip[4], byte 
 static int arp_resolve(const byte target_ip[4], byte out_mac[6], nat32 timeout_ms) {
 	nat32 start = timer_ticks;
 	nat32 ticks = timeout_ms / 20;
-	if (ticks == 0) ticks = 1;
+	if (ticks == 0)
+		ticks = 1;
 
 	arp_request(target_ip);
 
 	while (timer_ticks - start < ticks) {
 		nat32 len;
 		byte* pkt = rtl8139_poll_rx(&len);
-		if (!pkt) continue;
-		if (arp_handle_reply(pkt, len, target_ip, out_mac)) return 1;
+		if (!pkt)
+			continue;
+		if (arp_handle_reply(pkt, len, target_ip, out_mac))
+			return 1;
 	}
 	return 0;
 }
@@ -253,7 +265,8 @@ int net_ping(byte dst_ip[4], nat32 timeout_ms, nat32* rtt_ms) {
 			memcpy(gw_mac, nexthop_mac, 6);
 			gw_mac_valid = 1;
 		}
-		printf("ARP reply: %p:%p:%p:%p:%p:%p\n", nexthop_mac[0], nexthop_mac[1], nexthop_mac[2], nexthop_mac[3], nexthop_mac[4], nexthop_mac[5]);
+		printf("ARP reply: %p:%p:%p:%p:%p:%p\n", nexthop_mac[0], nexthop_mac[1], nexthop_mac[2], nexthop_mac[3],
+			   nexthop_mac[4], nexthop_mac[5]);
 	}
 
 	static byte icmp_buf[64];
@@ -275,30 +288,38 @@ int net_ping(byte dst_ip[4], nat32 timeout_ms, nat32* rtt_ms) {
 	ip_send(dst_ip, IP_PROTO_ICMP, icmp_buf, icmp_len, nexthop_mac);
 
 	nat32 ticks = timeout_ms / 20;
-	if (ticks == 0) ticks = 1;
+	if (ticks == 0)
+		ticks = 1;
 
 	while (timer_ticks - t0 < ticks) {
 		nat32 len;
 		byte* pkt = rtl8139_poll_rx(&len);
-		if (!pkt) continue;
+		if (!pkt)
+			continue;
 
 		if (len < sizeof(eth_header_t) + sizeof(ip_header_t) + sizeof(icmp_header_t))
 			continue;
 
 		eth_header_t* eth = (eth_header_t*)pkt;
-		if (htons(eth->ethertype) != ETHERTYPE_IP) continue;
+		if (htons(eth->ethertype) != ETHERTYPE_IP)
+			continue;
 
 		ip_header_t* iph = (ip_header_t*)(pkt + sizeof(eth_header_t));
-		if (iph->protocol != IP_PROTO_ICMP) continue;
-		if (memcmp(iph->src, dst_ip, 4) != 0) continue;
+		if (iph->protocol != IP_PROTO_ICMP)
+			continue;
+		if (memcmp(iph->src, dst_ip, 4) != 0)
+			continue;
 
 		nat32 ip_hdr_len = (iph->version_ihl & 0x0F) * 4;
 		icmp_header_t* reply = (icmp_header_t*)((byte*)iph + ip_hdr_len);
-		if (reply->type != ICMP_TYPE_ECHO_REPLY) continue;
-		if (htons(reply->id) != 0xBEEF) continue;
+		if (reply->type != ICMP_TYPE_ECHO_REPLY)
+			continue;
+		if (htons(reply->id) != 0xBEEF)
+			continue;
 
 		nat32 t1 = timer_ticks;
-		if (rtt_ms) *rtt_ms = (t1 - t0) * 20;
+		if (rtt_ms)
+			*rtt_ms = (t1 - t0) * 20;
 		return 1;
 	}
 	return 0;
@@ -306,8 +327,12 @@ int net_ping(byte dst_ip[4], nat32 timeout_ms, nat32* rtt_ms) {
 
 static int get_nexthop_mac(byte dst_ip[4], byte out_mac[6]) {
 	(void)dst_ip;
-	if (gw_mac_valid) { memcpy(out_mac, gw_mac, 6); return 1; }
-	if (!arp_resolve(gateway, out_mac, 3000)) return 0;
+	if (gw_mac_valid) {
+		memcpy(out_mac, gw_mac, 6);
+		return 1;
+	}
+	if (!arp_resolve(gateway, out_mac, 3000))
+		return 0;
 	memcpy(gw_mac, out_mac, 6);
 	gw_mac_valid = 1;
 	return 1;
@@ -326,14 +351,20 @@ static nat16 transport_checksum(byte src[4], byte dst[4], byte proto, byte* seg,
 	nat16* p;
 
 	p = (nat16*)ph;
-	for (int i = 0; i < 6; i++) sum += p[i];
+	for (int i = 0; i < 6; i++)
+		sum += p[i];
 
 	p = (nat16*)seg;
 	nat16 n = seg_len;
-	while (n > 1) { sum += *p++; n = (nat16)(n - 2); }
-	if (n) sum += *(nat8*)p;
+	while (n > 1) {
+		sum += *p++;
+		n = (nat16)(n - 2);
+	}
+	if (n)
+		sum += *(nat8*)p;
 
-	while (sum >> 16) sum = (sum & 0xFFFF) + (sum >> 16);
+	while (sum >> 16)
+		sum = (sum & 0xFFFF) + (sum >> 16);
 	return (nat16)(~sum);
 }
 
@@ -357,11 +388,16 @@ static int dns_encode_name(const char* name, byte* out) {
 	int pos = 0;
 	while (*name) {
 		const char* dot = name;
-		while (*dot && *dot != '.') dot++;
+		while (*dot && *dot != '.')
+			dot++;
 		int len = (int)(dot - name);
 		out[pos++] = (byte)len;
-		for (int i = 0; i < len; i++) out[pos++] = (byte)name[i];
-		if (*dot == '.') name = dot + 1; else break;
+		for (int i = 0; i < len; i++)
+			out[pos++] = (byte)name[i];
+		if (*dot == '.')
+			name = dot + 1;
+		else
+			break;
 	}
 	out[pos++] = 0;
 	return pos;
@@ -370,22 +406,31 @@ static int dns_encode_name(const char* name, byte* out) {
 int net_dns_resolve(const char* hostname, byte out_ip[4]) {
 	static byte dns_ip[4] = {10, 0, 2, 3};
 	byte dns_mac[6];
-	if (!get_nexthop_mac(dns_ip, dns_mac)) return 0;
+	if (!get_nexthop_mac(dns_ip, dns_mac))
+		return 0;
 
 	static byte qbuf[512];
 	int pos = 0;
 
 	// header: id=0xAABB, RD=1, 1 question
-	qbuf[pos++] = 0xAA; qbuf[pos++] = 0xBB;
-	qbuf[pos++] = 0x01; qbuf[pos++] = 0x00;
-	qbuf[pos++] = 0x00; qbuf[pos++] = 0x01;
-	qbuf[pos++] = 0x00; qbuf[pos++] = 0x00;
-	qbuf[pos++] = 0x00; qbuf[pos++] = 0x00;
-	qbuf[pos++] = 0x00; qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0xAA;
+	qbuf[pos++] = 0xBB;
+	qbuf[pos++] = 0x01;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x01;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x00;
 
 	pos += dns_encode_name(hostname, qbuf + pos);
-	qbuf[pos++] = 0x00; qbuf[pos++] = 0x01; // QTYPE A
-	qbuf[pos++] = 0x00; qbuf[pos++] = 0x01; // QCLASS IN
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x01; // QTYPE A
+	qbuf[pos++] = 0x00;
+	qbuf[pos++] = 0x01; // QCLASS IN
 
 	udp_send(dns_ip, dns_mac, 54321, 53, qbuf, (nat16)pos);
 	printf("DNS query sent (%d bytes)\n", pos);
@@ -394,41 +439,55 @@ int net_dns_resolve(const char* hostname, byte out_ip[4]) {
 	while (timer_ticks - start < ticks) {
 		nat32 len;
 		byte* pkt = rtl8139_poll_rx(&len);
-		if (!pkt) continue;
+		if (!pkt)
+			continue;
 
-		if (len < sizeof(eth_header_t) + sizeof(ip_header_t)) continue;
+		if (len < sizeof(eth_header_t) + sizeof(ip_header_t))
+			continue;
 
 		eth_header_t* eth = (eth_header_t*)pkt;
 		nat16 etype = htons(eth->ethertype);
-		if (etype != ETHERTYPE_IP) continue;
+		if (etype != ETHERTYPE_IP)
+			continue;
 
 		ip_header_t* iph = (ip_header_t*)(pkt + sizeof(eth_header_t));
-		printf("DNS poll: proto=%d src=%d.%d.%d.%d len=%d\n", iph->protocol, iph->src[0], iph->src[1], iph->src[2], iph->src[3], len);
+		printf("DNS poll: proto=%d src=%d.%d.%d.%d len=%d\n", iph->protocol, iph->src[0], iph->src[1], iph->src[2],
+			   iph->src[3], len);
 
-		if (iph->protocol != IP_PROTO_UDP) continue;
+		if (iph->protocol != IP_PROTO_UDP)
+			continue;
 		if (len < sizeof(eth_header_t) + sizeof(ip_header_t) + sizeof(udp_header_t) + 12)
 			continue;
 
 		nat32 ihl = (iph->version_ihl & 0x0F) * 4;
 		udp_header_t* udp = (udp_header_t*)((byte*)iph + ihl);
 		printf("  UDP dst_port=%d\n", htons(udp->dst_port));
-		if (htons(udp->dst_port) != 54321) continue;
+		if (htons(udp->dst_port) != 54321)
+			continue;
 
 		byte* resp = (byte*)udp + sizeof(udp_header_t);
-		printf("  DNS id=%p%p ancount=%d\n", resp[0], resp[1], (resp[6]<<8)|resp[7]);
-		if (resp[0] != 0xAA || resp[1] != 0xBB) continue;
+		printf("  DNS id=%p%p ancount=%d\n", resp[0], resp[1], (resp[6] << 8) | resp[7]);
+		if (resp[0] != 0xAA || resp[1] != 0xBB)
+			continue;
 
 		nat16 ancount = (nat16)((resp[6] << 8) | resp[7]);
-		if (!ancount) return 0;
+		if (!ancount)
+			return 0;
 
 		// header(12) + qname + qtype(2) + qclass(2)
 		byte* p = resp + 12;
-		while (*p) p += *p + 1;
+		while (*p)
+			p += *p + 1;
 		p += 5; // null label + qtype + qclass
 
 		for (nat16 i = 0; i < ancount; i++) {
-			if ((*p & 0xC0) == 0xC0) p += 2; // pointer compression
-			else { while (*p) p += *p + 1; p++; }
+			if ((*p & 0xC0) == 0xC0)
+				p += 2; // pointer compression
+			else {
+				while (*p)
+					p += *p + 1;
+				p++;
+			}
 			nat16 rtype = (nat16)(((nat16)p[0] << 8) | p[1]);
 			nat16 rdlen = (nat16)(((nat16)p[8] << 8) | p[9]);
 			p += 10;
@@ -457,7 +516,8 @@ static void tcp_emit(tcp_conn_t* c, nat8 flags, byte* data, nat16 data_len) {
 	tcp->checksum = 0;
 	tcp->urgent = 0;
 
-	if (data_len) memcpy(seg + hdr_len, data, data_len);
+	if (data_len)
+		memcpy(seg + hdr_len, data, data_len);
 	nat16 seg_len = (nat16)(hdr_len + data_len);
 	tcp->checksum = transport_checksum((byte*)our_ip, c->dst_ip, IP_PROTO_TCP, seg, seg_len);
 
@@ -465,20 +525,26 @@ static void tcp_emit(tcp_conn_t* c, nat8 flags, byte* data, nat16 data_len) {
 }
 
 // gibt 1 zruck wenn des pakerl a TCP segment fia unsane vabindung is füllt flags/seq/ack/data
-static int tcp_match(tcp_conn_t* c, byte* pkt, nat32 pkt_len, nat8* out_flags, nat32* out_seq, nat32* out_ack, byte** out_data, nat16* out_data_len) {
+static int tcp_match(tcp_conn_t* c, byte* pkt, nat32 pkt_len, nat8* out_flags, nat32* out_seq, nat32* out_ack,
+					 byte** out_data, nat16* out_data_len) {
 	if (pkt_len < sizeof(eth_header_t) + sizeof(ip_header_t) + sizeof(tcp_header_t))
 		return 0;
 	eth_header_t* eth = (eth_header_t*)pkt;
-	if (htons(eth->ethertype) != ETHERTYPE_IP) return 0;
+	if (htons(eth->ethertype) != ETHERTYPE_IP)
+		return 0;
 
 	ip_header_t* iph = (ip_header_t*)(pkt + sizeof(eth_header_t));
-	if (iph->protocol != IP_PROTO_TCP) return 0;
-	if (memcmp(iph->src, c->dst_ip, 4) != 0) return 0;
+	if (iph->protocol != IP_PROTO_TCP)
+		return 0;
+	if (memcmp(iph->src, c->dst_ip, 4) != 0)
+		return 0;
 
 	nat32 ihl = (iph->version_ihl & 0x0F) * 4;
 	tcp_header_t* tcp = (tcp_header_t*)((byte*)iph + ihl);
-	if (htons(tcp->src_port) != c->dst_port) return 0;
-	if (htons(tcp->dst_port) != c->src_port) return 0;
+	if (htons(tcp->src_port) != c->dst_port)
+		return 0;
+	if (htons(tcp->dst_port) != c->src_port)
+		return 0;
 
 	*out_flags = tcp->flags;
 	*out_seq = htonl(tcp->seq);
@@ -507,10 +573,16 @@ static int tcp_connect(tcp_conn_t* c, byte dst_ip[4], nat16 dst_port, byte dst_m
 
 	nat32 start = timer_ticks, ticks = 5000 / 20;
 	while (timer_ticks - start < ticks) {
-		nat32 len; byte* pkt = rtl8139_poll_rx(&len);
-		if (!pkt) continue;
-		nat8 flags; nat32 rseq, rack; byte* d; nat16 dl;
-		if (!tcp_match(c, pkt, len, &flags, &rseq, &rack, &d, &dl)) continue;
+		nat32 len;
+		byte* pkt = rtl8139_poll_rx(&len);
+		if (!pkt)
+			continue;
+		nat8 flags;
+		nat32 rseq, rack;
+		byte* d;
+		nat16 dl;
+		if (!tcp_match(c, pkt, len, &flags, &rseq, &rack, &d, &dl))
+			continue;
 		if ((flags & (TCP_SYN | TCP_ACK)) == (TCP_SYN | TCP_ACK)) {
 			c->ack = rseq + 1;
 			tcp_emit(c, TCP_ACK, NULL, 0);
@@ -529,14 +601,21 @@ static int tcp_request(tcp_conn_t* c, byte* req, nat16 req_len, char* buf, nat32
 	nat32 start = timer_ticks, ticks = timeout_ms / 20;
 
 	while (timer_ticks - start < ticks && !c->peer_fin) {
-		nat32 len; byte* pkt = rtl8139_poll_rx(&len);
-		if (!pkt) continue;
-		nat8 flags; nat32 rseq, rack; byte* d; nat16 dl;
-		if (!tcp_match(c, pkt, len, &flags, &rseq, &rack, &d, &dl)) continue;
+		nat32 len;
+		byte* pkt = rtl8139_poll_rx(&len);
+		if (!pkt)
+			continue;
+		nat8 flags;
+		nat32 rseq, rack;
+		byte* d;
+		nat16 dl;
+		if (!tcp_match(c, pkt, len, &flags, &rseq, &rack, &d, &dl))
+			continue;
 
 		if (dl > 0) {
 			nat32 copy = dl;
-			if (total + copy >= buf_size - 1) copy = buf_size - 1 - total;
+			if (total + copy >= buf_size - 1)
+				copy = buf_size - 1 - total;
 			memcpy(buf + total, d, copy);
 			total += copy;
 			c->ack = rseq + dl;
@@ -582,10 +661,11 @@ int net_http_get(const char* host, const char* path, char* buf, nat32 buf_size) 
 	static byte req[256];
 	int rlen = 0;
 	// "GET /path HTTP/1.0\r\nHost: host\r\nConnection: close\r\n\r\n"
-	const char* parts[] = { "GET ", path, " HTTP/1.0\r\nHost: ", host, "\r\nConnection: close\r\n\r\n" };
+	const char* parts[] = {"GET ", path, " HTTP/1.0\r\nHost: ", host, "\r\nConnection: close\r\n\r\n"};
 	for (int i = 0; i < 5; i++) {
 		const char* s = parts[i];
-		while (*s) req[rlen++] = (byte)*s++;
+		while (*s)
+			req[rlen++] = (byte)*s++;
 	}
 
 	return tcp_request(&conn, req, (nat16)rlen, buf, buf_size, 8000);
@@ -597,11 +677,11 @@ void init_network() {
 	iobase = rtl8139_find();
 
 	if (!iobase) {
-		print("RTL8139 not found\n");
+		print("RTL8139 not found, networking will not work.\n");
 		return;
 	}
 
-	print("RTL8139 found\n");
+	// print("RTL8139 found\n");
 	init_rtl8139();
 
 	byte irq = (byte)(pci_config_read_word(RTL8139BUS, RTL8139SLOT, 0x00, 0x3C) & 0xFF);
@@ -616,7 +696,8 @@ void init_network() {
 
 int net_tcp_open(tcp_conn_t* c, byte dst_ip[4], nat16 port) {
 	byte mac[6];
-	if (!get_nexthop_mac(dst_ip, mac)) return 0;
+	if (!get_nexthop_mac(dst_ip, mac))
+		return 0;
 	return tcp_connect(c, dst_ip, port, mac);
 }
 
@@ -628,10 +709,15 @@ void net_tcp_send(tcp_conn_t* c, byte* data, nat16 len) {
 int net_tcp_recv(tcp_conn_t* c, byte* buf, nat32 buf_size) {
 	nat32 pkt_len;
 	byte* pkt = rtl8139_poll_rx(&pkt_len);
-	if (!pkt) return 0;
+	if (!pkt)
+		return 0;
 
-	nat8 flags; nat32 rseq, rack; byte* d; nat16 dl;
-	if (!tcp_match(c, pkt, pkt_len, &flags, &rseq, &rack, &d, &dl)) return 0;
+	nat8 flags;
+	nat32 rseq, rack;
+	byte* d;
+	nat16 dl;
+	if (!tcp_match(c, pkt, pkt_len, &flags, &rseq, &rack, &d, &dl))
+		return 0;
 
 	int written = 0;
 	if (dl > 0) {
@@ -658,25 +744,32 @@ void net_tcp_close(tcp_conn_t* c) {
 
 void net_udp_send_to(byte dst_ip[4], nat16 dst_port, byte* data, nat16 len) {
 	byte mac[6];
-	if (!get_nexthop_mac(dst_ip, mac)) return;
+	if (!get_nexthop_mac(dst_ip, mac))
+		return;
 	udp_send(dst_ip, mac, 54321, dst_port, data, len);
 }
 
 int net_udp_recv(nat16 src_port, byte* buf, nat32 buf_size, nat32 timeout_ms) {
 	nat32 start = timer_ticks, ticks = timeout_ms / 20;
-	if (ticks == 0) ticks = 1;
+	if (ticks == 0)
+		ticks = 1;
 	while (timer_ticks - start < ticks) {
 		nat32 pkt_len;
 		byte* pkt = rtl8139_poll_rx(&pkt_len);
-		if (!pkt) continue;
-		if (pkt_len < sizeof(eth_header_t) + sizeof(ip_header_t) + sizeof(udp_header_t)) continue;
+		if (!pkt)
+			continue;
+		if (pkt_len < sizeof(eth_header_t) + sizeof(ip_header_t) + sizeof(udp_header_t))
+			continue;
 		eth_header_t* eth = (eth_header_t*)pkt;
-		if (htons(eth->ethertype) != ETHERTYPE_IP) continue;
+		if (htons(eth->ethertype) != ETHERTYPE_IP)
+			continue;
 		ip_header_t* iph = (ip_header_t*)(pkt + sizeof(eth_header_t));
-		if (iph->protocol != IP_PROTO_UDP) continue;
+		if (iph->protocol != IP_PROTO_UDP)
+			continue;
 		nat32 ihl = (iph->version_ihl & 0x0F) * 4;
 		udp_header_t* udp = (udp_header_t*)((byte*)iph + ihl);
-		if (htons(udp->dst_port) != src_port) continue;
+		if (htons(udp->dst_port) != src_port)
+			continue;
 		byte* d = (byte*)udp + sizeof(udp_header_t);
 		nat32 dl = (nat32)(htons(udp->length) - sizeof(udp_header_t));
 		nat32 copy = dl < buf_size - 1 ? dl : buf_size - 1;

@@ -50,6 +50,18 @@ int32 strcmp(const char* a, const char* b) {
 	return (unsigned char)*a - (unsigned char)*b;
 }
 
+int32 strcasecmp(const char* a, const char* b) {
+	while (*a && *b) {
+		char ca = *a, cb = *b;
+		if (ca >= 'a' && ca <= 'z') ca -= 32;
+		if (cb >= 'a' && cb <= 'z') cb -= 32;
+		if (ca != cb) return (unsigned char)ca - (unsigned char)cb;
+		a++;
+		b++;
+	}
+	return (unsigned char)*a - (unsigned char)*b;
+}
+
 int32 strncmp(const char* a, const char* b, nat32 n) {
 	for (nat32 i = 0; i < n; i++) {
 		if (a[i] != b[i] || !a[i] || !b[i]) return (unsigned char)a[i] - (unsigned char)b[i];

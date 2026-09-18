@@ -8,6 +8,7 @@ void hex2str(nat32 n, char* des);
 void str_bin(int32 n, byte* des);
 nat32 strlen(const char* s);
 int32 strcmp(const char* s1, const char* s2);
+int32 strcasecmp(const char* s1, const char* s2);
 void strcpy(char* des, const char* src);
 void str_reverse(char* s);
 void strlower(char* s);

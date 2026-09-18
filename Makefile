@@ -33,6 +33,11 @@ HDD_IMG=$(BUILD_DIR)/hdd.img
 MEM_UPDATER_SRC=tools/mem-layout-updater/main.c
 MEM_UPDATER_BIN=tools/bin/mem-layout-updater
 
+FAT32_TEST_SRC=tools/fat32-test/main.c
+FAT32_TEST_BIN=$(BUILD_DIR)/fat32-test
+FAT32_TEST_CFLAGS=-fno-builtin -std=gnu17 -Wall -Wextra -Itools/fat32-test/stubs -Iinclude
+FAT32_TEST_IMG ?= /tmp/fat32-test.img
+
 SECTOR_SIZE=512
 
 GREEN := $(shell printf '\033[0;32m')
@@ -143,6 +148,17 @@ net: check_toolchain $(OS_IMG) $(HDD_IMG)
 run-nb:
 	@echo "$(CYAN)[QEMU]$(RESET) running with hdd..."
 	@qemu-system-i386 -drive file=$(OS_IMG),format=raw,if=floppy -drive file=$(HDD_IMG),format=raw,if=ide -boot a -machine pcspk-audiodev=pa -audiodev pa,id=pa
+
+$(FAT32_TEST_BIN): $(FAT32_TEST_SRC) $(SRC_DIR)/fs/fat32.c | $(BUILD_DIR)
+	@mkdir -p $(dir $@)
+	@echo "$(BLUE)[CC]$(RESET) compiling fat32 host test"
+	@$(HOST_CC) $(FAT32_TEST_CFLAGS) -g -o $@ $(FAT32_TEST_SRC) $(SRC_DIR)/fs/fat32.c
+
+fat32-test: $(FAT32_TEST_BIN)
+	@rm -f $(FAT32_TEST_IMG)
+	@echo "$(CYAN)[TEST]$(RESET) running fat32 host test against $(FAT32_TEST_IMG)"
+	@$(FAT32_TEST_BIN) $(FAT32_TEST_IMG)
+	@echo "$(GREEN)[OK]$(RESET) fat32 test passed"
 
 clean:
 	@echo "$(YELLOW)[CLEAN]$(RESET) removing build dir"

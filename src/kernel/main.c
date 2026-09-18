@@ -8,7 +8,7 @@
 #include "globals.h"
 
 char* current_dir = "/";
-int current_dir_cluster = FIRST_FILE_CLUSTER;
+int current_dir_cluster = FAT32_ROOT_CLUSTER;
 
 bool gui_mode = false;
 
@@ -21,7 +21,7 @@ void kmain() {
 	init_keyboard();
 
 	print_center("=== shiggy - type help to get list of commands ===", 0x5);
-	
+
 	init_network();
 
 	fat32_fs_init();
